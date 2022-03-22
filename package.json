@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test",
+    "deploy": "npx hardhat deploy",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts"
   },
   "repository": {
@@ -24,7 +25,7 @@
     "@typechain/hardhat": "^4.0.0",
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.0.3",
-    "@types/node": "^14.14.6",
+    "@types/node": "^14.18.12",
     "chai": "^4.3.6",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.4",
@@ -34,6 +35,13 @@
     "solidity-coverage": "^0.7.18",
     "ts-node": "^10.4.0",
     "typechain": "^7.0.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "dotenv": "latest"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.5.0",
+    "@uniswap/lib": "^4.0.1-alpha",
+    "@uniswap/v2-core": "^1.0.1",
+    "hardhat-hethers": "file:../MIRROR/hardhat-hethers"
   }
 }

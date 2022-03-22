@@ -1,21 +1,35 @@
 import hardhat, {ethers} from 'hardhat';
 
 async function deploy() {
-	await hardhat.run('compile');
+	// console.log("someoeme")
+	//@ts-ignore
+	let signers = await hardhat.hethers.getSigners();
+
+	// @ts-ignore
+	// console.log(hardhat.network.config)
+	console.log(hardhat.hethers)
+	// console.log(signers);
+
+	// await hardhat.run('compile');
+	const gasLimitOverride = {gasLimit: 3000000};
 
 	/**
-	 * Deploying Greeter
+	 * Deploying UniswapV2Factory
 	 */
-	const Greeter = await ethers.getContractFactory("Greeter");
-	const greeter = await Greeter.deploy("Hello, Hardhat!");
+		//@ts-ignore
+	const UniswapV2Factory = await hardhat.hethers.getContractFactory("UniswapV2Factory");
+	//@ts-ignore
+	console.log(hardhat.hethers.constants.AddressZero)
+	//@ts-ignore
+	const greeter = await UniswapV2Factory.deploy(hardhat.hethers.constants.AddressZero, gasLimitOverride);
 	await greeter.deployed();
 
-	console.log("Greeter deployed to:", greeter.address);
+	// console.log("UniswapV2Factory deployed to:", greeter.address);
 
 	/**
 	 * Verifying Contracts
 	 */
-	// console.log('Verifying Greeter on Etherscan...');
+	// console.log('Verifying UniswapV2Factory on Etherscan...');
 	// await hardhat.run('verify:verify', {
 	// 	address: greeter.address,
 	// 	constructorArguments: []
