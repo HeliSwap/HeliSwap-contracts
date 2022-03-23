@@ -4,13 +4,13 @@
   "description": "Template repository for EVM Smart Contract Projects with Hardhat",
   "main": "index.js",
   "scripts": {
-    "test": "npx hardhat test",
-    "deploy": "npx hardhat deploy",
     "createAccounts": "npx hardhat createAccounts",
     "deployTokens": "npx hardhat deployTokens",
+    "deploy": "npx hardhat deploy",
+    "createPair": "npx hardhat createPair --factory 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "addLiquidity": "npx hardhat addLiquidity --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "swap": "npx hardhat swap --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
-    "createPair": "npx hardhat createPair --factory 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
+    "test": "npx hardhat test",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts"
   },
   "repository": {
