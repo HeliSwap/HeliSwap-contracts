@@ -91,7 +91,6 @@ module.exports = {
     networks: config.networks,
   },
   defaultNetwork: 'previewnet',
-  // networks: config.networks,
   etherscan: config.etherscan,
   abiExporter: {
     only: [],

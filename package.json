@@ -8,9 +8,9 @@
     "deploy": "npx hardhat deploy",
     "createAccounts": "npx hardhat createAccounts",
     "deployTokens": "npx hardhat deployTokens",
-    "addLiquidity": "npx hardhat addLiquidity --router 0x0000000000000000000000000000000000003318 --token1 0x000000000000000000000000000000000000331a --token2 0x000000000000000000000000000000000000331b",
-    "swap": "npx hardhat swap --router 0x0000000000000000000000000000000000003318 --token1 0x000000000000000000000000000000000000331a --token2 0x000000000000000000000000000000000000331b",
-    "createPair": "npx hardhat createPair --factory 0x0000000000000000000000000000000000003316 --token1 0x000000000000000000000000000000000000331a --token2 0x000000000000000000000000000000000000331b",
+    "addLiquidity": "npx hardhat addLiquidity --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
+    "swap": "npx hardhat swap --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
+    "createPair": "npx hardhat createPair --factory 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts"
   },
   "repository": {
