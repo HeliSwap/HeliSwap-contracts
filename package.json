@@ -6,6 +6,11 @@
   "scripts": {
     "test": "npx hardhat test",
     "deploy": "npx hardhat deploy",
+    "createAccounts": "npx hardhat createAccounts",
+    "deployTokens": "npx hardhat deployTokens",
+    "addLiquidity": "npx hardhat addLiquidity --router 0x0000000000000000000000000000000000003318 --token1 0x000000000000000000000000000000000000331a --token2 0x000000000000000000000000000000000000331b",
+    "swap": "npx hardhat swap --router 0x0000000000000000000000000000000000003318 --token1 0x000000000000000000000000000000000000331a --token2 0x000000000000000000000000000000000000331b",
+    "createPair": "npx hardhat createPair --factory 0x0000000000000000000000000000000000003316 --token1 0x000000000000000000000000000000000000331a --token2 0x000000000000000000000000000000000000331b",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts"
   },
   "repository": {
@@ -36,7 +41,10 @@
     "ts-node": "^10.4.0",
     "typechain": "^7.0.0",
     "typescript": "^4.0.5",
-    "dotenv": "latest"
+    "dotenv": "latest",
+    "@hashgraph/cryptography": "^1.1.0-beta.5",
+    "@hashgraph/proto": "2.1.2",
+    "@hashgraph/sdk": "2.9.0"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.5.0",
