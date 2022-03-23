@@ -7,10 +7,52 @@ import 'hardhat-hethers';
 import * as config from './config';
 import {task} from "hardhat/config";
 
+task('createAccounts', 'Generates Accounts')
+    .setAction(async () => {
+        const createAccounts = require('./scripts/createAccounts');
+        await createAccounts();
+    });
+
+task('deployTokens', 'Deploys 3 tokens')
+    .setAction(async () => {
+        const tokenDeployment = require('./scripts/deployTokens');
+        await tokenDeployment();
+    });
+
 task('deploy', 'Deploys the Greeter contract')
     .setAction(async () => {
-      const deployment = require('./scripts/deploy');
-      await deployment();
+        const deployment = require('./scripts/deploy');
+        await deployment();
+    });
+
+task('addLiquidity', 'Adds liquidity to a pair')
+    .addParam("router")
+    .addParam("token1")
+    .addParam("token2")
+    .setAction(async (taskArgs) => {
+      const addLiquidity = require('./scripts/addLiquidity');
+      // @ts-ignore
+      await addLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
+    });
+
+task('swap', 'Performs a basic swap of two tokens')
+    .addParam("router")
+    .addParam("token1")
+    .addParam("token2")
+    .setAction(async (taskArgs) => {
+      const swap = require('./scripts/swap');
+      // @ts-ignore
+      await swap(taskArgs.router, taskArgs.token1, taskArgs.token2);
+    });
+
+task('createPair', 'Creates a pair of two tokens')
+    .addParam("factory")
+    .addParam("token1")
+    .addParam("token2")
+    .setAction(async (taskArgs) => {
+        const createPair = require('./scripts/createPair');
+        // @ts-ignore
+        await createPair(taskArgs.factory, taskArgs.token1, taskArgs.token2);
     });
 
 module.exports = {
@@ -48,7 +90,7 @@ module.exports = {
   hedera: {
     networks: config.networks,
   },
-  defaultNetwork: 'testnet',
+  defaultNetwork: 'previewnet',
   // networks: config.networks,
   etherscan: config.etherscan,
   abiExporter: {
