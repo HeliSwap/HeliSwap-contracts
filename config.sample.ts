@@ -4,22 +4,22 @@ import { EtherscanConfig } from '@nomiclabs/hardhat-etherscan/dist/src/types';
 
 export const networks: NetworksUserConfig = {
     // Use the three accounts created and logged by createAccounts script
-    // previewnet: {
-    //     accounts: [
+    previewnet: {
+        accounts: [
     //         {
     //             "account": "0.0.XXXXXX",
     //             "privateKey": "0xPrivateKey"
     //         }
-    //     ]
-    // },
-    // testnet: {
-    //     accounts: [
+        ]
+    },
+    testnet: {
+        accounts: [
     //         {
     //             "account": "0.0.XXXXXX",
     //             "privateKey": "0xPrivateKey"
     //         }
-    //     ]
-    // },
+        ]
+    },
     customHederaNetwork: {
         consensusNodes: [
             {
