@@ -1,7 +1,7 @@
 // @ts-nocheck
 import hardhat from 'hardhat';
 
-async function deploy() {
+async function deploy(whbarAddr) {
 	const gasLimitOverride = {gasLimit: 3000000};
 
 	/**
@@ -18,9 +18,8 @@ async function deploy() {
 	 * Deploying UniswapV2Router
 	 */
 	// TODO: create actual WHBAR_ADDRESS
-	const WHBAR_ADDRESS = hardhat.hethers.constants.AddressZero;
 	const UniswapV2RouterFactory = await hardhat.hethers.getContractFactory("UniswapV2Router02");
-	const UniswapV2Router = await UniswapV2RouterFactory.deploy(UniswapV2Factory.address, WHBAR_ADDRESS, gasLimitOverride);
+	const UniswapV2Router = await UniswapV2RouterFactory.deploy(UniswapV2Factory.address, whbarAddr, gasLimitOverride);
 
 	// Comment this line when not using locally
 	await UniswapV2Router.deployed();

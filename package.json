@@ -9,6 +9,7 @@
     "deploy": "npx hardhat deploy",
     "createPair": "npx hardhat createPair --factory 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "addLiquidity": "npx hardhat addLiquidity --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
+    "addLiquidityETH": "npx hardhat addLiquidityETH --router 0x000000000000000000000000000000000209755b --token1 0x0000000000000000000000000000000002097557",
     "swap": "npx hardhat swap --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts"
@@ -26,7 +27,7 @@
   "devDependencies": {
     "@hashgraph/cryptography": "^1.1.0-beta.5",
     "@hashgraph/hethers": "^1.1.0",
-    "@hashgraph/proto": "2.1.2",
+    "@hashgraph/proto": "^2.1.5",
     "@hashgraph/sdk": "2.9.0",
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",

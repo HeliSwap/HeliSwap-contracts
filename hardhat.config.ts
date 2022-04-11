@@ -4,7 +4,7 @@ import 'hardhat-abi-exporter';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
 import 'hardhat-hethers';
-import * as config from './config';
+import * as config from './config.sample';
 import {task} from "hardhat/config";
 
 task('createAccounts', 'Generates Accounts')
@@ -19,10 +19,26 @@ task('deployTokens', 'Deploys 3 tokens')
         await tokenDeployment();
     });
 
+task('addLiquidityETH', 'Adds HBAR liquidity')
+    .addParam('router')
+    .addParam('token1')
+    .setAction(async (taskArgs) => {
+        const addLiquidityETH = require('./scripts/addLiquidityETH');
+        await addLiquidityETH(taskArgs.router, taskArgs.token1);
+    });
+
+task('depositWHBAR', 'Deposit hbar via the receive function of the WHBAR contract')
+    .addParam('whbar')
+    .setAction(async (taskArgs) => {
+        const depositWHBAR = require('./scripts/depositWhbar');
+        await depositWHBAR(taskArgs.whbar);
+    });
+
 task('deploy', 'Deploys the Greeter contract')
-    .setAction(async () => {
+    .addParam('whbar')
+    .setAction(async (taskArgs) => {
         const deployment = require('./scripts/deploy');
-        await deployment();
+        await deployment(taskArgs.whbar);
     });
 
 task('addLiquidity', 'Adds liquidity to a pair')
@@ -30,9 +46,9 @@ task('addLiquidity', 'Adds liquidity to a pair')
     .addParam("token1")
     .addParam("token2")
     .setAction(async (taskArgs) => {
-      const addLiquidity = require('./scripts/addLiquidity');
-      // @ts-ignore
-      await addLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
+        const addLiquidity = require('./scripts/addLiquidity');
+        // @ts-ignore
+        await addLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
     });
 
 task('swap', 'Performs a basic swap of two tokens')
@@ -40,9 +56,9 @@ task('swap', 'Performs a basic swap of two tokens')
     .addParam("token1")
     .addParam("token2")
     .setAction(async (taskArgs) => {
-      const swap = require('./scripts/swap');
-      // @ts-ignore
-      await swap(taskArgs.router, taskArgs.token1, taskArgs.token2);
+        const swap = require('./scripts/swap');
+        // @ts-ignore
+        await swap(taskArgs.router, taskArgs.token1, taskArgs.token2);
     });
 
 task('createPair', 'Creates a pair of two tokens')
@@ -56,49 +72,53 @@ task('createPair', 'Creates a pair of two tokens')
     });
 
 module.exports = {
-  solidity: {
-    compilers: [
-      {
-        version: "0.8.4",
-      },
-      {
-        version: "0.8.7"
-      },
-      {
-        version: "0.8.12"
-      },
-      {
-        version: "0.6.6",
+    solidity: {
+        compilers: [
+            {
+                version: "0.8.4",
+            },
+            {
+                version: "0.8.7"
+            },
+            {
+                version: "0.8.12"
+            },
+            {
+                version: "0.4.18"
+            },
+            {
+                version: "0.6.6",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 200
+                    }
+                }
+            },
+            {
+                version: "0.5.16"
+            }
+        ],
         settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200
-          }
-        }
-      },
-      {
-        version: "0.5.16"
-      }
-    ],
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
-      },
+            optimizer: {
+                enabled: true,
+                runs: 200,
+            },
+        },
     },
-  },
-  hedera: {
-    networks: config.networks,
-  },
-  defaultNetwork: 'previewnet',
-  etherscan: config.etherscan,
-  abiExporter: {
-    only: [],
-    except: ['.*Mock$'],
-    clear: true,
-    flat: true,
-  },
-  gasReporter: {
-    enabled: true,
-  }
+    hedera: {
+        networks: config.networks,
+        gasLimit: 300000
+    },
+    defaultNetwork: 'testnet',
+    etherscan: config.etherscan,
+    abiExporter: {
+        only: [],
+        except: ['.*Mock$'],
+        clear: true,
+        flat: true,
+    },
+    gasReporter: {
+        enabled: true,
+    }
 };

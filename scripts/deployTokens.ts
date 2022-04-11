@@ -27,9 +27,9 @@ async function deployTokens() {
     let bobPrivKey = signers[2]._signingKey().privateKey;
 
     // Preview Network
-    let defaultClient = Client.forPreviewnet();
-    let aliceClient = Client.forPreviewnet();
-    let bobClient = Client.forPreviewnet();
+    let defaultClient = Client.forTestnet();
+    let aliceClient = Client.forTestnet();
+    let bobClient = Client.forTestnet();
 
     // Local Network
     // const network = {
@@ -56,50 +56,55 @@ async function deployTokens() {
 
     const tokenContracts = [];
     for (let i = 0; i <= 1; i++) {
-        const tokenName = tokens[i].TOKEN_NAME;
-        const tokenSymbol = tokens[i].TOKEN_SYMBOL;
-        const tokenSupply = tokens[i].TOKEN_SUPPLY;
+        try {
+            const tokenName = tokens[i].TOKEN_NAME;
+            const tokenSymbol = tokens[i].TOKEN_SYMBOL;
+            const tokenSupply = tokens[i].TOKEN_SUPPLY;
 
-        const tokenCreate = await (await new TokenCreateTransaction()
-            .setTokenName(tokenName)
-            .setTokenSymbol(tokenSymbol)
-            .setExpirationTime(date)
-            .setDecimals(8)
-            .setInitialSupply(tokenSupply)
-            .setTreasuryAccountId(defaultAccount)
-            .setTransactionId(TransactionId.generate(defaultAccount))
-            .setNodeAccountIds([defaultClient._network.getNodeAccountIdsForExecute()[0]])
-            .freeze()
-            .sign(PrivateKey.fromStringECDSA(defaultPrivKey)))
-            .execute(defaultClient);
-        const receipt = await tokenCreate.getReceipt(defaultClient);
-        const tokenAddress = hethers.utils.getAddressFromAccount(receipt.tokenId);
-        tokenContracts.push({evmAddress: tokenAddress, tokenId: receipt.tokenId});
-        console.log('Deployed token contract for', tokenSymbol, 'at:', tokenAddress, receipt.tokenId.toString());
+            const tokenCreate = await (await new TokenCreateTransaction()
+                .setTokenName(tokenName)
+                .setTokenSymbol(tokenSymbol)
+                .setExpirationTime(date)
+                .setDecimals(8)
+                .setInitialSupply(tokenSupply)
+                .setTreasuryAccountId(defaultAccount)
+                .setTransactionId(TransactionId.generate(defaultAccount))
+                .setNodeAccountIds([defaultClient._network.getNodeAccountIdsForExecute()[0]])
+                .freeze()
+                .sign(PrivateKey.fromStringECDSA(defaultPrivKey)))
+                .execute(defaultClient);
+            const receipt = await tokenCreate.getReceipt(defaultClient);
+            const tokenAddress = hethers.utils.getAddressFromAccount(receipt.tokenId);
+            tokenContracts.push({evmAddress: tokenAddress, tokenId: receipt.tokenId});
+            console.log('Deployed token contract for', tokenSymbol, 'at:', tokenAddress, receipt.tokenId.toString());
 
-        const tokenAssociateAlice = await (await new TokenAssociateTransaction()
-            .setAccountId(aliceAccount)
-            .setTokenIds([receipt.tokenId])
-            .freezeWith(aliceClient)
-            .sign(PrivateKey.fromStringECDSA(alicePrivKey)))
-            .execute(aliceClient);
-        const associateAliceReceipt = await tokenAssociateAlice.getReceipt(aliceClient);
+            const tokenAssociateAlice = await (await new TokenAssociateTransaction()
+                .setAccountId(aliceAccount)
+                .setTokenIds([receipt.tokenId])
+                .freezeWith(aliceClient)
+                .sign(PrivateKey.fromStringECDSA(alicePrivKey)))
+                .execute(aliceClient);
+            const associateAliceReceipt = await tokenAssociateAlice.getReceipt(aliceClient);
 
-        const tokenAssociateBob = await (await new TokenAssociateTransaction()
-            .setAccountId(bobAccount)
-            .setTokenIds([receipt.tokenId])
-            .freezeWith(bobClient)
-            .sign(PrivateKey.fromStringECDSA(bobPrivKey)))
-            .execute(bobClient);
-        const associateBobReceipt = await tokenAssociateBob.getReceipt(bobClient);
+            const tokenAssociateBob = await (await new TokenAssociateTransaction()
+                .setAccountId(bobAccount)
+                .setTokenIds([receipt.tokenId])
+                .freezeWith(bobClient)
+                .sign(PrivateKey.fromStringECDSA(bobPrivKey)))
+                .execute(bobClient);
+            const associateBobReceipt = await tokenAssociateBob.getReceipt(bobClient);
 
-        const tokenTransfer = await (await new TransferTransaction()
-            .addTokenTransfer(receipt.tokenId, defaultAccount, -100000000000)
-            .addTokenTransfer(receipt.tokenId, aliceAccount, 100000000000)
-            .freezeWith(defaultClient)
-            .sign(PrivateKey.fromStringECDSA(defaultPrivKey)))
-            .execute(defaultClient);
-        const tokenTransferReceipt = await tokenTransfer.getReceipt(defaultClient);
+            const tokenTransfer = await (await new TransferTransaction()
+                .addTokenTransfer(receipt.tokenId, defaultAccount, -100000000000)
+                .addTokenTransfer(receipt.tokenId, aliceAccount, 100000000000)
+                .freezeWith(defaultClient)
+                .sign(PrivateKey.fromStringECDSA(defaultPrivKey)))
+                .execute(defaultClient);
+            const tokenTransferReceipt = await tokenTransfer.getReceipt(defaultClient);
+        } catch (e) {
+            console.log(e);
+            // noop
+        }
     }
 }
 

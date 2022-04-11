@@ -43,6 +43,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
 
     function _safeTransfer(address token, address to, uint value) private {
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(SELECTOR, to, value));
+        // TODO: check if data is eq 22
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'UniswapV2: TRANSFER_FAILED');
     }
 
@@ -67,13 +68,19 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
         token0 = _token0;
         token1 = _token1;
-        address[] memory tokens = new address[](2);
-        tokens[0] = token0;
-        tokens[1] = token1;
-        (bool success, bytes memory result) = address(0x167).call(abi.encodeWithSignature("associateTokens(address,address[])", address(this), tokens));
-        if (!success) {
-            revert();
-        }
+//        address[] memory tokens = new address[](2);
+//        tokens[0] = token0;
+//        tokens[1] = token1;
+        // FIXME:
+        // no easy way to check what is the type behind the addresses of the tokens
+        // 1. Call to hts precompile, assoc token0, check result.
+        // 2. If the result is INVALID_TOKEN_ID - > don't revert - the token is ERC20 contract
+
+        // 1. check in limechain channel
+        // 2. if not in limechain channel - check in the hedera channel; ping for potential use case of a `isHTS` function
+
+        address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token0));
+        address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token1));
     }
 
     // update reserves and, on the first call per block, price accumulators
