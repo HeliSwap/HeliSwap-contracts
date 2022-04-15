@@ -26,18 +26,12 @@ async function deployTokens() {
     let bobAccount = signers[2]._signer.account;
     let bobPrivKey = signers[2]._signingKey().privateKey;
 
-    // Preview Network
-    let defaultClient = Client.forTestnet();
-    let aliceClient = Client.forTestnet();
-    let bobClient = Client.forTestnet();
-
-    // Local Network
-    // const network = {
-    //     "127.0.0.1:50211": "0.0.3",
-    // };
-    // let defaultClient = Client.forNetwork(network);
-    // let aliceClient = Client.forNetwork(network);
-    // let bobClient = Client.forNetwork(network);
+    const network = {
+        "127.0.0.1:50211": "0.0.3",
+    };
+    let defaultClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forTestnet();
+    let aliceClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forTestnet()
+    let bobClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forTestnet()
 
     // 3rd party
     defaultClient.setOperator(defaultAccount, defaultPrivKey);

@@ -18,16 +18,13 @@ async function addLiquidityETH(router, token1EVMAddress) {
         amount,
         amount,
         signer.address,
-        oneHourAfter.getTime(),
-        {
-            value: hethers.BigNumber.from(hethers.utils.formatUnits(amount, 'hbar').split('.')[0]),
-        }
+        oneHourAfter.getTime()
     );
-    console.log(await liquidityAddTx.wait())
+    console.log(await liquidityAddTx.wait());
 
     const reserves = await reconnectedRouter.getReserves(
         token1EVMAddress,
-        '0x0000000000000000000000000000000002096e2f' // whbar addr
+        '0x00000000000000000000000000000000000003ed' // whbar addr
     );
 
     return reserves

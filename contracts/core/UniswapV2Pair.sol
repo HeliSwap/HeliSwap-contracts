@@ -68,17 +68,6 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
         token0 = _token0;
         token1 = _token1;
-//        address[] memory tokens = new address[](2);
-//        tokens[0] = token0;
-//        tokens[1] = token1;
-        // FIXME:
-        // no easy way to check what is the type behind the addresses of the tokens
-        // 1. Call to hts precompile, assoc token0, check result.
-        // 2. If the result is INVALID_TOKEN_ID - > don't revert - the token is ERC20 contract
-
-        // 1. check in limechain channel
-        // 2. if not in limechain channel - check in the hedera channel; ping for potential use case of a `isHTS` function
-
         address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token0));
         address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token1));
     }
@@ -127,8 +116,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint balance1 = IERC20(token1).balanceOf(address(this));
         uint amount0 = balance0.sub(_reserve0);
         uint amount1 = balance1.sub(_reserve1);
-
-        bool feeOn = _mintFee(_reserve0, _reserve1);
+        bool feeOn = false;//_mintFee(_reserve0, _reserve1);
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         if (_totalSupply == 0) {
             liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);

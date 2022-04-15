@@ -2,6 +2,8 @@
 import fs from "fs";
 import hardhat from 'hardhat';
 import {hethers} from "@hashgraph/hethers";
+import {getCreate2Address, keccak256, solidityPack} from "ethers/lib/utils";
+import * as util from "util";
 
 async function createPair(factory, token1EVMAddress, token2EVMAddress) {
     const gasLimitOverride = {gasLimit: 3000000};
@@ -10,28 +12,26 @@ async function createPair(factory, token1EVMAddress, token2EVMAddress) {
 
     let signers = await hardhat.hethers.getSigners();
     let signer = signers[0]._signer;
-
-    // const provider = hardhat.hethers.providers.getDefaultProvider('testnet');
-    // console.log(await provider.getCode(factory));
-
-    // test with erc20, but comment the associate call
-    // test implementing the "iterative" token approach
-    // drop a line in the limechain -> hedera chat
     let reconnectedFactory = hethers.ContractFactory.getContract(factory, _uniswapV2FactoryAbi, signer);
-    reconnectedFactory.on('PairCreated', (data) => {
-        console.log(`Pair created data`, data);
-    });
-    // commented as pair is already created for whbar and one of the tokens
+    const contract = await hardhat.hethers.getContractFactory('UniswapV2Pair');
+    const bytecode = contract.bytecode;
+    const init_code_hash = keccak256( bytecode.startsWith('0x') ? bytecode : `0x${bytecode}` );
+    const pairAddressComputed = getCreate2Address(
+        factory,
+        keccak256(solidityPack(['address', 'address'], [token1EVMAddress, token2EVMAddress])),
+        init_code_hash);
+    console.log('computed pair addr', pairAddressComputed);
     const pairTx = await reconnectedFactory.createPair(
         token1EVMAddress,
         token2EVMAddress,
         gasLimitOverride);
-    console.log(await pairTx.wait());
-
-    await new Promise(resolve => setTimeout(resolve, 20000));
-    const pairAddress = await reconnectedFactory.getPair(token1EVMAddress, token2EVMAddress, gasLimitOverride);
-    console.log(pairAddress)
-    return pairAddress
+    if (hardhat.network.name !== 'local') {
+        const receipt = await pairTx.wait();
+        const pairAddr = receipt.events[0].args[2];
+        console.log('Pair address from event', pairAddr);
+        return pairAddr;
+    }
+    return pairAddressComputed;
 }
 
 module.exports = createPair;

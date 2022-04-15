@@ -4,8 +4,13 @@ import 'hardhat-abi-exporter';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
 import 'hardhat-hethers';
-import * as config from './config.sample';
+import * as config from './config.local';
 import {task} from "hardhat/config";
+
+task('getInitCodeHash').setAction(async  () => {
+    const getInitCodeHash = require('./scripts/getInitCodeHash');
+    await getInitCodeHash();
+});
 
 task('createAccounts', 'Generates Accounts')
     .setAction(async () => {
@@ -18,21 +23,12 @@ task('deployTokens', 'Deploys 3 tokens')
         const tokenDeployment = require('./scripts/deployTokens');
         await tokenDeployment();
     });
-
-task('addLiquidityETH', 'Adds HBAR liquidity')
-    .addParam('router')
-    .addParam('token1')
-    .setAction(async (taskArgs) => {
-        const addLiquidityETH = require('./scripts/addLiquidityETH');
-        await addLiquidityETH(taskArgs.router, taskArgs.token1);
+task('deployTokensERC20', 'Deploys 3 tokens')
+    .setAction(async () => {
+        const tokenDeployment = require('./scripts/deployTokensERC20');
+        await tokenDeployment();
     });
 
-task('depositWHBAR', 'Deposit hbar via the receive function of the WHBAR contract')
-    .addParam('whbar')
-    .setAction(async (taskArgs) => {
-        const depositWHBAR = require('./scripts/depositWhbar');
-        await depositWHBAR(taskArgs.whbar);
-    });
 
 task('deploy', 'Deploys the Greeter contract')
     .addParam('whbar')
@@ -49,6 +45,14 @@ task('addLiquidity', 'Adds liquidity to a pair')
         const addLiquidity = require('./scripts/addLiquidity');
         // @ts-ignore
         await addLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
+    });
+
+task('addLiquidityETH', 'Adds HBAR liquidity')
+    .addParam('router')
+    .addParam('token1')
+    .setAction(async (taskArgs) => {
+        const addLiquidityETH = require('./scripts/addLiquidityETH');
+        await addLiquidityETH(taskArgs.router, taskArgs.token1);
     });
 
 task('swap', 'Performs a basic swap of two tokens')
@@ -69,6 +73,23 @@ task('createPair', 'Creates a pair of two tokens')
         const createPair = require('./scripts/createPair');
         // @ts-ignore
         await createPair(taskArgs.factory, taskArgs.token1, taskArgs.token2);
+    });
+
+task('getContractInfo').addParam('addr').setAction(async (taskArgs) => {
+    const getPair = require('./scripts/getPair');
+    // @ts-ignore
+    await getPair(taskArgs.addr);
+});
+
+task('approve')
+    .addParam('token')
+    .addParam('spender')
+    .addParam('amount')
+    .addParam('lender')
+    .addParam('lenderpk')
+    .setAction(async (taskArgs) => {
+        const approve = require('./scripts/erc20ApproveAddress');
+        await approve(taskArgs.token, taskArgs.spender, taskArgs.amount, taskArgs.lender, taskArgs.lenderpk);
     });
 
 module.exports = {
@@ -110,7 +131,7 @@ module.exports = {
         networks: config.networks,
         gasLimit: 300000
     },
-    defaultNetwork: 'testnet',
+    defaultNetwork: 'local',
     etherscan: config.etherscan,
     abiExporter: {
         only: [],

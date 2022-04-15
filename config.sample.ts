@@ -8,37 +8,22 @@ export const networks: NetworksUserConfig = {
             {
                 url: '0.testnet.hedera.com:50211',
                 nodeId: '0.0.3'
-            },
-            {
-                url: '1.testnet.hedera.com:50211',
-                nodeId: '0.0.4'
-            },
-            {
-                url: '2.testnet.hedera.com:50211',
-                nodeId: '0.0.5'
-            },
-            {
-                url: '3.testnet.hedera.com:50211',
-                nodeId: '0.0.6'
             }
         ],
         mirrorNodeUrl: 'https://testnet.mirrornode.hedera.com',
         chainId: 293,
         accounts: [
-            // @ts-ignore
             {
-                account: '0.0.34172457',
-                privateKey: '0x2cf3cc6054d7681eaf6a3e927a6a2b520be507c230b1a13981b66edc56f039b9',
+                account: '0.0.34192872',
+                privateKey: '0x8adcf1bada5536372ade696171d4e3f65b22514ac6ea5319cd25ce54792cd1bf',
             },
-            // @ts-ignore
             {
-                account: '0.0.34172458',
-                privateKey: '0xaf812811567817ef98eada58188664bf5ead94cd6d9caa02dc468eee464a30fd'
+                account: '0.0.34192874',
+                privateKey: '0x4bec4a44e6a56b3cfd9cff507a997b48451af0ad90568b9dbd33f8dd667dacc0'
             },
-            // @ts-ignore
             {
-                account: '0.0.34172459',
-                privateKey: '0xc27693a7a9d1773023e1b63b30ec62d4205226f12e90f02916be56a6d33197e9'
+                account: '0.0.34192877',
+                privateKey: '0x7461b7f879262cb85c7c05cee3cbf70831cf36ba2735aba3fcf2e95890b5e390'
             }
         ]
     },

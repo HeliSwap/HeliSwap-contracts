@@ -11,18 +11,17 @@ async function deploy(whbarAddr) {
 	const UniswapV2Factory = await UniswapV2FactoryFactory.deploy(hardhat.hethers.constants.AddressZero, gasLimitOverride);
 
 	// Comment this line when not using locally
-	await UniswapV2Factory.deployed();
+	// await UniswapV2Factory.deployed();
 	console.log(UniswapV2Factory.address)
 
 	/**
 	 * Deploying UniswapV2Router
 	 */
-	// TODO: create actual WHBAR_ADDRESS
 	const UniswapV2RouterFactory = await hardhat.hethers.getContractFactory("UniswapV2Router02");
 	const UniswapV2Router = await UniswapV2RouterFactory.deploy(UniswapV2Factory.address, whbarAddr, gasLimitOverride);
 
 	// Comment this line when not using locally
-	await UniswapV2Router.deployed();
+	// await UniswapV2Router.deployed();
 	console.log(UniswapV2Router.address)
 
 	return UniswapV2Router
