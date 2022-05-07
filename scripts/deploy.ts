@@ -1,25 +1,32 @@
-import hardhat, {ethers} from 'hardhat';
+// @ts-nocheck
+import hardhat from 'hardhat';
 
 async function deploy() {
-	await hardhat.run('compile');
+	const gasLimitOverride = {gasLimit: 3000000};
 
 	/**
-	 * Deploying Greeter
+	 * Deploying UniswapV2Factory
 	 */
-	const Greeter = await ethers.getContractFactory("Greeter");
-	const greeter = await Greeter.deploy("Hello, Hardhat!");
-	await greeter.deployed();
+	const UniswapV2FactoryFactory = await hardhat.hethers.getContractFactory("UniswapV2Factory");
+	const UniswapV2Factory = await UniswapV2FactoryFactory.deploy(hardhat.hethers.constants.AddressZero, gasLimitOverride);
 
-	console.log("Greeter deployed to:", greeter.address);
+	// Comment this line when not using locally
+	await UniswapV2Factory.deployed();
+	console.log(UniswapV2Factory.address)
 
 	/**
-	 * Verifying Contracts
+	 * Deploying UniswapV2Router
 	 */
-	// console.log('Verifying Greeter on Etherscan...');
-	// await hardhat.run('verify:verify', {
-	// 	address: greeter.address,
-	// 	constructorArguments: []
-	// });
+	// TODO: create actual WHBAR_ADDRESS
+	const WHBAR_ADDRESS = hardhat.hethers.constants.AddressZero;
+	const UniswapV2RouterFactory = await hardhat.hethers.getContractFactory("UniswapV2Router02");
+	const UniswapV2Router = await UniswapV2RouterFactory.deploy(UniswapV2Factory.address, WHBAR_ADDRESS, gasLimitOverride);
+
+	// Comment this line when not using locally
+	await UniswapV2Router.deployed();
+	console.log(UniswapV2Router.address)
+
+	return UniswapV2Router
 }
 
 module.exports = deploy;
