@@ -30,7 +30,7 @@ Configure hardhat to use the newly created ECDSA Account by placing the `Account
 `config.ts` under `{NETWORK}` accounts.
 
 Example:
-```json
+```
 previewnet: {
     accounts: [
         {
