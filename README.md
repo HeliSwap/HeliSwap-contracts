@@ -8,12 +8,13 @@
 
 ## Development
 
-2. `git clone`
-3. `cp config.sample.ts config.ts`
-4. `npm install`
-5. `npx hardhat compile`
+Setup your Development environment by performing the following steps:
+1. `git clone`
+2. `cp config.sample.ts config.ts`
+3. `npm install`
+4. `npx hardhat compile`
 
-### ECDSA Account
+#### ECDSA Account
 
 hardhat & hethers require the usage of ECDSA Accounts. In order to create such the following must be executed:
 ```
@@ -38,22 +39,17 @@ previewnet: {
 }
 ```
 
-**Note**
+## Deployment Steps
 
-Sensitive information such as deployment PKs are part of the `config.ts` file which is git ignored. 
+**Prerequisite**
 
-## Scripts
+You have created and configured an ECDSA account as deployer
 
-**Compiling**
-
-`npx hardhat compile`
-
-**Running Unit Tests**
-
-`npm run test` or `npx hardhat test`
-
-By default `gas reporter` is turned on. You will see summary of the `min`, `max` and `avg` gas consumptions.
-
-**Deployment**
-
-`npx hardhat deploy`
+1. Deploy WHBAR
+```shell
+npx hardhat deploy-whbar
+```
+2. Deploy the Factory & Router
+```shell
+npx hardhat deploy --whbar {WHBAR_EVM_ADDRESS}
+```
