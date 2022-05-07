@@ -14,13 +14,33 @@ This project is a template project consisting of:
 - npm scripts for `compilation`, `tests`, `gas reporting` and `coverage`
 - Running `slither` static analyser
 
-## Setup
+## Development
 
-1. Create repository from this template
 2. `git clone`
 3. `cp config.sample.ts config.ts`
 4. `npm install`
-5. After the first GitHub Actions run, update the Unit Tests badge (currently points to the Template repository)
+5. `npx hardhat compile`
+
+### ECDSA Account
+
+hardhat & hethers require the usage of ECDSA Accounts. In order to create such the following must be executed:
+```
+  npx hardhat createAccount --hedera-network {NETWORK} --account {ID} --pk {ED2559_PK} --balance 100
+```
+Configure hardhat to use the newly created ECDSA Account by placing the `Account` and `ECDSA` private key in 
+`config.ts` under `{NETWORK}` accounts.
+
+Example:
+```json
+previewnet: {
+    accounts: [
+        {
+            "account": "0.0.NUM",
+            "privateKey": "0x.."
+        }
+    ]
+}
+```
 
 **Note**
 

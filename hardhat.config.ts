@@ -7,10 +7,15 @@ import 'hardhat-hethers';
 import * as config from './config';
 import {task} from "hardhat/config";
 
-task('createAccounts', 'Generates Accounts')
-    .setAction(async () => {
-        const createAccounts = require('./scripts/createAccounts');
-        await createAccounts();
+task('createAccount', 'Generates ECDSA Account')
+    .addParam("hederaNetwork", "The network to create account in")
+    .addParam("account", "The creator account to be used")
+    .addParam("pk", "The ED2559 PK to be used for the creation")
+    .addParam("balance", "The initial Hbar balance of the account")
+    .setAction(async (taskArgs) => {
+        console.log(taskArgs);
+        const createAccounts = require('./scripts/create-account');
+        await createAccounts(taskArgs.hederaNetwork, taskArgs.account, taskArgs.pk, taskArgs.balance);
     });
 
 task('deployTokens', 'Deploys 3 tokens')
@@ -19,7 +24,7 @@ task('deployTokens', 'Deploys 3 tokens')
         await tokenDeployment();
     });
 
-task('deploy', 'Deploys the Greeter contract')
+task('deploy', 'Deploys the HeliSwap contracts')
     .setAction(async () => {
         const deployment = require('./scripts/deploy');
         await deployment();

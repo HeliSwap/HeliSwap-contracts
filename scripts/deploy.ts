@@ -2,6 +2,7 @@
 import hardhat from 'hardhat';
 
 async function deploy() {
+	console.log(`Starting HeliSwap deployment...`);
 	const gasLimitOverride = {gasLimit: 3000000};
 
 	/**
@@ -10,9 +11,8 @@ async function deploy() {
 	const UniswapV2FactoryFactory = await hardhat.hethers.getContractFactory("UniswapV2Factory");
 	const UniswapV2Factory = await UniswapV2FactoryFactory.deploy(hardhat.hethers.constants.AddressZero, gasLimitOverride);
 
-	// Comment this line when not using locally
 	await UniswapV2Factory.deployed();
-	console.log(UniswapV2Factory.address)
+	console.log(`Factory Address: ${UniswapV2Factory.address}`);
 
 	/**
 	 * Deploying UniswapV2Router
