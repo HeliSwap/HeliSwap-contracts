@@ -1,9 +1,8 @@
 <div align="center">
 
-# Project Name
+# HeliSwap Contracts
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![UnitTests](https://github.com/LimeChain/SmartContracts-Template/actions/workflows/unit-tests.yaml/badge.svg?branch=main)](https://github.com/LimeChain/SmartContracts-Template/actions/workflows/unit-tests.yaml)
 
 </div>
 
