@@ -31,9 +31,10 @@ task('deployWhbar', 'Deploys WHBAR instance')
 	});
 
 task('deploy', 'Deploys the HeliSwap contracts')
-	.setAction(async () => {
+	.addParam('whbar', "The WHBAR address to use")
+	.setAction(async (taskArgs) => {
 		const deployment = require('./scripts/deploy');
-		await deployment();
+		await deployment(taskArgs.whbar);
 	});
 
 task('addLiquidity', 'Adds liquidity to a pair')
