@@ -1,39 +1,31 @@
 // @ts-nocheck
-import fs from "fs";
 import hardhat from 'hardhat';
 
-async function addLiquidity(router, token1EVMAddress, token2EVMAddress) {
-    const today = new Date();
-    const oneHourAfter = new Date();
-    oneHourAfter.setHours(today.getHours() + 1);
+const TEN_MINUTES = 600_000;
 
-    const gasLimitOverride = {gasLimit: 3000000};
+async function addLiquidity(routerAddress: string, token0: string, amount0: string, token1: string, amount1: string) {
+	const signer = (await hardhat.hethers.getSigners())[0];
+	const router = await hardhat.hethers.getContractAt('UniswapV2Router02', routerAddress);
+	console.log(`Adding Liquidity to ${token0}/${token0}...`);
 
-    const _uniswapV2RouterAbi = JSON.parse(fs.readFileSync('assets/UniswapV2Router.abi.json').toString());
+	const addLiquidityTx = await router.addLiquidity(
+		token0,
+		token0,
+		amount0,
+		amount1,
+		amount0,
+		amount1,
+		signer.address,
+		getExpiry());
+	const txReceipt = await addLiquidityTx.wait();
+	console.log(`Added Liquidity: ${txReceipt.hash}`)
 
-    let signers = await hardhat.hethers.getSigners();
-    let signer = signers[0]._signer;
+	const reserves = await router.getReserves(token0, token1);
+	console.log(`Reserves: ${reserves}`);
+}
 
-    let reconnectedRouter = hethers.ContractFactory.getContract(router, _uniswapV2RouterAbi, signer);
-    const liquidityAddTx = await reconnectedRouter.addLiquidity(
-        token1EVMAddress,
-        token2EVMAddress,
-        100000000000,
-        100000000000,
-        100000000000,
-        100000000000,
-        signer.address,
-        oneHourAfter.getTime(),
-        gasLimitOverride);
-    console.log(liquidityAddTx)
-
-    const reserves = await reconnectedRouter.getReserves(
-        token1EVMAddress,
-        token2EVMAddress,
-        gasLimitOverride
-    );
-
-    return reserves
+function getExpiry() {
+	return (new Date()).getTime() + TEN_MINUTES;
 }
 
 module.exports = addLiquidity;

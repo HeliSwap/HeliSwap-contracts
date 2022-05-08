@@ -69,13 +69,8 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
         token0 = _token0;
         token1 = _token1;
-        address[] memory tokens = new address[](2);
-        tokens[0] = token0;
-        tokens[1] = token1;
-        (bool success, bytes memory result) = address(0x167).call(abi.encodeWithSignature("associateTokens(address,address[])", address(this), tokens));
-        if (!success) {
-            revert();
-        }
+        address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token0));
+        address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token1));
     }
 
     // update reserves and, on the first call per block, price accumulators

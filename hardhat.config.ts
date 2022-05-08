@@ -51,13 +51,14 @@ task('deploy', 'Deploys the HeliSwap contracts')
 	});
 
 task('addLiquidity', 'Adds liquidity to a pair')
-	.addParam("router")
-	.addParam("token1")
-	.addParam("token2")
+	.addParam("router", "The router address")
+	.addParam("token0", "The first token")
+	.addParam("token1", "The second token")
+	.addParam("amount0", "First token amount")
+	.addParam("amount1", "Second token amount")
 	.setAction(async (taskArgs) => {
 		const addLiquidity = require('./scripts/interactions/add-liquidity');
-		// @ts-ignore
-		await addLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
+		await addLiquidity(taskArgs.router, taskArgs.token0, taskArgs.token1, taskArgs.amount0, taskArgs.amount1);
 	});
 
 task('swap', 'Performs a basic swap of two tokens')
