@@ -34,6 +34,15 @@ task('deployWhbar', 'Deploys WHBAR instance')
 		await whbarDeployment();
 	});
 
+task('deployERC20', 'Deploys ERC20 token')
+	.addParam("name", "The name of the ERC20 token")
+	.addParam("symbol", "The symbol of the ERC20 token")
+	.setAction(async (taskArgs) => {
+		console.log(taskArgs);
+		const erc20Deployment = require('./scripts/utilities/deploy-erc20');
+		await erc20Deployment(taskArgs.name, taskArgs.symbol);
+	})
+
 task('deploy', 'Deploys the HeliSwap contracts')
 	.addParam('whbar', "The WHBAR address to use")
 	.setAction(async (taskArgs) => {
@@ -108,6 +117,7 @@ module.exports = {
 	},
 	hedera: {
 		networks: config.networks,
+		gasLimit: 3000000
 	},
 	defaultNetwork: 'previewnet',
 	etherscan: config.etherscan,

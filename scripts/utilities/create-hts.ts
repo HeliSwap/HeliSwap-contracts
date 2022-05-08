@@ -1,7 +1,7 @@
 import hardhat from 'hardhat';
 import {Hashgraph} from "../../utils/hashgraph";
 
-async function deployToken(network: string, name: string, symbol: string, supply = 100000000000) {
+async function createHTS(network: string, name: string, symbol: string, supply = 100000000000) {
 	// @ts-ignore
 	let signers = await hardhat.hethers.getSigners();
 	let clientAccount = signers[0]._signer.account;
@@ -13,4 +13,4 @@ async function deployToken(network: string, name: string, symbol: string, supply
 	console.log(`HTS Token Deployed at: ${token}`);
 }
 
-module.exports = deployToken;
+module.exports = createHTS;
