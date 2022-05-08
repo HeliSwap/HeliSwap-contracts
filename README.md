@@ -53,3 +53,24 @@ npx hardhat deploy-whbar
 ```shell
 npx hardhat deploy --whbar {WHBAR_EVM_ADDRESS}
 ```
+
+## Utility Scripts
+
+1. Create ECDSA Account
+```shell
+npx hardhat createAccount \
+  --hedera-network {NETWORK} \
+  --account {ID} \
+  --pk {ED2559_PK} \
+  --balance {INITIAL_BALANCE}
+```
+
+2. Create HTS Token
+```shell
+npx hardhat createHTS --hedera-network {NETWORK} --name {NAME} --symbol {SYMBOL}          
+```
+
+3. Deploy ERC20 Token
+```shell
+npx hardhat deployERC20 --name {NAME} --symbol {SYMBOL}
+```

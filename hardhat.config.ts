@@ -14,14 +14,18 @@ task('createAccount', 'Generates ECDSA Account')
 	.addParam("balance", "The initial Hbar balance of the account")
 	.setAction(async (taskArgs) => {
 		console.log(taskArgs);
-		const createAccounts = require('./scripts/create-account');
+		const createAccounts = require('./scripts/utilities/create-account');
 		await createAccounts(taskArgs.hederaNetwork, taskArgs.account, taskArgs.pk, taskArgs.balance);
 	});
 
-task('deployTokens', 'Deploys 3 tokens')
-	.setAction(async () => {
-		const tokenDeployment = require('./scripts/deployTokens');
-		await tokenDeployment();
+task('createHTS', 'Deploys an HTS token')
+	.addParam("hederaNetwork", "The network to create account in")
+	.addParam("name", "The name of the HTS token")
+	.addParam("symbol", "The symbol of the HTS token")
+	.setAction(async (taskArgs) => {
+		console.log(taskArgs)
+		const tokenDeployment = require('./scripts/utilities/create-hts');
+		await tokenDeployment(taskArgs.hederaNetwork, taskArgs.name, taskArgs.symbol);
 	});
 
 task('deployWhbar', 'Deploys WHBAR instance')

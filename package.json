@@ -1,7 +1,7 @@
 {
-  "name": "smart-contracts-template",
+  "name": "heliswap-contracts",
   "version": "1.0.0",
-  "description": "Template repository for EVM Smart Contract Projects with Hardhat",
+  "description": "Repository containing the HeliSwap Contracts",
   "main": "index.js",
   "scripts": {
     "createAccounts": "npx hardhat createAccounts",
@@ -27,7 +27,7 @@
     "@hashgraph/cryptography": "^1.1.0-beta.5",
     "@hashgraph/hethers": "^1.1.0",
     "@hashgraph/proto": "2.1.2",
-    "@hashgraph/sdk": "2.9.0",
+    "@hashgraph/sdk": "2.13.1",
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",
     "@nomiclabs/hardhat-waffle": "^2.0.2",

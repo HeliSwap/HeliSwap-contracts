@@ -1,11 +1,11 @@
 import {AccountCreateTransaction, Client, Hbar, PublicKey} from "@hashgraph/sdk";
 import {hethers} from "@hashgraph/hethers";
-import NodeClient from "@hashgraph/sdk/lib/client/NodeClient";
+import {Hashgraph} from "../../utils/hashgraph";
 
 async function createAccount(network: string, account: string, pk: string, balance: string) {
 	console.log(`Creating Account at ${network} with initial HBAR balance: ${balance}`)
 
-	const client = clientFor(network).setOperator(account, pk);
+	const client = Hashgraph.clientFor(network).setOperator(account, pk);
 
 	const randomWallet = hethers.Wallet.createRandom();
 	const tx = await new AccountCreateTransaction()
@@ -19,12 +19,3 @@ async function createAccount(network: string, account: string, pk: string, balan
 }
 
 module.exports = createAccount;
-
-
-function clientFor(network: string): NodeClient {
-	if (network == "previewnet") return Client.forPreviewnet();
-	if (network == "testnet") return Client.forTestnet();
-	if (network == "mainnet") return Client.forMainnet();
-
-	throw Error("INVALID_NETWORK")
-}
