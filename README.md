@@ -74,3 +74,18 @@ npx hardhat createHTS --hedera-network {NETWORK} --name {NAME} --symbol {SYMBOL}
 ```shell
 npx hardhat deployERC20 --name {NAME} --symbol {SYMBOL}
 ```
+
+## Interaction Scripts
+
+1. Create Pair (TODO)
+2. Add Liquidity
+```shell
+npx hardhat addLiquidity
+    --router {ROUTER} \
+    --token0 {TOKEN_0} --token1 {TOKEN_1} \
+    --amount0 {AMOUNT_0} --amount1 {AMOUNT_1}
+```
+3. Remove Liquidity (TODO)
+4. Add Liquidity HBAR (TODO)
+5. Remove Liquidity HBAR (TODO)
+6. Swap (TODO)
