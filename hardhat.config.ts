@@ -55,7 +55,7 @@ task('addLiquidity', 'Adds liquidity to a pair')
 	.addParam("token1")
 	.addParam("token2")
 	.setAction(async (taskArgs) => {
-		const addLiquidity = require('./scripts/addLiquidity');
+		const addLiquidity = require('./scripts/interactions/add-liquidity');
 		// @ts-ignore
 		await addLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
 	});
@@ -65,7 +65,7 @@ task('swap', 'Performs a basic swap of two tokens')
 	.addParam("token1")
 	.addParam("token2")
 	.setAction(async (taskArgs) => {
-		const swap = require('./scripts/swap');
+		const swap = require('./scripts/interactions/swap');
 		// @ts-ignore
 		await swap(taskArgs.router, taskArgs.token1, taskArgs.token2);
 	});
@@ -75,7 +75,7 @@ task('createPair', 'Creates a pair of two tokens')
 	.addParam("token1")
 	.addParam("token2")
 	.setAction(async (taskArgs) => {
-		const createPair = require('./scripts/createPair');
+		const createPair = require('./scripts/interactions/create-pair');
 		// @ts-ignore
 		await createPair(taskArgs.factory, taskArgs.token1, taskArgs.token2);
 	});
