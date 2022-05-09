@@ -3,6 +3,9 @@ import fs from "fs";
 import hardhat from 'hardhat';
 
 async function swap(router, token1EVMAddress, token2EVMAddress) {
+    const today = new Date();
+    const oneHourAfter = new Date();
+    oneHourAfter.setHours(today.getHours() + 1);
     const gasLimitOverride = {gasLimit: 3000000};
 
     const _uniswapV2RouterAbi = JSON.parse(fs.readFileSync('assets/UniswapV2Router.abi.json').toString());
@@ -15,7 +18,7 @@ async function swap(router, token1EVMAddress, token2EVMAddress) {
         500,
         400,
         [token1EVMAddress, token2EVMAddress],
-        signers[2].address,
+        signers[2]._signer.address,
         oneHourAfter.getTime(),
         gasLimitOverride);
     console.log('Waiting for swapTx');

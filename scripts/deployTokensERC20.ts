@@ -56,10 +56,9 @@ async function deployTokens() {
             const deployedToken = await contract.deploy(tokenName, tokenSymbol, tokenSupply, {gasLimit: 300000});
 
             const token = await hethers.ContractFactory.getContract(deployedToken.address, contract.interface, signers[0]._signer);
-            const transferAmount = Math.fround(amount/3);
             console.log(`Deployed ${tokenSymbol} token at ${deployedToken.address}`);
-            await token.transfer(getAddressFromAccount(aliceAccount), transferAmount, {gasLimit: 3000000});
-            await token.transfer(getAddressFromAccount(bobAccount), transferAmount, {gasLimit: 3000000});
+            await token.mint(getAddressFromAccount(aliceAccount), amount, {gasLimit: 3000000});
+            await token.mint(getAddressFromAccount(bobAccount), amount, {gasLimit: 3000000});
         } catch (e) {
             console.log(e);
             // noop

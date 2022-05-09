@@ -4,7 +4,7 @@ import 'hardhat-abi-exporter';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
 import 'hardhat-hethers';
-import * as config from './config.local';
+import * as config from './config.sample';
 import {task} from "hardhat/config";
 
 task('getInitCodeHash').setAction(async  () => {
@@ -45,6 +45,15 @@ task('addLiquidity', 'Adds liquidity to a pair')
         const addLiquidity = require('./scripts/addLiquidity');
         // @ts-ignore
         await addLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
+    });
+task('removeLiquidity', 'Removes liquidity from a pair')
+    .addParam("router")
+    .addParam("token1")
+    .addParam("token2")
+    .setAction(async (taskArgs) => {
+        const removeLiquidity = require('./scripts/removeLiquidity');
+        // @ts-ignore
+        await removeLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
     });
 
 task('addLiquidityETH', 'Adds HBAR liquidity')
@@ -131,7 +140,7 @@ module.exports = {
         networks: config.networks,
         gasLimit: 300000
     },
-    defaultNetwork: 'local',
+    defaultNetwork: 'testnet',
     etherscan: config.etherscan,
     abiExporter: {
         only: [],

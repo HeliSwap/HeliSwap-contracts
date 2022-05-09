@@ -6,7 +6,7 @@
   "scripts": {
     "createAccounts": "npx hardhat createAccounts",
     "deployTokens": "npx hardhat deployTokens",
-    "deploy": "npx hardhat deploy",
+    "deploy": "npx hardhat deploy --whbar 0x00000000000000000000000000000000020a1831",
     "createPair": "npx hardhat createPair --factory 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "addLiquidity": "npx hardhat addLiquidity --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "addLiquidityETH": "npx hardhat addLiquidityETH --router 0x000000000000000000000000000000000209755b --token1 0x0000000000000000000000000000000002097557",

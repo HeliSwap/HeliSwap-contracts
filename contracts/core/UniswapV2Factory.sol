@@ -10,7 +10,17 @@ contract UniswapV2Factory is IUniswapV2Factory {
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
 
-    event PairCreated(address indexed token0, address indexed token1, address pair, uint);
+    event PairCreated(
+        address indexed token0,
+        address indexed token1,
+        address pair,
+        uint pairSeqNum,
+        string token0Symbol,
+        string token1Symbol,
+        string token0Name,
+        string token1Name,
+        uint token0Decimals,
+        uint token1Decimals);
 
     constructor(address _feeToSetter) public {
         feeToSetter = _feeToSetter;
@@ -34,8 +44,14 @@ contract UniswapV2Factory is IUniswapV2Factory {
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
+        string memory token0Symbol = IERC20(token0).symbol();
+        string memory token0Name = IERC20(token0).name();
+        uint token0Decimals = IERC20(token0).decimals();
 
-        emit PairCreated(token0, token1, pair, allPairs.length);
+        string memory token1Symbol = IERC20(token1).symbol();
+        string memory token1Name = IERC20(token1).name();
+        uint token1Decimals = IERC20(token1).decimals();
+        emit PairCreated(token0, token1, pair, allPairs.length, token0Symbol, token1Symbol, token0Name, token1Name, token0Decimals, token1Decimals);
     }
 
     function setFeeTo(address _feeTo) external {
