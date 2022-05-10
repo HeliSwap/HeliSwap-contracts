@@ -1,6 +1,5 @@
 // @ts-nocheck
 import {NetworksUserConfig} from 'hardhat/types';
-import {EtherscanConfig} from '@nomiclabs/hardhat-etherscan/dist/src/types';
 
 export const networks: NetworksUserConfig = {
 	// Use the three accounts created and logged by createAccounts script
