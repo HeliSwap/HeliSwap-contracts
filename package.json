@@ -1,7 +1,7 @@
 {
-  "name": "smart-contracts-template",
+  "name": "heliswap-contracts",
   "version": "1.0.0",
-  "description": "Template repository for EVM Smart Contract Projects with Hardhat",
+  "description": "Repository containing the HeliSwap Contracts",
   "main": "index.js",
   "scripts": {
     "createAccounts": "npx hardhat createAccounts",
