@@ -1,12 +1,12 @@
 // @ts-nocheck
 import hardhat from 'hardhat';
-
-const TEN_MINUTES = 600_000;
+import {Utils} from "../../utils/utils";
+import getExpiry = Utils.getExpiry;
 
 async function addLiquidity(routerAddress: string, token0: string, amount0: string, token1: string, amount1: string) {
-	const signer = (await hardhat.hethers.getSigners())[0];
+	const [signer] = await hardhat.hethers.getSigners();
 	const router = await hardhat.hethers.getContractAt('UniswapV2Router02', routerAddress);
-	console.log(`Adding Liquidity to ${token0}/${token0}...`);
+	console.log(`Adding Liquidity to ${token0}/${token1}...`);
 
 	const addLiquidityTx = await router.addLiquidity(
 		token0,
@@ -22,10 +22,6 @@ async function addLiquidity(routerAddress: string, token0: string, amount0: stri
 
 	const reserves = await router.getReserves(token0, token1);
 	console.log(`Reserves: ${reserves}`);
-}
-
-function getExpiry() {
-	return (new Date()).getTime() + TEN_MINUTES;
 }
 
 module.exports = addLiquidity;

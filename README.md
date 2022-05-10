@@ -47,7 +47,7 @@ You have created and configured an ECDSA account as deployer
 
 1. Deploy WHBAR
 ```shell
-npx hardhat deploy-whbar
+npx hardhat deployWhbar
 ```
 2. Deploy the Factory & Router
 ```shell

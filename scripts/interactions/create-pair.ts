@@ -6,8 +6,6 @@ import {getCreate2Address, keccak256, solidityPack} from "ethers/lib/utils";
 import * as util from "util";
 
 async function createPair(factory, token1EVMAddress, token2EVMAddress) {
-    const gasLimitOverride = {gasLimit: 3000000};
-
     const _uniswapV2FactoryAbi = JSON.parse(fs.readFileSync('assets/UniswapV2Factory.abi.json').toString());
 
     let signers = await hardhat.hethers.getSigners();
@@ -26,8 +24,7 @@ async function createPair(factory, token1EVMAddress, token2EVMAddress) {
     console.log('computed pair addr', pairAddressComputed);
     const pairTx = await reconnectedFactory.createPair(
         token1EVMAddress,
-        token2EVMAddress,
-        gasLimitOverride);
+        token2EVMAddress);
     if (hardhat.network.name !== 'local') {
         const receipt = await pairTx.wait();
         const pairAddr = receipt.events[0].args?.[2];

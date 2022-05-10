@@ -3,32 +3,41 @@ import {NetworksUserConfig} from 'hardhat/types';
 import {EtherscanConfig} from '@nomiclabs/hardhat-etherscan/dist/src/types';
 
 export const networks: NetworksUserConfig = {
-    testnet: {
-        consensusNodes: [
-            {
-                url: '0.testnet.hedera.com:50211',
-                nodeId: '0.0.3'
-            }
-        ],
-        mirrorNodeUrl: 'https://testnet.mirrornode.hedera.com',
-        chainId: 293,
-        accounts: [
-            {
-                account: '0.0.34256816',
-                privateKey: '0x92f3dd8ecbe925ff75a557a74f6c047d2276d312ee82cac32ffdf56899efdec4',
-            },
-            {
-                account: '0.0.34256817',
-                privateKey: '0xf2763911749823128667a3e2ccb97c9e733940409579fa4c83af55097955a64e'
-            },
-            {
-                account: '0.0.34256818',
-                privateKey: '0x80b08fc94be9c444f406bc9797ed1b67dc3a3cd6fb46e211c4ec191c9d6dfdc4'
-            }
-        ]
-    },
-};
-
-export const etherscan: EtherscanConfig = {
-    // apiKey: 'YOUR-ETHERSCAN-API-KEY',
+	// Use the three accounts created and logged by createAccounts script
+	previewnet: {
+		accounts: [
+			//         {
+			//             "account": "0.0.XXXXXX",
+			//             "privateKey": "0xPrivateKey"
+			//         }
+		]
+	},
+	testnet: {
+		accounts: []
+	},
+	local: {
+		name: 'local',
+		consensusNodes: [
+			{
+				url: '127.0.0.1:50211',
+				nodeId: '0.0.3'
+			}
+		],
+		mirrorNodeUrl: '127.0.0.1:5551',
+		chainId: 0,
+		accounts: [
+			{
+				account: '0.0.1001',
+				privateKey: "0x7f109a9e3b0d8ecfba9cc23a3614433ce0fa7ddcc80f2a8f10b222179a5a80d6",
+			},
+			{
+				account: '0.0.1002',
+				privateKey: "0x6ec1f2e7d126a74a1d2ff9e1c5d90b92378c725e506651ff8bb8616a5c724628",
+			},
+			{
+				account: '0.0.1003',
+				privateKey: "0xb4d7f7e82f61d81c95985771b8abf518f9328d019c36849d4214b5f995d13814",
+			}
+		]
+	}
 };

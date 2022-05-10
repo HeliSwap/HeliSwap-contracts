@@ -1,5 +1,4 @@
 import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-etherscan';
 import 'hardhat-abi-exporter';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
@@ -52,7 +51,7 @@ task('deploy', 'Deploys the HeliSwap contracts')
     });
 
 task('getInitCodeHash').setAction(async  () => {
-    const getInitCodeHash = require('./scripts/getInitCodeHash');
+    const getInitCodeHash = require('./scripts/utilities/get-init-code-hash');
     await getInitCodeHash();
 });
 
@@ -72,7 +71,7 @@ task('removeLiquidity', 'Removes liquidity from a pair')
     .addParam("token1")
     .addParam("token2")
     .setAction(async (taskArgs) => {
-        const removeLiquidity = require('./scripts/removeLiquidity');
+        const removeLiquidity = require('./scripts/interactions/remove-liquidity');
         // @ts-ignore
         await removeLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
     });
@@ -81,7 +80,7 @@ task('addLiquidityETH', 'Adds HBAR liquidity')
     .addParam('router')
     .addParam('token1')
     .setAction(async (taskArgs) => {
-        const addLiquidityETH = require('./scripts/addLiquidityETH');
+        const addLiquidityETH = require('./scripts/interactions/add-liquidity-hbar');
         await addLiquidityETH(taskArgs.router, taskArgs.token1);
     });
 
@@ -106,7 +105,7 @@ task('createPair', 'Creates a pair of two tokens')
 	});
 
 task('getContractInfo').addParam('addr').setAction(async (taskArgs) => {
-    const getPair = require('./scripts/getPair');
+    const getPair = require('./scripts/utilities/get-contract-info');
     // @ts-ignore
     await getPair(taskArgs.addr);
 });
@@ -118,7 +117,7 @@ task('approve')
     .addParam('lender')
     .addParam('lenderpk')
     .setAction(async (taskArgs) => {
-        const approve = require('./scripts/erc20ApproveAddress');
+        const approve = require('./scripts/utilities/erc20-approve');
         await approve(taskArgs.token, taskArgs.spender, taskArgs.amount, taskArgs.lender, taskArgs.lenderpk);
     });
 
@@ -163,7 +162,6 @@ module.exports = {
 		gasLimit: 3000000
 	},
 	defaultNetwork: 'previewnet',
-	etherscan: config.etherscan,
 	abiExporter: {
 		only: [],
 		except: ['.*Mock$'],
