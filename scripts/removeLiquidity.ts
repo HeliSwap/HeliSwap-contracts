@@ -14,7 +14,7 @@ async function addLiquidity(router, token1EVMAddress, token2EVMAddress) {
 
     let signers = await hardhat.hethers.getSigners();
     let signer = signers[0]._signer;
-    const amount = 100000000000;
+    const amount = 100000000;
     let reconnectedRouter = hethers.ContractFactory.getContract(router, _uniswapV2RouterAbi, signer);
     try {
         const liquidityAddTx = await reconnectedRouter.removeLiquidity(

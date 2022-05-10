@@ -51,3 +51,24 @@ You must have slither installed. You can do that by executing `pip3 install slit
 **Deployment**
 
 `npx hardhat deploy`
+
+
+**Notes and steps**
+
+##### Notes
+- use previewnet for now
+- the `marked` sections below are hardhat tasks with example arguments. 
+
+##### Steps
+
+0. Generate accounts via `createAccounts`. (OPTIONAL)
+
+
+1. Deploy tokens (**HTS** or **ERC20**) to the network via `deployTokens` or `deployTokensERC20`
+2. Deploy contracts to the network via `deploy --whbar 0xWhbarAddress`
+3. Create a pair between those tokens with `createPair --factory 0xFactoryAddr --token1 0xToken1 --token2 0xToken1`
+4. Assert the pair exists with `getContractInfo --addr 0xPairAddress`
+5. Approve expenditure of tokens with `approve`. Must be done for all the accounts and for all the tokens (6 approves max).
+6. Add liquidity with the `addLiquidity --router 0xRouterAddr --token1 0xToken1 --token2 0xToken2` script
+7. Perform a swap with `swap --router 0xRouter --token1 0xToken1 --token2 0xToken2` ( you may have to do `5.` again)
+8. TODO: remove liquidity
