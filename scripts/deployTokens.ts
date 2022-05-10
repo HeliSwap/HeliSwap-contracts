@@ -29,9 +29,9 @@ async function deployTokens() {
     const network = {
         "127.0.0.1:50211": "0.0.3",
     };
-    let defaultClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forTestnet();
-    let aliceClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forTestnet()
-    let bobClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forTestnet()
+    let defaultClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forPreviewnet();
+    let aliceClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forPreviewnet()
+    let bobClient = hardhat.network.name == 'local'? Client.forNetwork(network) : Client.forPreviewnet();
 
     // 3rd party
     defaultClient.setOperator(defaultAccount, defaultPrivKey);

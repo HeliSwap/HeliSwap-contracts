@@ -4,7 +4,7 @@ import 'hardhat-abi-exporter';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
 import 'hardhat-hethers';
-import * as config from './config.sample';
+import * as config from './config.previewnet';
 import {task} from "hardhat/config";
 
 task('getInitCodeHash').setAction(async  () => {
@@ -140,7 +140,7 @@ module.exports = {
         networks: config.networks,
         gasLimit: 300000
     },
-    defaultNetwork: 'testnet',
+    defaultNetwork: 'previewnet',
     etherscan: config.etherscan,
     abiExporter: {
         only: [],

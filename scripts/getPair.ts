@@ -9,7 +9,7 @@ async function getPair(pairAddr) {
     const network = {
             "127.0.0.1:50211":"0.0.3"
     };
-    const client = hardhat.network.name == 'local' ? Client.forNetwork(network) : Client.forTestnet();
+    const client = hardhat.network.name == 'local' ? Client.forNetwork(network) : Client.forPreviewnet();
     client.setOperator(signer._signer.account, PrivateKey.fromStringECDSA(signer._signingKey().privateKey));
 
     const query = new ContractInfoQuery().setContractId(ContractId.fromEvmAddress(0, 0, pairAddr));
