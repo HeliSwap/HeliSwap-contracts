@@ -4,6 +4,12 @@
   "description": "Repository containing the HeliSwap Contracts",
   "main": "index.js",
   "scripts": {
+    "createAccount": "npx hardhat createAccount",
+    "deployToken": "npx hardhat deployToken",
+    "deploy": "npx hardhat deploy --whbar 0xAddress",
+    "createPair": "npx hardhat createPair --factory 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
+    "addLiquidity": "npx hardhat addLiquidity --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
+    "swap": "npx hardhat swap --router 0xRouterAddress --token1 0xToken1Address --token2 0xToken2Address",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts"
   },
