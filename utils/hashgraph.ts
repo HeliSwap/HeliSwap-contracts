@@ -1,5 +1,13 @@
 import NodeClient from "@hashgraph/sdk/lib/client/NodeClient";
-import {Client, Key, PrivateKey, PublicKey, TokenCreateTransaction, TransactionId} from "@hashgraph/sdk";
+import {
+	Client,
+	Key,
+	PrivateKey,
+	TokenAssociateTransaction,
+	AccountAllowanceApproveTransaction,
+	TokenCreateTransaction,
+	TransactionId, TransferTransaction
+} from "@hashgraph/sdk";
 import {hethers} from "@hashgraph/hethers";
 
 /**
@@ -27,6 +35,7 @@ export namespace Hashgraph {
 		supply: number,
 		decimals = 8
 	): Promise<string> {
+		// TODO: Figure out the keys problem
 		const tokenCreate = await (await new TokenCreateTransaction()
 			.setTokenName(name)
 			.setTokenSymbol(symbol)
@@ -34,21 +43,95 @@ export namespace Hashgraph {
 			.setDecimals(decimals)
 			.setInitialSupply(supply)
 			.setTreasuryAccountId(client.operatorAccountId || DEFAULT_ACCOUNT)
-			.setAdminKey(client.operatorPublicKey || DEFAULT_KEY)
-			.setFreezeKey(client.operatorPublicKey || DEFAULT_KEY)
-			.setWipeKey(client.operatorPublicKey || DEFAULT_KEY)
-			.setKycKey(client.operatorPublicKey || DEFAULT_KEY)
-			.setSupplyKey(client.operatorPublicKey || DEFAULT_KEY)
+			// .setAdminKey(client.operatorPublicKey || DEFAULT_KEY)
+			// .setFreezeKey(client.operatorPublicKey || DEFAULT_KEY)
+			// .setWipeKey(client.operatorPublicKey || DEFAULT_KEY)
+			// .setKycKey(client.operatorPublicKey || DEFAULT_KEY)
+			// .setSupplyKey(client.operatorPublicKey || DEFAULT_KEY)
 			.setTransactionId(TransactionId.generate(client.operatorAccountId || DEFAULT_ACCOUNT))
 			.setNodeAccountIds([client._network.getNodeAccountIdsForExecute()[0]])
-			.setFreezeDefault(false)
+			// .setFreezeDefault(false)
 			.freeze()
 			.sign(PrivateKey.fromStringECDSA(pk)))
 			.execute(client)
 
 		const receipt = await tokenCreate.getReceipt(client);
 		const tokenId = receipt.tokenId?.toString() || "0.0.0";
+		console.log(tokenId)
 		return hethers.utils.getAddressFromAccount(tokenId);
+	}
+
+	/**
+	 * Associates an HTS Token to a specified account
+	 * @param client Network client to use
+	 * @param pk ECDSA PK for the client
+	 * @param account the account we are associating
+	 * @param tokenid the id of the token which is getting associated
+	 */
+	export async function associateToken(
+		client: NodeClient,
+		pk: string,
+		account: string,
+		tokenid: string
+	): Promise<void> {
+		const tokenAssociate = await (await new TokenAssociateTransaction()
+			.setAccountId(account)
+			.setTokenIds([tokenid])
+			.freezeWith(client)
+			.sign(PrivateKey.fromStringECDSA(pk)))
+			.execute(client);
+		const associateReceipt = await tokenAssociate.getReceipt(client);
+		console.log(associateReceipt)
+	}
+
+	/**
+	 * Approves an account's HTS Token to be spent by another account
+	 * @param client Network client to use
+	 * @param pk ECDSA PK for the client
+	 * @param ownerAccount the lender account
+	 * @param spenderAccount the spender account
+	 * @param tokenid the id of the token which is getting associated
+	 * @param amount the amount of the tokens which is being permitted to be spent
+	 */
+	export async function approveToken(
+		client: NodeClient,
+		pk: string,
+		ownerAccount: string,
+		spenderAccount: string,
+		tokenid: string,
+		amount: number
+	): Promise<void> {
+		const tokenApprove = await (await new AccountAllowanceApproveTransaction()
+			.approveTokenAllowance(tokenid, ownerAccount, spenderAccount, amount)
+			.freezeWith(client)
+			.sign(PrivateKey.fromStringECDSA(pk)))
+			.execute(client);
+		const approveReceipt = await tokenApprove.getReceipt(client);
+		console.log(approveReceipt)
+	}
+
+	/**
+	 * Transfers tokens from the client operator (signer 1) to a specified account
+	 * @param client Network client to use
+	 * @param pk ECDSA PK for the client
+	 * @param account the account that will receive tokens
+	 * @param tokenid the id of the token which is getting transfered
+	 * @param amount the amount of tokens which is getting transfered
+	 */
+	export async function transferToken(
+		client: NodeClient,
+		pk: string,
+		account: string,
+		tokenid: string,
+		amount: number
+	): Promise<void> {
+		const tokenTransfer = await (await new TransferTransaction()
+            .addTokenTransfer(tokenid, client.operatorAccountId || DEFAULT_ACCOUNT, -amount)
+            .addTokenTransfer(tokenid, account, amount)
+            .freezeWith(client)
+            .sign(PrivateKey.fromStringECDSA(pk)))
+            .execute(client);
+        const tokenTransferReceipt = await tokenTransfer.getReceipt(client);
 	}
 
 	/**

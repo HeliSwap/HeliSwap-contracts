@@ -10,7 +10,7 @@ async function addLiquidity(routerAddress: string, token0: string, amount0: stri
 
 	const addLiquidityTx = await router.addLiquidity(
 		token0,
-		token0,
+		token1,
 		amount0,
 		amount1,
 		amount0,
