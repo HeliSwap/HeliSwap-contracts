@@ -78,6 +78,15 @@ task('deployERC20', 'Deploys ERC20 token')
 		await erc20Deployment(taskArgs.name, taskArgs.symbol);
 	})
 
+task('mintERC20', 'Mints ERC20 token')
+	.addParam("token", "The address of the ERC20 token")
+	.addParam("receiver", "The address of the receiver")
+	.setAction(async (taskArgs) => {
+		console.log(taskArgs);
+		const erc20mint = require('./scripts/utilities/mint-erc20');
+		await erc20mint(taskArgs.token, taskArgs.receiver, taskArgs.amount);
+	})
+
 task('deploy', 'Deploys the HeliSwap contracts')
 	.addParam('whbar', "The WHBAR address to use")
 	.setAction(async (taskArgs) => {

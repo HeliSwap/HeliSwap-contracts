@@ -10,7 +10,7 @@ async function getAccountBalance(network: string, accountId: string) {
 
 	const query = new AccountBalanceQuery().setAccountId(accountId);
 	const resp = await query.execute(client);
-	console.log(resp);
+	console.log(resp.toJSON());
 }
 
 module.exports = getAccountBalance;
