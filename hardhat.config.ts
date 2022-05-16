@@ -121,13 +121,15 @@ task('addLiquidity', 'Adds liquidity to a pair')
 	});
 
 task('removeLiquidity', 'Removes liquidity from a pair')
-	.addParam("router")
-	.addParam("token1")
-	.addParam("token2")
+	.addParam("router", "The router address")
+	.addParam("token0", "The first token")
+	.addParam("token1", "The second token")
+	.addParam("amount0", "First token amount")
+	.addParam("amount1", "Second token amount")
 	.setAction(async (taskArgs) => {
 		const removeLiquidity = require('./scripts/interactions/remove-liquidity');
 		// @ts-ignore
-		await removeLiquidity(taskArgs.router, taskArgs.token1, taskArgs.token2);
+		await removeLiquidity(taskArgs.router, taskArgs.token0, taskArgs.token1, taskArgs.amount0, taskArgs.amount1);
 	});
 
 task('addLiquidityETH', 'Adds HBAR liquidity')

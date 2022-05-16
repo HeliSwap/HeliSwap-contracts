@@ -5,7 +5,8 @@ import * as util from "util";
 import {Utils} from "../../utils/utils";
 import getExpiry = Utils.getExpiry;
 
-async function addLiquidity(router, token1EVMAddress, token2EVMAddress) {
+async function removeLiquidity(routerAddress, token1EVMAddress, token2EVMAddress, amount0, amount1) {
+    // FIXME: This currently does not take into account passed amounts.
     const router = await hardhat.hethers.getContractAt('UniswapV2Router02', routerAddress);
     const [signer] = await hardhat.hethers.getSigners();
 
@@ -23,16 +24,15 @@ async function addLiquidity(router, token1EVMAddress, token2EVMAddress) {
         receipt.events.forEach(event => {
             console.log(util.inspect(event));
         });
-    }catch (e) {
+    } catch (e) {
         console.log(e)
     }
 
-    const reserves = await reconnectedRouter.getReserves(
-        token1EVMAddress,
-        token2EVMAddress,
-        gasLimitOverride
-    );
-    console.log(`Reserves: ${reserves}`);
+    // const reserves = await router.getReserves(
+    //     token1EVMAddress,
+    //     token2EVMAddress
+    // );
+    // console.log(`Reserves: ${reserves}`);
 }
 
-module.exports = addLiquidity;
+module.exports = removeLiquidity;

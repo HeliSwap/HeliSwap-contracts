@@ -25,6 +25,18 @@ async function init(hederanetwork: string, factory: string, router:string) {
     console.log("Token deployment done.")
     console.log("==================================================================================================")
 
+    const htsPair = await createPair(factory, tokenA.tokenAddress, tokenB.tokenAddress)
+    console.log(`[HTS-HTS] Pair creation done. - ${htsPair}`)
+    console.log("==================================================================================================")
+
+    const erc20Pair = await createPair(factory, tokenC, tokenD)
+    console.log(`[ERC20-ERC20] Pair creation done. - ${erc20Pair}`)
+    console.log("==================================================================================================")
+
+    const mixedPair = await createPair(factory, tokenA.tokenAddress, tokenC)
+    console.log(`[HTS-ERC20] Pair creation done. - ${mixedPair}`)
+    console.log("==================================================================================================")
+
     // @ts-ignore
     let signers = await hardhat.hethers.getSigners();
     const erc20Amount = "6000000000000000000000";
@@ -54,21 +66,12 @@ async function init(hederanetwork: string, factory: string, router:string) {
 
         await approveERC20(hederanetwork, tokenC, router, erc20ApproveAmount, clientAccount, clientPK);
         await approveERC20(hederanetwork, tokenD, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(hederanetwork, htsPair, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(hederanetwork, erc20Pair, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(hederanetwork, mixedPair, router, erc20ApproveAmount, clientAccount, clientPK);
     }
 
     console.log("Token spending approval, association and minting to signers done.")
-    console.log("==================================================================================================")
-
-    await createPair(factory, tokenA.tokenAddress, tokenB.tokenAddress)
-    console.log("[HTS-HTS] Pair creation done.")
-    console.log("==================================================================================================")
-
-    await createPair(factory, tokenC, tokenD)
-    console.log("[ERC20-ERC20] Pair creation done.")
-    console.log("==================================================================================================")
-
-    await createPair(factory, tokenA.tokenAddress, tokenC)
-    console.log("[HTS-ERC20] Pair creation done.")
     console.log("==================================================================================================")
 
     let tokenCId = hethers.utils.getAccountFromAddress(tokenC)
