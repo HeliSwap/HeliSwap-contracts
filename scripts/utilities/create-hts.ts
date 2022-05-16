@@ -10,7 +10,8 @@ async function createHTS(hederanetwork: string, name: string, symbol: string, su
 	const client = Hashgraph.clientFor(hederanetwork).setOperator(clientAccount, clientPK);
 	const token = await Hashgraph.deployToken(client, clientPK, name, symbol, supply);
 
-	console.log(`HTS Token Deployed at: ${token}`);
+	// @ts-ignore
+	console.log(`HTS Token Deployed at: ${token.tokenAddress} with id ${token.tokenId}`);
 
 	return token;
 }

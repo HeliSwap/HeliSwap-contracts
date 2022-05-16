@@ -30,7 +30,7 @@ async function init(hederanetwork: string, factory: string, router:string) {
     const erc20Amount = "6000000000000000000000";
     const htsAmount = "200000000000";
 
-    const erc20ApproveAmount = "200000000000000000000";
+    const erc20ApproveAmount = "7000000000000000000000";
     const htsApproveAmount = 1000000000000;
     for (const signer of signers) {
         let clientAccount = signer._signer.account;
