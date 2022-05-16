@@ -19,9 +19,6 @@ async function addLiquidity(routerAddress: string, token0: string, amount0: stri
 		getExpiry());
 	const txReceipt = await addLiquidityTx.wait();
 	console.log(`Added Liquidity: ${txReceipt.hash}`)
-
-	// const reserves = await router.getReserves(token0, token1);
-	// console.log(`Reserves: ${reserves}`);
 }
 
 module.exports = addLiquidity;

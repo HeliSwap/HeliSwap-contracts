@@ -35,7 +35,6 @@ export namespace Hashgraph {
 		supply: number,
 		decimals = 8
 	): Promise<object> {
-		// TODO: Figure out the keys problem
 		const tokenCreate = await (await new TokenCreateTransaction()
 			.setTokenName(name)
 			.setTokenSymbol(symbol)
@@ -43,14 +42,8 @@ export namespace Hashgraph {
 			.setDecimals(decimals)
 			.setInitialSupply(supply)
 			.setTreasuryAccountId(client.operatorAccountId || DEFAULT_ACCOUNT)
-			// .setAdminKey(client.operatorPublicKey || DEFAULT_KEY)
-			// .setFreezeKey(client.operatorPublicKey || DEFAULT_KEY)
-			// .setWipeKey(client.operatorPublicKey || DEFAULT_KEY)
-			// .setKycKey(client.operatorPublicKey || DEFAULT_KEY)
-			// .setSupplyKey(client.operatorPublicKey || DEFAULT_KEY)
 			.setTransactionId(TransactionId.generate(client.operatorAccountId || DEFAULT_ACCOUNT))
 			.setNodeAccountIds([client._network.getNodeAccountIdsForExecute()[0]])
-			// .setFreezeDefault(false)
 			.freeze()
 			.sign(PrivateKey.fromStringECDSA(pk)))
 			.execute(client)

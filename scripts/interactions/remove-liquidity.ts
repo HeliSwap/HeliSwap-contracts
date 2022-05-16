@@ -27,12 +27,6 @@ async function removeLiquidity(routerAddress, token1EVMAddress, token2EVMAddress
     } catch (e) {
         console.log(e)
     }
-
-    // const reserves = await router.getReserves(
-    //     token1EVMAddress,
-    //     token2EVMAddress
-    // );
-    // console.log(`Reserves: ${reserves}`);
 }
 
 module.exports = removeLiquidity;
