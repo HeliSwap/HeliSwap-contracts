@@ -177,6 +177,7 @@ task('getAccountBalanceInfo').addParam('hederanetwork').addParam('accountid').se
 });
 
 task('approve')
+	.addParam('hederanetwork')
 	.addParam('token')
 	.addParam('spender')
 	.addParam('amount')
@@ -184,7 +185,7 @@ task('approve')
 	.addParam('lenderpk')
 	.setAction(async (taskArgs) => {
 		const approve = require('./scripts/utilities/erc20-approve');
-		await approve(taskArgs.token, taskArgs.spender, taskArgs.amount, taskArgs.lender, taskArgs.lenderpk);
+		await approve(taskArgs.hederanetwork, taskArgs.token, taskArgs.spender, taskArgs.amount, taskArgs.lender, taskArgs.lenderpk);
 	});
 
 
@@ -227,7 +228,7 @@ module.exports = {
 		networks: config.networks,
 		gasLimit: 3000000
 	},
-	defaultNetwork: 'previewnet',
+	defaultNetwork: 'local',
 	abiExporter: {
 		only: [],
 		except: ['.*Mock$'],

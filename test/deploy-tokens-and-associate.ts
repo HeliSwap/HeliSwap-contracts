@@ -13,11 +13,14 @@ async function init(hederanetwork: string, factory: string, router:string) {
     let tokenA = await createHTS(hederanetwork, "TokenA", "tA");
     let tokenB = await createHTS(hederanetwork, "TokenB", "tB");
 
-    console.log(tokenA)
-    console.log(tokenB)
+    console.log("HTS TokenA:", tokenA.tokenAddress)
+    console.log("HTS TokenB:", tokenB.tokenAddress)
 
     let tokenC = await deployERC20("TokenC", "tC");
     let tokenD = await deployERC20("TokenD", "tD");
+
+    console.log("HTS TokenC:", tokenC)
+    console.log("HTS TokenD:", tokenD)
 
     console.log("Token deployment done.")
     console.log("==================================================================================================")
@@ -28,20 +31,21 @@ async function init(hederanetwork: string, factory: string, router:string) {
         let clientAccount = signer._signer.account;
         let clientPK = signer._signingKey().privateKey;
 
-        await approveHTS(hederanetwork, clientAccount, clientPK, hethers.utils.getAccountFromAddress(router), tokenA.tokenId, 200000000000);
-        await approveHTS(hederanetwork, clientAccount, clientPK, hethers.utils.getAccountFromAddress(router), tokenB.tokenId, 200000000000);
-        await approveERC20(tokenC, router, 10000000000000000000, clientAccount, clientPK);
-        await approveERC20(tokenD, router, 10000000000000000000, clientAccount, clientPK);
-
         await mintERC20(tokenC, hethers.utils.getAddressFromAccount(clientAccount), "6000000000000000000000")
         await mintERC20(tokenD, hethers.utils.getAddressFromAccount(clientAccount), "6000000000000000000000")
 
-        if (signer === signers[0]) {
-            continue;
+        if (signer != signers[0]) {
+            await associateHTS(hederanetwork, clientAccount, clientPK, tokenA.tokenId)
+            await associateHTS(hederanetwork, clientAccount, clientPK, tokenB.tokenId)
         }
+    
+        let routerId = hethers.utils.getAccountFromAddress(router)
+        let routerIdString = `${routerId.shard.toString()}.${routerId.realm.toString()}.${routerId.num.toString()}`
+        await approveHTS(hederanetwork, clientAccount, clientPK, routerIdString, tokenA.tokenId, 200000000000);
+        await approveHTS(hederanetwork, clientAccount, clientPK, routerIdString, tokenB.tokenId, 200000000000);
+        await approveERC20(hederanetwork, tokenC, router, "10000000000000000000", clientAccount, clientPK);
+        await approveERC20(hederanetwork, tokenD, router, "10000000000000000000", clientAccount, clientPK);
 
-        await associateHTS(hederanetwork, clientAccount, clientPK, tokenA.tokenId)
-        await associateHTS(hederanetwork, clientAccount, clientPK, tokenB.tokenId)
     }
 
     console.log("Token spending approval, association and minting to signers done.")

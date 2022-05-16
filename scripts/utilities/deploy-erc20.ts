@@ -6,7 +6,7 @@ async function deployERC20(name: string, symbol: string) {
 
 	const MockToken = await hardhat.hethers.getContractFactory("MockToken");
 	const mockToken = await MockToken.deploy(name, symbol);
-	await mockToken.deployed();
+	// await mockToken.deployed();
 	console.log(`Mock Token Deployed At: ${mockToken.address}`);
 	return mockToken.address;
 }
