@@ -8,6 +8,7 @@ async function deployERC20(name: string, symbol: string) {
 	const mockToken = await MockToken.deploy(name, symbol);
 	await mockToken.deployed();
 	console.log(`Mock Token Deployed At: ${mockToken.address}`);
+	return mockToken.address;
 }
 
 module.exports = deployERC20;

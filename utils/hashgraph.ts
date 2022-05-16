@@ -34,7 +34,7 @@ export namespace Hashgraph {
 		symbol: string,
 		supply: number,
 		decimals = 8
-	): Promise<string> {
+	): Promise<object> {
 		// TODO: Figure out the keys problem
 		const tokenCreate = await (await new TokenCreateTransaction()
 			.setTokenName(name)
@@ -58,7 +58,7 @@ export namespace Hashgraph {
 		const receipt = await tokenCreate.getReceipt(client);
 		const tokenId = receipt.tokenId?.toString() || "0.0.0";
 		console.log(tokenId)
-		return hethers.utils.getAddressFromAccount(tokenId);
+		return {tokenAddress: hethers.utils.getAddressFromAccount(tokenId), tokenId: tokenId};
 	}
 
 	/**

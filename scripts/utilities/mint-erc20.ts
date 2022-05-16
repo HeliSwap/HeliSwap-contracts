@@ -1,7 +1,7 @@
 // @ts-nocheck
 import hardhat from 'hardhat';
 
-async function mintERC20(tokenAddress: string, to: string, amount: string = "1000000000000000000000") {
+async function mintERC20(tokenAddress: string, to: string, amount: string = "6000000000000000000000") {
     console.log(`Starting ERC20 deployment...`);
 
     const MockToken = await hardhat.hethers.getContractAt("MockToken", tokenAddress);

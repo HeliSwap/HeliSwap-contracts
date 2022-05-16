@@ -6,6 +6,16 @@ import 'hardhat-hethers';
 import * as config from './config';
 import {task} from "hardhat/config";
 
+task('init', 'Deploys an HTS token')
+	.addParam("hederanetwork", "The network to create account in")
+	.addParam("factory", "Heliswap factory address")
+	.addParam("router", "Heliswap router address")
+	.setAction(async (taskArgs) => {
+		console.log(taskArgs)
+		const tokenDeployment = require('./test/deploy-tokens-and-associate');
+		await tokenDeployment(taskArgs.hederanetwork, taskArgs.factory, taskArgs.router);
+	});
+
 task('createAccount', 'Generates ECDSA Account')
 	.addParam("hederanetwork", "The network to create account in")
 	.addParam("account", "The creator account to be used")

@@ -11,6 +11,8 @@ async function createHTS(hederanetwork: string, name: string, symbol: string, su
 	const token = await Hashgraph.deployToken(client, clientPK, name, symbol, supply);
 
 	console.log(`HTS Token Deployed at: ${token}`);
+
+	return token;
 }
 
 module.exports = createHTS;
