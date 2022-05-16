@@ -10,9 +10,9 @@ async function createPair(factory, token1EVMAddress, token2EVMAddress) {
     const contract = await hardhat.hethers.getContractFactory('UniswapV2Pair');
     const bytecode = contract.bytecode;
     const init_code_hash = keccak256( bytecode.startsWith('0x') ? bytecode : `0x${bytecode}` );
-    reconnectedFactory.on('PairCreated', (event) => {
-        console.log(`PairCreated: `, event);
-    });
+    // reconnectedFactory.on('PairCreated', (event) => {
+    //     console.log(`PairCreated: `, event);
+    // });
     const pairAddressComputed = getCreate2Address(
         factory,
         keccak256(solidityPack(['address', 'address'], [token1EVMAddress, token2EVMAddress])),
