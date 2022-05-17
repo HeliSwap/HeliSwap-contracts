@@ -7,6 +7,7 @@
     "createAccount": "npx hardhat createAccount --hederanetwork local --account genesisAccount --pk genesisAccountPK --balance 100000",
     "createHTS": "npx hardhat createHTS --hederanetwork local --name tokenA --symbol tA",
     "createERC20": "npx hardhat deployERC20 --name tokenA --symbol ta",
+    "createAndMintERC20": "npx hardhat deployAndMintERC20 --hederanetwork previewnet --factory 0xfactoryAddress --router 0xrouterAddress",
     "mintERC20": "npx hardhat mintERC20 --token 0xtokenAddress --receiver 0xreceiverAccount",
     "associateHTS": "npx hardhat associateHTS --hederanetwork local --accountid 0.0.toBeAssociatedAcc --pk toBeAssociatedAccPK --tokenid 0.0.TOKEN",
     "transferHTS": "npx hardhat transferHTS --hederanetwork local --accountid 0.0.swapperAccount --tokenid 0.0.TOKEN --amount 5000000",

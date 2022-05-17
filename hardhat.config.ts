@@ -16,6 +16,16 @@ task('init', 'Deploys an HTS token')
 		await tokenDeployment(taskArgs.hederanetwork, taskArgs.factory, taskArgs.router);
 	});
 
+task('deployAndMintERC20', 'Deploys an HTS token')
+	.addParam("hederanetwork", "The network to create account in")
+	.addParam("factory", "Heliswap factory address")
+	.addParam("router", "Heliswap router address")
+	.setAction(async (taskArgs) => {
+		console.log(taskArgs)
+		const tokenDeploymentAndMint = require('./test/deploy-mint-erc20');
+		await tokenDeploymentAndMint(taskArgs.hederanetwork, taskArgs.factory, taskArgs.router);
+	});
+
 task('createAccount', 'Generates ECDSA Account')
 	.addParam("hederanetwork", "The network to create account in")
 	.addParam("account", "The creator account to be used")
