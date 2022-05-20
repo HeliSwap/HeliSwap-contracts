@@ -1,11 +1,12 @@
 import {AccountCreateTransaction, Client, Hbar, PublicKey} from "@hashgraph/sdk";
 import {hethers} from "@hashgraph/hethers";
 import {Hashgraph} from "../../utils/hashgraph";
+import hardhat from 'hardhat';
 
-async function createAccount(network: string, account: string, pk: string, balance: string) {
-	console.log(`Creating Account at ${network} with initial HBAR balance: ${balance}`)
+async function createAccount(account: string, pk: string, balance: string) {
+	console.log(`Creating Account at ${hardhat.network.name} with initial HBAR balance: ${balance}`)
 
-	const client = Hashgraph.clientFor(network).setOperator(account, pk);
+	const client = Hashgraph.clientFor(hardhat.network.name).setOperator(account, pk);
 
 	const randomWallet = hethers.Wallet.createRandom();
 	const tx = await new AccountCreateTransaction()

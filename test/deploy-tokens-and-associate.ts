@@ -9,9 +9,9 @@ import approveERC20 from '../scripts/utilities/erc20-approve';
 import createPair from '../scripts/interactions/create-pair';
 import {hethers} from "@hashgraph/hethers";
 
-async function init(hederanetwork: string, factory: string, router:string) {
-    let tokenA = await createHTS(hederanetwork, "TokenA", "tA");
-    let tokenB = await createHTS(hederanetwork, "TokenB", "tB");
+async function init(factory: string, router:string) {
+    let tokenA = await createHTS("TokenA", "tA");
+    let tokenB = await createHTS("TokenB", "tB");
 
     console.log("HTS TokenA:", tokenA.tokenAddress)
     console.log("HTS TokenB:", tokenB.tokenAddress)
@@ -52,23 +52,23 @@ async function init(hederanetwork: string, factory: string, router:string) {
         await mintERC20(tokenD, hethers.utils.getAddressFromAccount(clientAccount), erc20Amount)
 
         if (signer != signers[0]) {
-            await associateHTS(hederanetwork, clientAccount, clientPK, tokenA.tokenId)
-            await associateHTS(hederanetwork, clientAccount, clientPK, tokenB.tokenId)
+            await associateHTS(clientAccount, clientPK, tokenA.tokenId)
+            await associateHTS(clientAccount, clientPK, tokenB.tokenId)
         }
 
         let routerId = hethers.utils.getAccountFromAddress(router)
         let routerIdString = `${routerId.shard.toString()}.${routerId.realm.toString()}.${routerId.num.toString()}`
 
-        if (hederanetwork == 'local') {
-            await approveHTS(hederanetwork, clientAccount, clientPK, routerIdString, tokenA.tokenId, htsApproveAmount);
-            await approveHTS(hederanetwork, clientAccount, clientPK, routerIdString, tokenB.tokenId, htsApproveAmount);
+        if (hardhat.network.name == 'local') {
+            await approveHTS(clientAccount, clientPK, routerIdString, tokenA.tokenId, htsApproveAmount);
+            await approveHTS(clientAccount, clientPK, routerIdString, tokenB.tokenId, htsApproveAmount);
         }
 
-        await approveERC20(hederanetwork, tokenC, router, erc20ApproveAmount, clientAccount, clientPK);
-        await approveERC20(hederanetwork, tokenD, router, erc20ApproveAmount, clientAccount, clientPK);
-        await approveERC20(hederanetwork, htsPair, router, erc20ApproveAmount, clientAccount, clientPK);
-        await approveERC20(hederanetwork, erc20Pair, router, erc20ApproveAmount, clientAccount, clientPK);
-        await approveERC20(hederanetwork, mixedPair, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(tokenC, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(tokenD, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(htsPair, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(erc20Pair, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(mixedPair, router, erc20ApproveAmount, clientAccount, clientPK);
     }
 
     console.log("Token spending approval, association and minting to signers done.")

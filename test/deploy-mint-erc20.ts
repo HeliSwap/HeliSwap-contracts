@@ -5,7 +5,7 @@ import mintERC20 from '../scripts/utilities/mint-erc20';
 import approveERC20 from '../scripts/utilities/erc20-approve';
 import {hethers} from "@hashgraph/hethers";
 
-async function deployMintERC20(hederanetwork: string, factory: string, router:string) {
+async function deployMintERC20(factory: string, router:string) {
     let TOKEN = await deployERC20("Token", "t");
 
     console.log("ERC20 Token:", TOKEN)
@@ -23,7 +23,7 @@ async function deployMintERC20(hederanetwork: string, factory: string, router:st
         let clientPK = signer._signingKey().privateKey;
 
         await mintERC20(TOKEN, hethers.utils.getAddressFromAccount(clientAccount), erc20Amount)
-        await approveERC20(hederanetwork, TOKEN, router, erc20ApproveAmount, clientAccount, clientPK);
+        await approveERC20(TOKEN, router, erc20ApproveAmount, clientAccount, clientPK);
     }
 
     console.log("Token spending approval, association and minting to signers done.")
