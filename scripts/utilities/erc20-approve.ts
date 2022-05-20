@@ -1,16 +1,19 @@
 // @ts-nocheck
 import hardhat from 'hardhat';
-import {Hashgraph} from "../../utils/hashgraph";
 
 async function approve(tokenAddr, spenderAddr, amount, lenderAccount, lenderPrivateKey) {
-    let client = Hashgraph.clientFor(hardhat.network.name)
+    let providerNetwork = hardhat.network.name
+    if (providerNetwork == 'local') {
+        providerNetwork = "127.0.0.1:50211";
+    }
+    let provider = await hardhat.hethers.getDefaultProvider(providerNetwork)
 
     const lenderWallet = new hardhat.hethers.Wallet({
         account: lenderAccount,
         privateKey: lenderPrivateKey
-    }, client);
+    }, provider);
     const token = await hardhat.hethers.getContractAt('MockToken', tokenAddr, lenderWallet);
-    const approval = await token.approve(spenderAddr, amount);
+    const approval = await token.approve(spenderAddr, amount, {gasLimit: 300000});
     console.log(approval);
 }
 
