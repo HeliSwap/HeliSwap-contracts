@@ -59,10 +59,10 @@ async function init(factory: string, router:string) {
         let routerId = hethers.utils.getAccountFromAddress(router)
         let routerIdString = `${routerId.shard.toString()}.${routerId.realm.toString()}.${routerId.num.toString()}`
 
-        if (hardhat.network.name == 'local') {
+        // if (hardhat.network.name == 'local') {
             await approveHTS(clientAccount, clientPK, routerIdString, tokenA.tokenId, htsApproveAmount);
             await approveHTS(clientAccount, clientPK, routerIdString, tokenB.tokenId, htsApproveAmount);
-        }
+        // }
 
         await approveERC20(tokenC, router, erc20ApproveAmount, clientAccount, clientPK);
         await approveERC20(tokenD, router, erc20ApproveAmount, clientAccount, clientPK);
