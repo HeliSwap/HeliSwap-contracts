@@ -1,31 +1,23 @@
 // @ts-nocheck
-import fs from "fs";
 import hardhat from 'hardhat';
+import {Utils} from "../../utils/utils";
+import getExpiry = Utils.getExpiry;
 
-async function swap(router, token1EVMAddress, token2EVMAddress) {
-    const gasLimitOverride = {gasLimit: 3000000};
+async function swap(routerAddress, token1EVMAddress, token2EVMAddress) {
+    const router = await hardhat.hethers.getContractAt('UniswapV2Router02', routerAddress);
+    const [signer] = await hardhat.hethers.getSigners();
 
-    const _uniswapV2RouterAbi = JSON.parse(fs.readFileSync('assets/UniswapV2Router.abi.json').toString());
-
-    let signers = await hardhat.hethers.getSigners();
-    let signer = signers[1]._signer;
-
-    let reconnectedRouter = hethers.ContractFactory.getContract(router, _uniswapV2RouterAbi, signer);
-    const swapTx = await reconnectedRouter.swapExactTokensForTokens(
-        500,
-        400,
+    const swapTx = await router.swapExactTokensForTokens(
+        5000000,
+        3000000,
         [token1EVMAddress, token2EVMAddress],
-        signers[2].address,
-        oneHourAfter.getTime(),
-        gasLimitOverride);
+        signer.address,
+        getExpiry());
     console.log('Waiting for swapTx');
     console.log(swapTx)
 
-    const reserves = await reconnectedRouter.getReserves(
-        token1EVMAddress,
-        token2EVMAddress,
-        gasLimitOverride
-    );
+    const reserves = await router.getReserves(token1EVMAddress, token2EVMAddress);
+    console.log(`Reserves: ${reserves}`);
 
     return reserves
 }
