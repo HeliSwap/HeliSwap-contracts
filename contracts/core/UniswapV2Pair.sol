@@ -59,7 +59,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint amount1Out,
         address indexed to
     );
-    event Sync(uint112 reserve0, uint112 reserve1);
+    event Sync(uint112 reserve0, uint112 reserve1, uint totalSupply);
 
     constructor() public {
         factory = msg.sender;
@@ -87,7 +87,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         reserve0 = uint112(balance0);
         reserve1 = uint112(balance1);
         blockTimestampLast = blockTimestamp;
-        emit Sync(reserve0, reserve1);
+        emit Sync(reserve0, reserve1, totalSupply);
     }
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)

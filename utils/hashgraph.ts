@@ -95,7 +95,7 @@ export namespace Hashgraph {
 		amount: number
 	): Promise<void> {
 		const tokenApprove = await (await new AccountAllowanceApproveTransaction()
-			.approveTokenAllowance(tokenid, ownerAccount, spenderAccount, amount)
+			.addTokenAllowance(tokenid, spenderAccount, amount)
 			.freezeWith(client)
 			.sign(PrivateKey.fromStringECDSA(pk)))
 			.execute(client);
