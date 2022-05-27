@@ -1,9 +1,5 @@
 // @ts-nocheck
-import fs from "fs";
 import hardhat from 'hardhat';
-import * as util from "util";
-import {Utils} from "../../utils/utils";
-import getExpiry = Utils.getExpiry;
 import {hethers} from "@hashgraph/hethers";
 
 async function getReserves(routerAddress, token1EVMAddress, token2EVMAddress) {
