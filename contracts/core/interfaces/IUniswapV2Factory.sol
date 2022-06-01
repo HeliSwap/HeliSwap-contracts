@@ -5,7 +5,7 @@ pragma solidity >=0.5.0;
 * Zinsmeister, N., Adams, H., Robinson, D., & Salem, M. (2019). v2-core (Version 1.0.1) [Computer software].
 * https://github.com/Uniswap/v2-core
 *
-* HeliSwap development team modified the `PairCreated` event in order to emit additional ERC20 metadata
+* Modified the `PairCreated` event in order to emit additional ERC20 metadata
 /******************************************************************************/
 
 interface IUniswapV2Factory {

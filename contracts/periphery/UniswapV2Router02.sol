@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity =0.6.6;
 
 import '../core/interfaces/IUniswapV2Factory.sol';
@@ -10,6 +8,10 @@ import './libraries/UniswapV2Library.sol';
 import './libraries/SafeMath.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWHBAR.sol';
+
+/******************************************************************************\
+* Modified version of the UniswapV2Router02 with support for HTS tokens and WHBAR
+/******************************************************************************/
 
 contract UniswapV2Router02 is IUniswapV2Router02 {
     using SafeMath for uint;
@@ -28,13 +30,12 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     }
 
     receive() external payable {
-        assert(msg.sender == WHBAR); // only accept ETH via fallback from the WETH contract
+        assert(msg.sender == WHBAR); // only accept HBAR via fallback from the WHBAR contract
     }
 
     function getReserves(address tokenA, address tokenB) external view returns (uint reserveA, uint reserveB) {
         (reserveA, reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
     }
-
 
     // **** ADD LIQUIDITY ****
     function _addLiquidity(
@@ -257,12 +258,12 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         _swap(amounts, path, to);
     }
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
-    external
-    virtual
-    override
-    payable
-    ensure(deadline)
-    returns (uint[] memory amounts)
+        external
+        virtual
+        override
+        payable
+        ensure(deadline)
+        returns (uint[] memory amounts)
     {
         require(path[0] == WHBAR, 'UniswapV2Router: INVALID_PATH');
         amounts = UniswapV2Library.getAmountsOut(factory, msg.value, path);
@@ -272,11 +273,11 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         _swap(amounts, path, to);
     }
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
-    external
-    virtual
-    override
-    ensure(deadline)
-    returns (uint[] memory amounts)
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint[] memory amounts)
     {
         require(path[path.length - 1] == WHBAR, 'UniswapV2Router: INVALID_PATH');
         amounts = UniswapV2Library.getAmountsIn(factory, amountOut, path);
@@ -289,11 +290,11 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
     }
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
-    external
-    virtual
-    override
-    ensure(deadline)
-    returns (uint[] memory amounts)
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint[] memory amounts)
     {
         require(path[path.length - 1] == WHBAR, 'UniswapV2Router: INVALID_PATH');
         amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path);
@@ -306,12 +307,12 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
     }
     function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
-    external
-    virtual
-    override
-    payable
-    ensure(deadline)
-    returns (uint[] memory amounts)
+        external
+        virtual
+        override
+        payable
+        ensure(deadline)
+        returns (uint[] memory amounts)
     {
         require(path[0] == WHBAR, 'UniswapV2Router: INVALID_PATH');
         amounts = UniswapV2Library.getAmountsIn(factory, amountOut, path);
@@ -333,10 +334,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             uint amountInput;
             uint amountOutput;
             { // scope to avoid stack too deep errors
-                (uint reserve0, uint reserve1,) = pair.getReserves();
-                (uint reserveInput, uint reserveOutput) = input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-                amountInput = IERC20(input).balanceOf(address(pair)).sub(reserveInput);
-                amountOutput = UniswapV2Library.getAmountOut(amountInput, reserveInput, reserveOutput);
+            (uint reserve0, uint reserve1,) = pair.getReserves();
+            (uint reserveInput, uint reserveOutput) = input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+            amountInput = IERC20(input).balanceOf(address(pair)).sub(reserveInput);
+            amountOutput = UniswapV2Library.getAmountOut(amountInput, reserveInput, reserveOutput);
             }
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOutput) : (amountOutput, uint(0));
             address to = i < path.length - 2 ? UniswapV2Library.pairFor(factory, output, path[i + 2]) : _to;
@@ -366,11 +367,11 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint deadline
     )
-    external
-    virtual
-    override
-    payable
-    ensure(deadline)
+        external
+        virtual
+        override
+        payable
+        ensure(deadline)
     {
         require(path[0] == WHBAR, 'UniswapV2Router: INVALID_PATH');
         uint amountIn = msg.value;
@@ -390,10 +391,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint deadline
     )
-    external
-    virtual
-    override
-    ensure(deadline)
+        external
+        virtual
+        override
+        ensure(deadline)
     {
         require(path[path.length - 1] == WHBAR, 'UniswapV2Router: INVALID_PATH');
         TransferHelper.safeTransferFrom(
@@ -412,41 +413,41 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     }
 
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut)
-    public
-    pure
-    virtual
-    override
-    returns (uint amountOut)
+        public
+        pure
+        virtual
+        override
+        returns (uint amountOut)
     {
         return UniswapV2Library.getAmountOut(amountIn, reserveIn, reserveOut);
     }
 
     function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut)
-    public
-    pure
-    virtual
-    override
-    returns (uint amountIn)
+        public
+        pure
+        virtual
+        override
+        returns (uint amountIn)
     {
         return UniswapV2Library.getAmountIn(amountOut, reserveIn, reserveOut);
     }
 
     function getAmountsOut(uint amountIn, address[] memory path)
-    public
-    view
-    virtual
-    override
-    returns (uint[] memory amounts)
+        public
+        view
+        virtual
+        override
+        returns (uint[] memory amounts)
     {
         return UniswapV2Library.getAmountsOut(factory, amountIn, path);
     }
 
     function getAmountsIn(uint amountOut, address[] memory path)
-    public
-    view
-    virtual
-    override
-    returns (uint[] memory amounts)
+        public
+        view
+        virtual
+        override
+        returns (uint[] memory amounts)
     {
         return UniswapV2Library.getAmountsIn(factory, amountOut, path);
     }
