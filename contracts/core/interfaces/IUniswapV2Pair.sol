@@ -1,6 +1,12 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity >=0.5.0;
+
+/******************************************************************************\
+* Original IUniswapV2Pair interface authors are
+* Zinsmeister, N., Adams, H., Robinson, D., & Salem, M. (2019). v2-core (Version 1.0.1) [Computer software].
+* https://github.com/Uniswap/v2-core
+*
+* HeliSwap development team modified the `Sync` event in order to emit additional metadata
+/******************************************************************************/
 
 interface IUniswapV2Pair {
     event Approval(address indexed owner, address indexed spender, uint value);
@@ -23,6 +29,7 @@ interface IUniswapV2Pair {
 
     function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
 
+    // TODO revert back the Mint/Burn changes
     event Mint(address indexed sender, uint amount0, uint amount1, address indexed receiver, uint mintedLp);
     event Burn(address indexed sender, uint amount0, uint amount1, address indexed to, uint burnedLp);
     event Swap(
