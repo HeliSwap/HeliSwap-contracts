@@ -33,8 +33,12 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         assert(msg.sender == WHBAR); // only accept HBAR via fallback from the WHBAR contract
     }
 
-    function getReserves(address tokenA, address tokenB) external view returns (uint reserveA, uint reserveB) {
-        (reserveA, reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
+    function getReserves(address tokenA, address tokenB)
+        external
+        view
+        override
+        returns (uint reserveA, uint reserveB) {
+            (reserveA, reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
     }
 
     // **** ADD LIQUIDITY ****

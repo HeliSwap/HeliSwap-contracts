@@ -45,5 +45,5 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     function getReserves(
         address tokenA,
         address tokenB
-    ) external returns (uint reserveA, uint reserveB);
+    ) external view returns (uint reserveA, uint reserveB);
 }
