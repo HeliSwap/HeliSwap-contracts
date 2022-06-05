@@ -9,7 +9,7 @@ import './interfaces/IUniswapV2Factory.sol';
 import './interfaces/IUniswapV2Callee.sol';
 
 /******************************************************************************\
-* Original UniswapV2Pair interface authors are
+* Original UniswapV2Pair authors are
 * Zinsmeister, N., Adams, H., Robinson, D., & Salem, M. (2019). v2-core (Version 1.0.1) [Computer software].
 * https://github.com/Uniswap/v2-core
 *
