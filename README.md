@@ -27,13 +27,13 @@ can go to [Uniswap Docs](https://docs.uniswap.org/).
 - `HeliSwapV2Router02`:`TODO`
 
 **Testnet Deployment Addresses**
-- `WHBAR`:`TODO`
-- `HeliSwapFactory`:`TODO`
-- `HeliSwapV2Router02`:`TODO`
+- `WHBAR`:`0x0000000000000000000000000000000002bc617f`
+- `HeliSwapFactory`:`0x0000000000000000000000000000000002bc6783`
+- `HeliSwapV2Router02`:`0x0000000000000000000000000000000002bc678e`
 
 ## Local Development
 
-Setup your Development environment by performing the following steps:
+Set up your Development environment by performing the following steps:
 1. `git clone`
 2. `cp config.sample.ts config.ts`
 3. `npm install`

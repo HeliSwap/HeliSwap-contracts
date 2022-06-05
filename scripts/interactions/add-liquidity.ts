@@ -18,7 +18,7 @@ async function addLiquidity(routerAddress: string, token0: string, amount0: stri
 		signer.address,
 		getExpiry());
 	const txReceipt = await addLiquidityTx.wait();
-	console.log(`Added Liquidity: ${txReceipt.hash}`)
+	console.log(`Added Liquidity: ${txReceipt.transactionHash}`)
 }
 
 module.exports = addLiquidity;
