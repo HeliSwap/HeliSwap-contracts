@@ -18,7 +18,7 @@
     "associateHTS": "npx hardhat associateHTS --accountid 0.0.toBeAssociatedAcc --pk toBeAssociatedAccPK --tokenid 0.0.TOKEN",
     "transferHTS": "npx hardhat transferHTS --accountid 0.0.swapperAccount --tokenid 0.0.TOKEN --amount 5000000",
     "createPair": "npx hardhat createPair --factory 0x0000000000000000000000000000000002bc6533 --token1 0x0000000000000000000000000000000002bc61b6 --token2 0x0000000000000000000000000000000002bc61bf",
-    "approveHTS": "npx hardhat approveHTS --accountid 0.0.4288622 --pk 0x342ddd4d58161b4eb4497683eb2f2da71c79a8d9b68fce0a6dbd0ac9df8706da --spenderaccountid 0.0.4302339 --tokenid 0.0.4336497 --amount 200000000000",
+    "approveHTS": "npx hardhat approveHTS --accountid 0.0.4288622 --pk PK --spenderaccountid 0.0.4302339 --tokenid 0.0.4336497 --amount 200000000000",
     "getAccountBalance": "npx hardhat getAccountBalanceInfo --accountid 0.0.8999",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts",
