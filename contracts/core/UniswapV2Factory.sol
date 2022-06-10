@@ -1,9 +1,15 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity =0.5.16;
 
 import './interfaces/IUniswapV2Factory.sol';
 import './UniswapV2Pair.sol';
+
+/******************************************************************************\
+* Original UniswapV2Factory authors are
+* Zinsmeister, N., Adams, H., Robinson, D., & Salem, M. (2019). v2-core (Version 1.0.1) [Computer software].
+* https://github.com/Uniswap/v2-core
+*
+* Modified the `PairCreated` event in order to emit additional ERC20 metadata
+/******************************************************************************/
 
 contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo;
@@ -46,6 +52,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
+
         string memory token0Symbol = IERC20(token0).symbol();
         string memory token0Name = IERC20(token0).name();
         uint token0Decimals = IERC20(token0).decimals();
@@ -53,7 +60,19 @@ contract UniswapV2Factory is IUniswapV2Factory {
         string memory token1Symbol = IERC20(token1).symbol();
         string memory token1Name = IERC20(token1).name();
         uint token1Decimals = IERC20(token1).decimals();
-        emit PairCreated(token0, token1, pair, allPairs.length, token0Symbol, token1Symbol, token0Name, token1Name, token0Decimals, token1Decimals);
+
+        emit PairCreated(
+            token0,
+            token1,
+            pair,
+            allPairs.length,
+            token0Symbol,
+            token1Symbol,
+            token0Name,
+            token1Name,
+            token0Decimals,
+            token1Decimals
+        );
     }
 
     function setFeeTo(address _feeTo) external {

@@ -185,11 +185,9 @@ task('approve')
 	.addParam('token')
 	.addParam('spender')
 	.addParam('amount')
-	.addParam('lender')
-	.addParam('lenderpk')
 	.setAction(async (taskArgs) => {
 		const approve = require('./scripts/utilities/erc20-approve');
-		await approve(taskArgs.token, taskArgs.spender, taskArgs.amount, taskArgs.lender, taskArgs.lenderpk);
+		await approve(taskArgs.token, taskArgs.spender, taskArgs.amount);
 	});
 
 

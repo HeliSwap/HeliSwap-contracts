@@ -1,9 +1,6 @@
 // @ts-nocheck
-import fs from "fs";
 import hardhat from 'hardhat';
-import {hethers} from "@hashgraph/hethers";
 import {getCreate2Address, keccak256, solidityPack} from "ethers/lib/utils";
-import * as util from "util";
 
 async function createPair(factory, token1EVMAddress, token2EVMAddress) {
     let reconnectedFactory = await hardhat.hethers.getContractAt("UniswapV2Factory", factory);

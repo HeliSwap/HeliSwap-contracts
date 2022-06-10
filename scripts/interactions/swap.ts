@@ -8,18 +8,13 @@ async function swap(routerAddress, token1EVMAddress, token2EVMAddress) {
     const [signer] = await hardhat.hethers.getSigners();
 
     const swapTx = await router.swapExactTokensForTokens(
-        5000000,
-        3000000,
+        5000000000,
+        4000000000,
         [token1EVMAddress, token2EVMAddress],
         signer.address,
         getExpiry());
-    console.log('Waiting for swapTx');
-    console.log(swapTx)
-
-    const reserves = await router.getReserves(token1EVMAddress, token2EVMAddress);
-    console.log(`Reserves: ${reserves}`);
-
-    return reserves
+    const txReceipt = await swapTx.wait();
+    console.log(`Swap TX: ${txReceipt.transactionHash}`)
 }
 
 module.exports = swap;

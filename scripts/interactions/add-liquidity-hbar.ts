@@ -19,7 +19,7 @@ async function addLiquidityHbar(routerAddress: string, token0: string, amount0: 
         {value: hbarAmount}
     );
     const txReceipt = await addLiquidityTx.wait();
-    console.log(`Added Liquidity: ${txReceipt.hash}`)
+    console.log(`Added Liquidity: ${txReceipt.transactionHash}`)
 
     const reserves = await router.getReserves(token0, whbarAddress);
     console.log(`Reserves: ${reserves}`);
