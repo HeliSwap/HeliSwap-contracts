@@ -77,9 +77,18 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
         token0 = _token0;
         token1 = _token1;
-        // TODO check error codes
-        address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token0));
-        address(0x167).call(abi.encodeWithSignature("associateToken(address,address)", address(this), token1));
+        optimisticAssociation(token0);
+        optimisticAssociation(token1);
+    }
+
+    // calls HTS precompile in order to execute optimistic association
+    function optimisticAssociation(address token) internal {
+        (bool success, bytes memory result) = address(0x167).call(
+            abi.encodeWithSignature("associateToken(address,address)", address(this), token));
+        require(success, "HTS Precompile: CALL_EXCEPTION");
+        int32 responseCode = abi.decode(result, (int32));
+        // Success = 22; Non-HTS token (erc20) = 167
+        require(responseCode == 22 || responseCode == 167, "HTS Precompile: CALL_ERROR");
     }
 
     // update reserves and, on the first call per block, price accumulators
