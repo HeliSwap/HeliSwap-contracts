@@ -1,12 +1,12 @@
 // @ts-nocheck
 import hardhat from 'hardhat';
-import createHTS from '../scripts/utilities/create-hts';
-import associateHTS from '../scripts/utilities/associate-hts';
-import deployERC20 from '../scripts/utilities/deploy-erc20';
-import mintERC20 from '../scripts/utilities/mint-erc20';
-import approveHTS from '../scripts/utilities/approve-hts';
-import approveERC20 from '../scripts/utilities/erc20-approve';
-import createPair from '../scripts/interactions/create-pair';
+import createHTS from './create-hts';
+import associateHTS from './associate-hts';
+import deployERC20 from './deploy-erc20';
+import mintERC20 from './mint-erc20';
+import approveHTS from './approve-hts';
+import approveERC20 from './erc20-approve';
+import createPair from '../interactions/create-pair';
 import {hethers} from "@hashgraph/hethers";
 
 async function init(factory: string, router:string) {
