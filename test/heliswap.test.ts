@@ -72,7 +72,6 @@ describe('HeliSwap Tests', function () {
 				deployer.address,
 				getExpiry());
 			const receipt = await tx.wait();
-			console.log(util.inspect(receipt, {depth: null}));
 		});
 
 		it('should be able to remove HTS/HTS liquidity', async () => {
@@ -80,11 +79,9 @@ describe('HeliSwap Tests', function () {
 			const amount1 = 4 * ( 10 ** 8 );
 			const liquidityAmount = 6 * ( 10 ** 8 );
 			const pairAddr = await factory.getPair(tokenA.address, tokenB.address);
-			console.log(`Got pair ${pairAddr}`);
 			// @ts-ignore
 			const pairContract = await hardhat.hethers.getContractAt("contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair", pairAddr); // invalid address - throws the abi
 			const supply = BigNumber.from(await pairContract.totalSupply()).toNumber();
-			console.log(`Pair supply ${supply}`);
 			const removableLiquidity = (supply/100).toString().split(".")[0];
 			await pairContract.approve(router.address, 1000 * (10 ** 8));
 
@@ -112,8 +109,6 @@ describe('HeliSwap Tests', function () {
 				[tokenA.address, tokenB.address],
 				deployer.address,
 				getExpiry());
-			const txReceipt = await swapTx.wait();
-			console.log(txReceipt);
 		})
 
 		it('should be able to add HTS/HBAR liquidity', async () => {
