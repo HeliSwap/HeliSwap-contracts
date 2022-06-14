@@ -1,14 +1,16 @@
 import hardhat from "hardhat";
 import {SignerWithAddress} from "hardhat-hethers/internal/signers";
-import {Contract} from "@hashgraph/hethers";
+import {BigNumber, Contract} from "@hashgraph/hethers";
 import {Utils} from "../utils/utils";
 import getExpiry = Utils.getExpiry;
+import * as util from "util";
 
 const deployWhbar = require('../scripts/deploy-whbar');
 const deployHeliSwap = require('../scripts/deploy');
 const createHTS = require('../scripts/utilities/create-hts');
 
 const ERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
+const PAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 describe('HeliSwap Tests', function () {
 	// this.timeout(120_000); // Router + Factory deployment is slow
 
@@ -69,14 +71,49 @@ describe('HeliSwap Tests', function () {
 				amount1,
 				deployer.address,
 				getExpiry());
+			const receipt = await tx.wait();
+			console.log(util.inspect(receipt, {depth: null}));
 		});
 
 		it('should be able to remove HTS/HTS liquidity', async () => {
+			const amount0 = 2 * ( 10 ** 8 );
+			const amount1 = 4 * ( 10 ** 8 );
+			const liquidityAmount = 6 * ( 10 ** 8 );
+			const pairAddr = await factory.getPair(tokenA.address, tokenB.address);
+			console.log(`Got pair ${pairAddr}`);
+			// @ts-ignore
+			const pairContract = await hardhat.hethers.getContractAt("contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair", pairAddr); // invalid address - throws the abi
+			const supply = BigNumber.from(await pairContract.totalSupply()).toNumber();
+			console.log(`Pair supply ${supply}`);
+			const removableLiquidity = (supply/100).toString().split(".")[0];
+			await pairContract.approve(router.address, 1000 * (10 ** 8));
 
+			const tx = await router.removeLiquidity(
+				tokenA.address,
+				tokenB.address,
+				removableLiquidity,
+				amount0,
+				amount0,
+				deployer.address,
+				getExpiry()
+			);
 		})
 
 		it('should be able to swap HTS/HTS', async () => {
+			const amount0 = 200 * ( 10 ** 8 );
+			const amount1 = 600 * ( 10 ** 8 );
+			await tokenA.approve(router.address, amount0);
+			await tokenB.approve(router.address, amount1);
 
+			// @ts-ignore
+			const swapTx = await router.swapExactTokensForTokens(
+				amount0,
+				amount1,
+				[tokenA.address, tokenB.address],
+				deployer.address,
+				getExpiry());
+			const txReceipt = await swapTx.wait();
+			console.log(txReceipt);
 		})
 
 		it('should be able to add HTS/HBAR liquidity', async () => {
