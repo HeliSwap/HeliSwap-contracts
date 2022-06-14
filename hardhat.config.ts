@@ -1,7 +1,5 @@
 import '@nomiclabs/hardhat-waffle';
 import 'hardhat-abi-exporter';
-import 'solidity-coverage';
-import 'hardhat-gas-reporter';
 import 'hardhat-hethers';
 import * as config from './config';
 import {task} from "hardhat/config";
@@ -11,16 +9,16 @@ task('init', 'Deploys an HTS token')
 	.addParam("router", "Heliswap router address")
 	.setAction(async (taskArgs) => {
 		console.log(taskArgs)
-		const tokenDeployment = require('./test/deploy-tokens-and-associate');
+		const tokenDeployment = require('./scripts/utilities/deploy-tokens-and-associate');
 		await tokenDeployment(taskArgs.factory, taskArgs.router);
 	});
 
-task('deployAndMintERC20', 'Deploys an HTS token')
-	.addParam("factory", "Heliswap factory address")
-	.addParam("router", "Heliswap router address")
+task('deployAndMintERC20', 'Deploys an ERC20 token')
+	.addParam("to", "Address to receive ERC20 Token")
+	.addParam("amount", "Amount of tokens to mint")
 	.setAction(async (taskArgs) => {
-		console.log(taskArgs)
-		const tokenDeploymentAndMint = require('./test/deploy-mint-erc20');
+		console.log(taskArgs);
+		const tokenDeploymentAndMint = require('./scripts/utilities/deploy-mint-erc20');
 		await tokenDeploymentAndMint(taskArgs.factory, taskArgs.router);
 	});
 
@@ -236,8 +234,5 @@ module.exports = {
 		except: ['.*Mock$'],
 		clear: true,
 		flat: true,
-	},
-	gasReporter: {
-		enabled: true,
 	}
 };
