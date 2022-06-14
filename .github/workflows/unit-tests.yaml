@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -25,6 +25,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - run: npm install
-      - run: cp config.sample.ts config.ts
+      - run: echo "${{ secrets.TESTNET_CONFIG }}" > ./config.ts
       - run: npx hardhat compile
       - run: npx hardhat test
