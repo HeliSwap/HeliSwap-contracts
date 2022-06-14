@@ -28,8 +28,8 @@ can go to [Uniswap Docs](https://docs.uniswap.org/).
 
 **Testnet Deployment Addresses**
 - `WHBAR`:`0x0000000000000000000000000000000002bc617f`
-- `HeliSwapFactory`:`0x0000000000000000000000000000000002bc6783`
-- `HeliSwapV2Router02`:`0x0000000000000000000000000000000002bc678e`
+- `HeliSwapFactory`:`0x0000000000000000000000000000000002bd1f74`
+- `HeliSwapV2Router02`:`0x0000000000000000000000000000000002bd1f77`
 
 ## Local Development
 
