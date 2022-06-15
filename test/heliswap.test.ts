@@ -87,12 +87,11 @@ describe('HeliSwap Tests', function () {
 				.withArgs(tokenA.address, tokenB.address, computedPairAddress, "TokenA", "TA", "TokenB", "TB");
 
 			const reserves = await router.getReserves(tokenA.address, tokenB.address);
-			console.assert(BigNumber.from(reserves.reserveA).toNumber() == amount0);
-			console.assert(BigNumber.from(reserves.reserveB).toNumber() == amount1);
-
+			expect(BigNumber.from(reserves.reserveA).toNumber()).to.be.eq(amount0);
+			expect(BigNumber.from(reserves.reserveB).toNumber()).to.be.eq(amount1);
 		});
 
-		it('should be able to remove HTS/HTS liquidity', async () => {
+		xit('should be able to remove HTS/HTS liquidity', async () => {
 			const amount0 = 2 * decimals;
 			const amount1 = 4 * decimals;
 			const liquidityAmount = 6 * decimals;
@@ -115,7 +114,7 @@ describe('HeliSwap Tests', function () {
 				.to.emit(pairContract, "Sync")
 		})
 
-		it('should be able to swap HTS/HTS', async () => {
+		xit('should be able to swap HTS/HTS', async () => {
 			const amount0 = 200 * decimals;
 			const amount1 = 600 * decimals;
 			await tokenA.approve(router.address, amount0);
@@ -132,26 +131,41 @@ describe('HeliSwap Tests', function () {
 				getExpiry())).to.emit(pairContract, "Swap").withArgs(amount0, amount1, deployer.address);
 		})
 
-		xit('should be able to add HTS/HBAR liquidity', async () => {
+		it('should be able to add HTS/HBAR liquidity', async () => {
 			const whbarDecimals = (10 ** await whbar.decimals());
 			const amountHts  = 1000 * decimals;
 			const amountHbar = 100;
 			await whbar.deposit({value: amountHbar})
 			await tokenA.approve(router.address, amountHts);
 			await whbar.approve(router.address, amountHbar * whbarDecimals);
-			const tx = await router.addLiquidityETH(
+			const computedPairAddress = await computePairAddress(tokenA.address, whbar.address, factory.address);
+			expect(await router.addLiquidityETH(
 				tokenA.address,
 				amountHts,
 				amountHts,
-				amountHbar*whbarDecimals,
+				amountHbar,
 				deployer.address,
-				getExpiry());
-			const receipt = await tx.wait();
-			console.log(receipt);
+				getExpiry(), {value: amountHbar})).to.emit(factory, "PairCreated")
+				.withArgs(tokenA.address, whbar.address, computedPairAddress, "TokenA", "TA", "WHBAR", "HBAR");
 		})
 
-		it('should be able to remove HTS/HBAR liquidity', async () => {
-
+		xit('should be able to remove HTS/HBAR liquidity', async () => {
+			const whbarDecimals = (10 ** await whbar.decimals());
+			const amountHts  = 500 * decimals;
+			const amountHbar = 40;
+			const liquidity = 10 * decimals;
+			await tokenA.approve(router.address, amountHts);
+			await whbar.approve(router.address, amountHbar * whbarDecimals);
+			// @ts-ignore
+			const pairContract = await hardhat.hethers.getContractAt(PAIR, await computePairAddress(tokenA.address, whbar.address, factory.address));
+			expect(await router.removeLiquidityETH(
+				tokenA.address,
+				liquidity,
+				amountHts,
+				amountHbar,
+				deployer.address,
+				getExpiry()
+			)).to.emit(pairContract, "Burn").withArgs(deployer.address, liquidity, amountHbar)
 		})
 
 		it('should be able to swap HTS/HBAR', async () => {
