@@ -4,6 +4,8 @@ import {BigNumber, Contract} from "@hashgraph/hethers";
 import {Utils} from "../utils/utils";
 import getExpiry = Utils.getExpiry;
 import * as util from "util";
+import {expect} from "chai";
+import {getCreate2Address, keccak256, solidityPack} from "ethers/lib/utils";
 
 const deployWhbar = require('../scripts/deploy-whbar');
 const deployHeliSwap = require('../scripts/deploy');
@@ -11,6 +13,16 @@ const createHTS = require('../scripts/utilities/create-hts');
 
 const ERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
 const PAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
+
+const computePairAddress = async (t1:string, t2: string, factory: string) : Promise<string> => {
+	const getInitCodeHash = require('../scripts/utilities/get-init-code-hash');
+	const initCodeHash = await getInitCodeHash();
+	return getCreate2Address(
+		factory,
+		keccak256(solidityPack(['address', 'address'], [t1, t2])),
+		initCodeHash);
+}
+
 describe('HeliSwap Tests', function () {
 	// this.timeout(120_000); // Router + Factory deployment is slow
 
@@ -18,6 +30,7 @@ describe('HeliSwap Tests', function () {
 	let factory: Contract;
 	let router: Contract;
 	let whbar: Contract;
+	const decimals = 10 ** 8;
 
 	before(async () => {
 		// @ts-ignore
@@ -40,8 +53,8 @@ describe('HeliSwap Tests', function () {
 
 	describe('HTS related tests', function () {
 
-		const TOKEN_A_SUPPLY = 10_000 * (10 ** 8); // 10k
-		const TOKEN_B_SUPPLY = 100_000 * (10 ** 8); // 100k
+		const TOKEN_A_SUPPLY = 10_000 * decimals; // 10k
+		const TOKEN_B_SUPPLY = 100_000 * decimals; // 100k
 
 		let tokenA: Contract;
 		let tokenB: Contract;
@@ -56,13 +69,12 @@ describe('HeliSwap Tests', function () {
 		});
 
 		it('should be able to add HTS/HTS liquidity', async () => {
-			const amount0 = 1000 * (10 ** 8);
-			const amount1 = 5000 * (10 ** 8);
-
+			const amount0 = 1000 * decimals;
+			const amount1 = 5000 * decimals;
+			const computedPairAddress = await computePairAddress(tokenA.address, tokenB.address, factory.address);
 			await tokenA.approve(router.address, amount0);
 			await tokenB.approve(router.address, amount1);
-
-			const tx = await router.addLiquidity(
+			expect(await router.addLiquidity(
 				tokenA.address,
 				tokenB.address,
 				amount0,
@@ -70,49 +82,72 @@ describe('HeliSwap Tests', function () {
 				amount0,
 				amount1,
 				deployer.address,
-				getExpiry());
-			const receipt = await tx.wait();
+				getExpiry()))
+				.to.emit(factory, "PairCreated")
+				.withArgs(tokenA.address, tokenB.address, computedPairAddress, "TokenA", "TA", "TokenB", "TB");
+
+			const reserves = await router.getReserves(tokenA.address, tokenB.address);
+			console.assert(BigNumber.from(reserves.reserveA).toNumber() == amount0);
+			console.assert(BigNumber.from(reserves.reserveB).toNumber() == amount1);
+
 		});
 
 		it('should be able to remove HTS/HTS liquidity', async () => {
-			const amount0 = 2 * ( 10 ** 8 );
-			const amount1 = 4 * ( 10 ** 8 );
-			const liquidityAmount = 6 * ( 10 ** 8 );
-			const pairAddr = await factory.getPair(tokenA.address, tokenB.address);
+			const amount0 = 2 * decimals;
+			const amount1 = 4 * decimals;
+			const liquidityAmount = 6 * decimals;
+			const computedPairAddress = await computePairAddress(tokenA.address, tokenB.address, factory.address);
 			// @ts-ignore
-			const pairContract = await hardhat.hethers.getContractAt("contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair", pairAddr); // invalid address - throws the abi
+			const pairContract = await hardhat.hethers.getContractAt(PAIR, computedPairAddress);
 			const supply = BigNumber.from(await pairContract.totalSupply()).toNumber();
 			const removableLiquidity = (supply/100).toString().split(".")[0];
-			await pairContract.approve(router.address, 1000 * (10 ** 8));
+			await pairContract.approve(router.address, 1000 * decimals);
 
-			const tx = await router.removeLiquidity(
+			expect(await router.removeLiquidity(
 				tokenA.address,
 				tokenB.address,
 				removableLiquidity,
 				amount0,
-				amount0,
+				amount1,
 				deployer.address,
 				getExpiry()
-			);
+			)).to.emit(pairContract, "Burn").withArgs(deployer.address, amount0, amount0, liquidityAmount)
+				.to.emit(pairContract, "Sync")
 		})
 
 		it('should be able to swap HTS/HTS', async () => {
-			const amount0 = 200 * ( 10 ** 8 );
-			const amount1 = 600 * ( 10 ** 8 );
+			const amount0 = 200 * decimals;
+			const amount1 = 600 * decimals;
 			await tokenA.approve(router.address, amount0);
 			await tokenB.approve(router.address, amount1);
-
+			const computedPairAddress = await computePairAddress(tokenA.address, tokenB.address, factory.address);
 			// @ts-ignore
-			const swapTx = await router.swapExactTokensForTokens(
+			const pairContract = await hardhat.hethers.getContractAt(PAIR, computedPairAddress);
+			// @ts-ignore
+			expect(await router.swapExactTokensForTokens(
 				amount0,
 				amount1,
 				[tokenA.address, tokenB.address],
 				deployer.address,
-				getExpiry());
+				getExpiry())).to.emit(pairContract, "Swap").withArgs(amount0, amount1, deployer.address);
 		})
 
-		it('should be able to add HTS/HBAR liquidity', async () => {
-
+		xit('should be able to add HTS/HBAR liquidity', async () => {
+			const whbarDecimals = (10 ** await whbar.decimals());
+			const amountHts  = 1000 * decimals;
+			const amountHbar = 100;
+			await whbar.deposit({value: amountHbar})
+			await tokenA.approve(router.address, amountHts);
+			await whbar.approve(router.address, amountHbar * whbarDecimals);
+			const tx = await router.addLiquidityETH(
+				tokenA.address,
+				amountHts,
+				amountHts,
+				amountHbar*whbarDecimals,
+				deployer.address,
+				getExpiry());
+			const receipt = await tx.wait();
+			console.log(receipt);
 		})
 
 		it('should be able to remove HTS/HBAR liquidity', async () => {

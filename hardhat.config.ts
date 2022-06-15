@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-waffle';
 import 'hardhat-abi-exporter';
 import 'hardhat-hethers';
-import * as config from './config';
+import * as config from './config.sample';
 import {task} from "hardhat/config";
 
 task('init', 'Deploys an HTS token')
@@ -79,6 +79,14 @@ task('deployWhbar', 'Deploys WHBAR instance')
 		await whbarDeployment();
 	});
 
+task('depositWhbar', 'Deposits 100 HBar to given WHBAR address')
+	.addParam('whbar', 'WHBAR Address')
+	.addParam("amount", "WHBAR Amount")
+	.setAction(async (taskArgs) => {
+		const whbarDeposit = require('./scripts/utilities/deposit-whbar');
+		await whbarDeposit(taskArgs.whbar, taskArgs.amount);
+	})
+
 
 task('deployERC20', 'Deploys ERC20 token')
 	.addParam("name", "The name of the ERC20 token")
@@ -127,11 +135,20 @@ task('removeLiquidity', 'Removes liquidity from a pair')
 	.addParam("token1", "The second token")
 	.addParam("amount0", "First token amount")
 	.addParam("amount1", "Second token amount")
+	.addParam("liq","liquidity tokens to remove")
 	.setAction(async (taskArgs) => {
 		const removeLiquidity = require('./scripts/interactions/remove-liquidity');
 		// @ts-ignore
-		await removeLiquidity(taskArgs.router, taskArgs.token0, taskArgs.token1, taskArgs.amount0, taskArgs.amount1);
+		await removeLiquidity(taskArgs.router, taskArgs.token0, taskArgs.token1, taskArgs.amount0, taskArgs.amount1, taskArgs.liq);
 	});
+task('getReserves', "Get token reserves")
+	.addParam('router')
+	.addParam('token0')
+	.addParam('token1')
+	.setAction(async (taskArgs) => {
+		const getReserves = require('./scripts/interactions/get-reserves');
+		await getReserves(taskArgs.router, taskArgs.token0, taskArgs.token1);
+	})
 
 task('addLiquidityETH', 'Adds HBAR liquidity')
 	.addParam('router')
