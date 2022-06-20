@@ -6,7 +6,7 @@ async function mintERC20(tokenAddress: string, to: string, amount: string = "600
 
     const MockToken = await hardhat.hethers.getContractAt("MockToken", tokenAddress);
     const mockToken = await MockToken.mint(to, amount);
-    await mockToken.deployed();
+    await mockToken.wait();
     console.log(`${amount} of Mock Token ${tokenAddress} Minted to ${to}`);
 }
 

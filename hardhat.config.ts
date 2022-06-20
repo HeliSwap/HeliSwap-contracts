@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-waffle';
 import 'hardhat-abi-exporter';
 import 'hardhat-hethers';
-import * as config from './config.sample';
+import * as config from './config';
 import {task} from "hardhat/config";
 
 task('init', 'Deploys an HTS token')
