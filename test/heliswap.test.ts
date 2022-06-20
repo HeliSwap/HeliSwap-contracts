@@ -60,15 +60,15 @@ describe('HeliSwap Tests', function () {
 		let tokenB: Contract;
 
 		before(async () => {
-			const tokenAAddress = await createHTS("TokenA", "TA", TOKEN_A_SUPPLY);
-			const tokenBAddress = await createHTS("TokenB", "TB", TOKEN_B_SUPPLY);
+			const newTokenA = await createHTS("TokenA", "TA", TOKEN_A_SUPPLY);
+			const newTokenB = await createHTS("TokenB", "TB", TOKEN_B_SUPPLY);
 			// @ts-ignore
-			tokenA = await hardhat.hethers.getContractAt(ERC20, tokenAAddress);
+			tokenA = await hardhat.hethers.getContractAt(ERC20, newTokenA.tokenAddress);
 			// @ts-ignore
-			tokenB = await hardhat.hethers.getContractAt(ERC20, tokenBAddress);
+			tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
 		});
 
-		xit('should be able to add HTS/HTS liquidity', async () => {
+		it('should be able to add HTS/HTS liquidity', async () => {
 			const amount0 = 1000 * decimals;
 			const amount1 = 5000 * decimals;
 			const computedPairAddress = await computePairAddress(tokenA.address, tokenB.address, factory.address);
@@ -130,7 +130,7 @@ describe('HeliSwap Tests', function () {
 				getExpiry())).to.emit(pairContract, "Swap").withArgs(amount0, amount1, deployer.address);
 		})
 
-		it('should be able to add HTS/HBAR liquidity', async () => {
+		xit('should be able to add HTS/HBAR liquidity', async () => {
 			const whbarDecimals = (10 ** await whbar.decimals());
 			const amountHts  = 10000 * decimals;
 			const amountHbar = 50;
@@ -148,7 +148,7 @@ describe('HeliSwap Tests', function () {
 				.withArgs(tokenA.address, whbar.address, computedPairAddress, "TokenA", "TA", "WHBAR", "HBAR");
 		})
 
-		it('should be able to remove HTS/HBAR liquidity', async () => {
+		xit('should be able to remove HTS/HBAR liquidity', async () => {
 			// await new Promise(async (resolve, reject) => {setTimeout(resolve, 10000)});
 			const whbarDecimals = (10 ** await whbar.decimals());
 			const amountHts  = 100 * decimals;
@@ -172,7 +172,7 @@ describe('HeliSwap Tests', function () {
 			)).to.emit(pairContract, "Burn").withArgs(deployer.address, removableLiquidity, amountHbar)
 		})
 
-		it('should be able to swap HTS/HBAR', async () => {
+		xit('should be able to swap HTS/HBAR', async () => {
 			const amount0 = 100 * decimals;
 			const amountHbar = 5;
 			await tokenA.approve(router.address, amount0);
@@ -190,8 +190,9 @@ describe('HeliSwap Tests', function () {
 				getExpiry())).to.emit(pairContract, "Swap").withArgs(amount0, amountHbar, deployer.address);
 		})
 
-		it('should revert if associate fails with != 22 || 167 error code', async () => {
-
+		xit('should revert if associate fails with != 22 || 167 error code', async () => {
+			await expect(factory.createPair(tokenA.address, deployer.address)).to.be.reverted;
+			await expect(factory.createPair(deployer.address, tokenA.address)).to.be.reverted;
 		})
 
 	})
