@@ -74,11 +74,7 @@ factory = result.factory;
 //   '0x0000000000000000000000000000000002bd2480'
 // );
 ```
-3. Copy wHBAR contract from `node_modules`:
-```bash
-cp ./node_modules/whbar/contracts/WHBAR.sol ./contracts/WHBAR.sol
-```
-4. Run again:
+3. Run again:
 ```bash
 npx hardhat test
 ```
