@@ -53,14 +53,16 @@ npx hardhat test
 ```
 
 If you want to run tests with brand new factory, router and wHBAR token, do the following steps:
-1. Uncomments lines from 22 to 27 in `./test/heliswap.test.ts`:
+1. Uncomments lines from 22 to 29 in `./test/heliswap.test.ts`:
 ```javascript
-const whbar = await deployWhbar();
-const result = await deployHeliSwap(whbar);
+const WHBAR = await hardhat.hethers.getContractFactory('MockWHBAR');
+const whbar = await WHBAR.deploy();
+await whbar.deployed();
+const result = await deployHeliSwap(whbar.address);
 router = result.router;
 factory = result.factory;
 ```
-2. Comment lines 30 to 38:
+2. Comment lines 32 to 40:
 ```javascript
 // factory = await hardhat.hethers.getContractAt(
 //   'UniswapV2Factory',
