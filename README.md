@@ -42,6 +42,11 @@ json](./package.json).
 
 ## Tests
 
+Install dependencies:
+```bash
+npm install
+```
+
 You can run contracts tests with:
 ```bash
 npx hardhat test
