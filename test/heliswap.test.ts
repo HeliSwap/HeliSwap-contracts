@@ -4,7 +4,6 @@ import {Contract} from "@hashgraph/hethers";
 import {Utils} from "../utils/utils";
 import getExpiry = Utils.getExpiry;
 
-const deployWhbar = require('../scripts/deploy-whbar');
 const deployHeliSwap = require('../scripts/deploy');
 const createHTS = require('../scripts/utilities/create-hts');
 
@@ -15,25 +14,24 @@ describe('HeliSwap Tests', function () {
 	let deployer: SignerWithAddress;
 	let factory: Contract;
 	let router: Contract;
-	let whbar: Contract;
 
 	before(async () => {
 		// @ts-ignore
 		[deployer] = await hardhat.hethers.getSigners();
 
-
 		// Uncomment for brand new redeployment
-		// const whbar = await deployWhbar();
-		// const result = await deployHeliSwap(whbar);
+		// @ts-ignore
+		// const WHBAR = await hardhat.hethers.getContractFactory('MockWHBAR');
+		// const whbar = await WHBAR.deploy();
+		// await whbar.deployed();
+		// const result = await deployHeliSwap(whbar.address);
 		// router = result.router;
 		// factory = result.factory;
 
 		// @ts-ignore
-		whbar = await hardhat.hethers.getContractAt("WHBAR", '0x0000000000000000000000000000000002bd241a');
+		factory = await hardhat.hethers.getContractAt('UniswapV2Factory', '0x0000000000000000000000000000000002bd247c');
 		// @ts-ignore
-		factory = await hardhat.hethers.getContractAt("UniswapV2Factory", '0x0000000000000000000000000000000002bd247c');
-		// @ts-ignore
-		router = await hardhat.hethers.getContractAt("UniswapV2Router02", '0x0000000000000000000000000000000002bd2480');
+		router = await hardhat.hethers.getContractAt('UniswapV2Router02', '0x0000000000000000000000000000000002bd2480');
 	});
 
 	describe('HTS related tests', function () {

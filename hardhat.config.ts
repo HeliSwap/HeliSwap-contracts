@@ -73,13 +73,6 @@ task('transferHTS', 'Transfers an HTS token')
 		await tokenTransfer(taskArgs.accountid, taskArgs.tokenid, taskArgs.amount);
 	});
 
-task('deployWhbar', 'Deploys WHBAR instance')
-	.setAction(async () => {
-		const whbarDeployment = require('./scripts/deploy-whbar');
-		await whbarDeployment();
-	});
-
-
 task('deployERC20', 'Deploys ERC20 token')
 	.addParam("name", "The name of the ERC20 token")
 	.addParam("symbol", "The symbol of the ERC20 token")
