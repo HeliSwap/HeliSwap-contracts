@@ -4,7 +4,6 @@ import {Contract} from "@hashgraph/hethers";
 import {Utils} from "../utils/utils";
 import getExpiry = Utils.getExpiry;
 
-const deployWhbar = require('../scripts/deploy-whbar');
 const deployHeliSwap = require('../scripts/deploy');
 const createHTS = require('../scripts/utilities/create-hts');
 
@@ -15,7 +14,6 @@ describe('HeliSwap Tests', function () {
 	let deployer: SignerWithAddress;
 	let factory: Contract;
 	let router: Contract;
-	let whbar: Contract;
 
 	before(async () => {
 		// @ts-ignore
@@ -23,13 +21,10 @@ describe('HeliSwap Tests', function () {
 
 
 		// Uncomment for brand new redeployment
-		// const whbar = await deployWhbar();
 		// const result = await deployHeliSwap(whbar);
 		// router = result.router;
 		// factory = result.factory;
 
-		// @ts-ignore
-		whbar = await hardhat.hethers.getContractAt("WHBAR", '0x0000000000000000000000000000000002bd241a');
 		// @ts-ignore
 		factory = await hardhat.hethers.getContractAt("UniswapV2Factory", '0x0000000000000000000000000000000002bd247c');
 		// @ts-ignore

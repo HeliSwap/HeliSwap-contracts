@@ -22,12 +22,10 @@ can go to [Uniswap Docs](https://docs.uniswap.org/).
 - Additional metadata is emitted in events to compensate for the lack of free `view` functions.
 
 **Mainnet Deployment Addresses**
-- `WHBAR`: `TODO`
 - `HeliSwapFactory`: `TODO`
 - `HeliSwapV2Router02`:`TODO`
 
 **Testnet Deployment Addresses**
-- `WHBAR`:`0x0000000000000000000000000000000002bc617f`
 - `HeliSwapFactory`:`0x0000000000000000000000000000000002bd1f74`
 - `HeliSwapV2Router02`:`0x0000000000000000000000000000000002bd1f77`
 
