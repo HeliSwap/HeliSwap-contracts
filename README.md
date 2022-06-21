@@ -39,3 +39,39 @@ Set up your Development environment by performing the following steps:
 
 Deployment, interactions and utilities scripts are defined as `hardhat` tasks and can be run through [package.
 json](./package.json).
+
+## Tests
+
+You can run contracts tests with:
+```bash
+npx hardhat test
+```
+
+If you want to run tests with brand new factory, router and wHBAR token, do the following steps:
+1. Uncomments lines from 22 to 27 in `./test/heliswap.test.ts`:
+```javascript
+const whbar = await deployWhbar();
+const result = await deployHeliSwap(whbar);
+router = result.router;
+factory = result.factory;
+```
+2. Comment lines 30 to 38:
+```javascript
+// factory = await hardhat.hethers.getContractAt(
+//   'UniswapV2Factory',
+//   '0x0000000000000000000000000000000002bd247c'
+// );
+
+// router = await hardhat.hethers.getContractAt(
+//   'UniswapV2Router02',
+//   '0x0000000000000000000000000000000002bd2480'
+// );
+```
+3. Copy wHBAR contract from `node_modules`:
+```bash
+cp ./node_modules/whbar/contracts/WHBAR.sol ./contracts/WHBAR.sol
+```
+4. Run again:
+```bash
+npx hardhat test
+```
