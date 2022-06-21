@@ -29,9 +29,9 @@ describe('HeliSwap Tests', function () {
 		// factory = result.factory;
 
 		// @ts-ignore
-		factory = await hardhat.hethers.getContractAt('UniswapV2Factory','0x0000000000000000000000000000000002bd247c');
+		factory = await hardhat.hethers.getContractAt('UniswapV2Factory', '0x0000000000000000000000000000000002bd247c');
 		// @ts-ignore
-		router = await hardhat.hethers.getContractAt('UniswapV2Router02','0x0000000000000000000000000000000002bd2480');
+		router = await hardhat.hethers.getContractAt('UniswapV2Router02', '0x0000000000000000000000000000000002bd2480');
 	});
 
 	describe('HTS related tests', function () {
