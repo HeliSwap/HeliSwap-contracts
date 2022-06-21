@@ -16,29 +16,29 @@ describe('HeliSwap Tests', function () {
 	let router: Contract;
 
 	before(async () => {
-    // @ts-ignore
-    [deployer] = await hardhat.hethers.getSigners();
+		// @ts-ignore
+		[deployer] = await hardhat.hethers.getSigners();
 
-    // Uncomment for brand new redeployment
-    // @ts-ignore
-    // const WHBAR = await hardhat.hethers.getContractFactory('MockWHBAR');
-    // const whbar = await WHBAR.deploy();
-    // await whbar.deployed();
-    // const result = await deployHeliSwap(whbar.address);
-    // router = result.router;
-    // factory = result.factory;
+		// Uncomment for brand new redeployment
+		// @ts-ignore
+		// const WHBAR = await hardhat.hethers.getContractFactory('MockWHBAR');
+		// const whbar = await WHBAR.deploy();
+		// await whbar.deployed();
+		// const result = await deployHeliSwap(whbar.address);
+		// router = result.router;
+		// factory = result.factory;
 
-    // @ts-ignore
-    factory = await hardhat.hethers.getContractAt(
-      'UniswapV2Factory',
-      '0x0000000000000000000000000000000002bd247c'
-    );
-    // @ts-ignore
-    router = await hardhat.hethers.getContractAt(
-      'UniswapV2Router02',
-      '0x0000000000000000000000000000000002bd2480'
-    );
-  });
+		// @ts-ignore
+		factory = await hardhat.hethers.getContractAt(
+			'UniswapV2Factory',
+			'0x0000000000000000000000000000000002bd247c'
+		);
+		// @ts-ignore
+		router = await hardhat.hethers.getContractAt(
+			'UniswapV2Router02',
+			'0x0000000000000000000000000000000002bd2480'
+		);
+	});
 
 	describe('HTS related tests', function () {
 
