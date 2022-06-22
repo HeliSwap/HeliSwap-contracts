@@ -209,14 +209,16 @@ describe('HeliSwap Tests', function () {
 			removeLiquidityTX = await removeLiquidityTX.wait()
 
 			// FIXME: check the log field values and assert properly
-			findLogAndAssert(removeLiquidityTX.logs, burnEventABI, [
+			found = findLogAndAssert(removeLiquidityTX.logs, burnEventABI, [
 				{
 					key: "to",
 					value: deployer.address.toLowerCase()
 				}
 			])
 
-			findLogAndAssert(removeLiquidityTX.logs, syncEventABI, [
+			expect(found).to.be.true;
+
+			found = findLogAndAssert(removeLiquidityTX.logs, syncEventABI, [
 				{
 					key: "reserve0",
 					value: "99000000001"
@@ -230,6 +232,8 @@ describe('HeliSwap Tests', function () {
 					value: "221370729772"
 				},
 			])
+
+			expect(found).to.be.true;
 
 			// await expect(router.removeLiquidity(
 			// 	tokenA.address,
