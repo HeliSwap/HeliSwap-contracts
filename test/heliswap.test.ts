@@ -29,7 +29,7 @@ function findLogAndAssert(logs: any, eventABI: string[], assertions: {key: any, 
 		let wrong = false;
 		for (const a of assertions) {
 			try {
-				expect(parsed.args[a.key].toString()).to.be.equal(a.value)
+				expect(parsed.args[a.key].toString()).to.be.equal(a.value.toString())
 			} catch (e) {
 				wrong = true;
 				break;
@@ -49,6 +49,7 @@ function findLogAndAssert(logs: any, eventABI: string[], assertions: {key: any, 
 const pairCreatedEventABI = [ `event PairCreated(address indexed token0, address indexed token1, address pair, uint pairSeqNum, string token0Symbol, string token1Symbol, string token0Name, string token1Name, uint token0Decimals, uint token1Decimals)` ];
 const burnEventABI = [ `event Burn(address indexed sender, uint amount0, uint amount1, address indexed to, uint amountLp)` ];
 const syncEventABI = [ `event Sync(uint112 reserve0, uint112 reserve1, uint totalSupply)` ];
+const swapEventABI = [ `event Swap(address indexed sender, uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address indexed to)` ];
 
 // const deployWhbar = require('../scripts/deploy-whbar');
 // const deployHeliSwap = require('../scripts/deploy');
@@ -112,7 +113,7 @@ describe('HeliSwap Tests', function () {
 			tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
 
 			HTSComputedPairAddress = await computePairAddress(tokenA.address, tokenB.address, factory.address);
-			MixedComputedPairAddress = await computePairAddress(tokenA.address, whbar.address, factory.address);
+			MixedComputedPairAddress = await computePairAddress(whbar.address, tokenA.address, factory.address);
 		});
 
 		it('should be able to add/remove HTS/HTS liquidity', async () => {
@@ -228,7 +229,7 @@ describe('HeliSwap Tests', function () {
 			expect(found).to.be.true;
 		});
 
-		xit('should be able to swap HTS/HTS', async () => {
+		it('should be able to swap HTS/HTS', async () => {
 			const amount0 = 200 * decimals;
 			const amount1 = 600 * decimals;
 			await tokenA.approve(router.address, amount0);
@@ -237,16 +238,34 @@ describe('HeliSwap Tests', function () {
 			// @ts-ignore
 			const pairContract = await hardhat.hethers.getContractAt(PAIR, HTSComputedPairAddress);
 
-			// @ts-ignore
-			await expect(router.swapExactTokensForTokens(
+			let swapTx = await router.swapExactTokensForTokens(
 				amount0,
 				amount1,
 				[tokenA.address, tokenB.address],
 				deployer.address,
-				getExpiry())).to.emit(pairContract, "Swap").withArgs(amount0, amount1, deployer.address);
+				getExpiry())
+
+			swapTx = await swapTx.wait()
+
+			let found = findLogAndAssert(swapTx.logs, swapEventABI, [
+				{
+					key: "to",
+					value: utils.getAddress(deployer.address)
+				},
+				{
+					key: "amount0In",
+					value: amount0
+				},
+				{
+					key: "amount1Out",
+					value: "82985538926"
+				},
+			])
+
+			expect(found).to.be.true;
 		})
 
-		xit('should be able to add HTS/HBAR liquidity', async () => {
+		it('should be able to add HTS/HBAR liquidity', async () => {
 			const whbarDecimals = (10 ** await whbar.decimals());
 			const amountHts  = 10 * decimals;
 			const amountHbar = 50;
@@ -255,14 +274,56 @@ describe('HeliSwap Tests', function () {
 			await tokenA.approve(router.address, amountHts);
 			await whbar.approve(router.address, amountHbar * whbarDecimals);
 
-			await expect(router.addLiquidityETH(
+			let addLiquidityETHTx = await router.addLiquidityETH(
 				tokenA.address,
 				amountHts,
 				amountHts,
 				amountHbar,
 				deployer.address,
-				getExpiry(), {value: amountHbar})).to.emit(factory, "PairCreated")
-				.withArgs(tokenA.address, whbar.address, MixedComputedPairAddress, "TokenA", "TA", "WHBAR", "HBAR");
+				getExpiry(), {value: amountHbar})
+
+			addLiquidityETHTx = await addLiquidityETHTx.wait()
+
+			let found = findLogAndAssert(addLiquidityETHTx.logs, pairCreatedEventABI, [
+				{
+					key: "token0",
+					value: utils.getAddress(whbar.address)
+				},
+				{
+					key: "token1",
+					value: utils.getAddress(tokenA.address)
+				},
+				{
+					key: "pair",
+					value: utils.getAddress(MixedComputedPairAddress.toString())
+				},
+				{
+					key: "token0Symbol",
+					value: "WHBAR"
+				},
+				{
+					key: "token1Symbol",
+					value: "TA"
+				},
+				{
+					key: "token0Name",
+					value: "Wrapped Hbar"
+				},
+				{
+					key: "token1Name",
+					value: "TokenA"
+				},
+				{
+					key: "token0Decimals",
+					value: "8"
+				},
+				{
+					key: "token1Decimals",
+					value: "8"
+				},
+			])
+
+			expect(found).to.be.true;
 		})
 
 		// FIXME: This case is currently failing and being investigated... Will be resolved soon.
