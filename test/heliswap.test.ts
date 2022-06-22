@@ -50,8 +50,8 @@ const pairCreatedEventABI = [ `event PairCreated(address indexed token0, address
 const burnEventABI = [ `event Burn(address indexed sender, uint amount0, uint amount1, address indexed to, uint amountLp)` ];
 const syncEventABI = [ `event Sync(uint112 reserve0, uint112 reserve1, uint totalSupply)` ];
 
-const deployWhbar = require('../scripts/deploy-whbar');
-const deployHeliSwap = require('../scripts/deploy');
+// const deployWhbar = require('../scripts/deploy-whbar');
+// const deployHeliSwap = require('../scripts/deploy');
 const createHTS = require('../scripts/utilities/create-hts');
 
 const ERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
@@ -80,10 +80,17 @@ describe('HeliSwap Tests', function () {
 		[deployer] = await hardhat.hethers.getSigners();
 
 		// Uncomment for brand new redeployment
-		const whbar = await deployWhbar();
-		const result = await deployHeliSwap(whbar);
-		router = result.router;
-		factory = result.factory;
+		// const whbar = await deployWhbar();
+		// const result = await deployHeliSwap(whbar);
+		// router = result.router;
+		// factory = result.factory;
+
+		// @ts-ignore
+		whbar = await hardhat.hethers.getContractAt("WHBAR", '0x0000000000000000000000000000000002bc617f');
+		// @ts-ignore
+		factory = await hardhat.hethers.getContractAt("UniswapV2Factory", '0x0000000000000000000000000000000002be607e');
+		// @ts-ignore
+		router = await hardhat.hethers.getContractAt("UniswapV2Router02", '0x0000000000000000000000000000000002be6080');
 	});
 
 	describe('HTS related tests', function () {
