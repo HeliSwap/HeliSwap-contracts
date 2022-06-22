@@ -130,7 +130,6 @@ describe('HeliSwap Tests', function () {
 
 			addLiquidityTX = await addLiquidityTX.wait()
 
-			// FIXME: Addresses come in different casing sometimes and cannot be asserted properly
 			let found = findLogAndAssert(addLiquidityTX.logs, pairCreatedEventABI, [
 				{
 					key: "token0",
@@ -171,20 +170,6 @@ describe('HeliSwap Tests', function () {
 			])
 
 			expect(found).to.be.true;
-
-			// console.log(parsedPairCreatedLog)
-
-			// await expect(router.addLiquidity(
-			// 	tokenA.address,
-			// 	tokenB.address,
-			// 	addAmount0,
-			// 	addAmount1,
-			// 	addAmount0,
-			// 	addAmount1,
-			// 	deployer.address,
-			// 	getExpiry()))
-			// 	.to.emit(factory, "PairCreated")
-			// 	.withArgs(tokenA.address, tokenB.address, HTSComputedPairAddress, "TokenA", "TA", "TokenB", "TB");
 
 			const reserves = await router.getReserves(tokenA.address, tokenB.address);
 			expect(BigNumber.from(reserves.reserveA).toNumber()).to.be.eq(addAmount0);
@@ -234,17 +219,6 @@ describe('HeliSwap Tests', function () {
 			])
 
 			expect(found).to.be.true;
-
-			// await expect(router.removeLiquidity(
-			// 	tokenA.address,
-			// 	tokenB.address,
-			// 	removableLiquidity,
-			// 	removeAmount0,
-			// 	removeAmount1,
-			// 	deployer.address,
-			// 	getExpiry()
-			// )).to.emit(pairContract, "Burn").withArgs(deployer.address, removeAmount0, removeAmount1, removableLiquidity)
-			// 	.to.emit(pairContract, "Sync")
 		});
 
 		xit('should be able to swap HTS/HTS', async () => {
