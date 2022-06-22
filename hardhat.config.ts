@@ -141,6 +141,7 @@ task('removeLiquidity', 'Removes liquidity from a pair')
 		// @ts-ignore
 		await removeLiquidity(taskArgs.router, taskArgs.token0, taskArgs.token1, taskArgs.amount0, taskArgs.amount1, taskArgs.liq);
 	});
+
 task('getReserves', "Get token reserves")
 	.addParam('router')
 	.addParam('token0')
