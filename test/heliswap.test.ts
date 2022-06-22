@@ -29,7 +29,7 @@ function findLogAndAssert(logs: any, eventABI: string[], assertions: {key: any, 
 		let wrong = false;
 		for (const a of assertions) {
 			try {
-				expect(parsed.args[a.key].toString().toLowerCase()).to.be.equal(a.value.toLowerCase())
+				expect(parsed.args[a.key].toString()).to.be.equal(a.value)
 			} catch (e) {
 				wrong = true;
 				break;
@@ -134,15 +134,15 @@ describe('HeliSwap Tests', function () {
 			let found = findLogAndAssert(addLiquidityTX.logs, pairCreatedEventABI, [
 				{
 					key: "token0",
-					value: tokenA.address.toLowerCase()
+					value: utils.getAddress(tokenA.address)
 				},
 				{
 					key: "token1",
-					value: tokenB.address.toLowerCase()
+					value: utils.getAddress(tokenB.address)
 				},
 				{
 					key: "pair",
-					value: HTSComputedPairAddress.toLowerCase()
+					value: utils.getAddress(HTSComputedPairAddress.toString())
 				},
 				{
 					key: "token0Symbol",
@@ -212,7 +212,7 @@ describe('HeliSwap Tests', function () {
 			found = findLogAndAssert(removeLiquidityTX.logs, burnEventABI, [
 				{
 					key: "to",
-					value: deployer.address.toLowerCase()
+					value: utils.getAddress(deployer.address)
 				}
 			])
 
