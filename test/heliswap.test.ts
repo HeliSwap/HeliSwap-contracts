@@ -3,60 +3,19 @@ import {SignerWithAddress} from "hardhat-hethers/internal/signers";
 import {BigNumber, Contract} from "@hashgraph/hethers";
 import {Utils} from "../utils/utils";
 import {expect} from "chai";
-import {utils} from "ethers";
-import {getCreate2Address, keccak256, solidityPack} from "ethers/lib/utils";
+import {getCreate2Address, keccak256, solidityPack, getAddress, Interface} from "ethers/lib/utils";
 import getExpiry = Utils.getExpiry;
+import findLogAndAssert = Utils.findLogAndAssert;
 
-function parseLog(log: any, eventABI: string[]) {
-	let iface = new utils.Interface(eventABI);
-	return iface.parseLog(log)
-}
+const createHTS = require('../scripts/utilities/create-hts');
 
-function findLogAndAssert(logs: any, eventABI: string[], assertions: {key: any, value: any}[]) {
-	let found = false;
-	for (const log of logs) {
-		let parsed
-		try{
-			parsed = parseLog(log, eventABI)
-		} catch (e) {
-			continue
-		}
-
-		if (parsed == undefined) {
-			continue
-		}
-
-		let wrong = false;
-		for (const a of assertions) {
-			try {
-				expect(parsed.args[a.key].toString()).to.be.equal(a.value.toString())
-			} catch (e) {
-				wrong = true;
-				break;
-			}
-		}
-		if (wrong) {
-			continue;
-		}
-
-		found = true;
-		break;
-	}
-
-	return found;
-}
+const ERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
+const PAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
 const pairCreatedEventABI = [ `event PairCreated(address indexed token0, address indexed token1, address pair, uint pairSeqNum, string token0Symbol, string token1Symbol, string token0Name, string token1Name, uint token0Decimals, uint token1Decimals)` ];
 const burnEventABI = [ `event Burn(address indexed sender, uint amount0, uint amount1, address indexed to, uint amountLp)` ];
 const syncEventABI = [ `event Sync(uint112 reserve0, uint112 reserve1, uint totalSupply)` ];
 const swapEventABI = [ `event Swap(address indexed sender, uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address indexed to)` ];
-
-// const deployWhbar = require('../scripts/deploy-whbar');
-// const deployHeliSwap = require('../scripts/deploy');
-const createHTS = require('../scripts/utilities/create-hts');
-
-const ERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
-const PAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
 const computePairAddress = async (t1:string, t2: string, factory: string) : Promise<string> => {
 	const getInitCodeHash = require('../scripts/utilities/get-init-code-hash');
@@ -116,12 +75,9 @@ describe('HeliSwap Tests', function () {
 			MixedComputedPairAddress = await computePairAddress(whbar.address, tokenA.address, factory.address);
 		});
 
-		it('should be able to add/remove HTS/HTS liquidity', async () => {
+		it('should be able to add HTS/HTS liquidity', async () => {
 			const addAmount0 = 1000 * decimals;
 			const addAmount1 = 5000 * decimals;
-
-			const removeAmount0 = 2 * decimals;
-			const removeAmount1 = 4 * decimals;
 
 			await tokenA.approve(router.address, addAmount0);
 			await tokenB.approve(router.address, addAmount1);
@@ -138,56 +94,34 @@ describe('HeliSwap Tests', function () {
 
 			addLiquidityTX = await addLiquidityTX.wait()
 
-			let found = findLogAndAssert(addLiquidityTX.logs, pairCreatedEventABI, [
+			findLogAndAssert(addLiquidityTX.logs, pairCreatedEventABI,
 				{
-					key: "token0",
-					value: utils.getAddress(tokenA.address)
+					token0: getAddress(tokenA.address),
+					token1: getAddress(tokenB.address),
+					pair: getAddress(HTSComputedPairAddress.toString()),
+					token0Symbol: "TA",
+					token1Symbol: "TB",
+					token0Name: "TokenA",
+					token1Name: "TokenB",
+					token0Decimals: "8",
+					token1Decimals: "8"
 				},
-				{
-					key: "token1",
-					value: utils.getAddress(tokenB.address)
-				},
-				{
-					key: "pair",
-					value: utils.getAddress(HTSComputedPairAddress.toString())
-				},
-				{
-					key: "token0Symbol",
-					value: "TA"
-				},
-				{
-					key: "token1Symbol",
-					value: "TB"
-				},
-				{
-					key: "token0Name",
-					value: "TokenA"
-				},
-				{
-					key: "token1Name",
-					value: "TokenB"
-				},
-				{
-					key: "token0Decimals",
-					value: "8"
-				},
-				{
-					key: "token1Decimals",
-					value: "8"
-				},
-			])
-
-			expect(found).to.be.true;
+			)
 
 			const reserves = await router.getReserves(tokenA.address, tokenB.address);
 			expect(BigNumber.from(reserves.reserveA).toNumber()).to.be.eq(addAmount0);
 			expect(BigNumber.from(reserves.reserveB).toNumber()).to.be.eq(addAmount1);
+		});
 
+		it('should be able to remove HTS/HTS liquidity', async () => {
 			// @ts-ignore
 			const pairContract = await hardhat.hethers.getContractAt(PAIR, HTSComputedPairAddress);
 			const supply = BigNumber.from(await pairContract.totalSupply()).toNumber();
 			const removableLiquidity = (supply/100).toString().split(".")[0];
 			await pairContract.approve(router.address, 1000 * decimals);
+
+			const removeAmount0 = 2 * decimals;
+			const removeAmount1 = 4 * decimals;
 
 			let removeLiquidityTX = await router.removeLiquidity(
 				tokenA.address,
@@ -202,32 +136,20 @@ describe('HeliSwap Tests', function () {
 			removeLiquidityTX = await removeLiquidityTX.wait()
 
 			// FIXME: check the log field values and assert properly
-			found = findLogAndAssert(removeLiquidityTX.logs, burnEventABI, [
+			findLogAndAssert(removeLiquidityTX.logs, burnEventABI,
 				{
-					key: "to",
-					value: utils.getAddress(deployer.address)
+					to: getAddress(deployer.address)
 				}
-			])
+			)
 
-			expect(found).to.be.true;
-
-			found = findLogAndAssert(removeLiquidityTX.logs, syncEventABI, [
+			findLogAndAssert(removeLiquidityTX.logs, syncEventABI,
 				{
-					key: "reserve0",
-					value: "99000000001"
-				},
-				{
-					key: "reserve1",
-					value: "495000000002"
-				},
-				{
-					key: "totalSupply",
-					value: "221370729772"
-				},
-			])
-
-			expect(found).to.be.true;
-		});
+					reserve0: "99000000001",
+					reserve1: "495000000002",
+					totalSupply: "221370729772"
+				}
+			)
+		})
 
 		it('should be able to swap HTS/HTS', async () => {
 			const amount0 = 200 * decimals;
@@ -247,22 +169,13 @@ describe('HeliSwap Tests', function () {
 
 			swapTx = await swapTx.wait()
 
-			let found = findLogAndAssert(swapTx.logs, swapEventABI, [
+			findLogAndAssert(swapTx.logs, swapEventABI,
 				{
-					key: "to",
-					value: utils.getAddress(deployer.address)
-				},
-				{
-					key: "amount0In",
-					value: amount0
-				},
-				{
-					key: "amount1Out",
-					value: "82985538926"
-				},
-			])
-
-			expect(found).to.be.true;
+					to: getAddress(deployer.address),
+					amount0In: amount0,
+					amount1Out: "82985538926"
+				}
+			)
 		})
 
 		it('should be able to add HTS/HBAR liquidity', async () => {
@@ -284,46 +197,18 @@ describe('HeliSwap Tests', function () {
 
 			addLiquidityETHTx = await addLiquidityETHTx.wait()
 
-			let found = findLogAndAssert(addLiquidityETHTx.logs, pairCreatedEventABI, [
+			findLogAndAssert(addLiquidityETHTx.logs, pairCreatedEventABI,
 				{
-					key: "token0",
-					value: utils.getAddress(whbar.address)
-				},
-				{
-					key: "token1",
-					value: utils.getAddress(tokenA.address)
-				},
-				{
-					key: "pair",
-					value: utils.getAddress(MixedComputedPairAddress.toString())
-				},
-				{
-					key: "token0Symbol",
-					value: "WHBAR"
-				},
-				{
-					key: "token1Symbol",
-					value: "TA"
-				},
-				{
-					key: "token0Name",
-					value: "Wrapped Hbar"
-				},
-				{
-					key: "token1Name",
-					value: "TokenA"
-				},
-				{
-					key: "token0Decimals",
-					value: "8"
-				},
-				{
-					key: "token1Decimals",
-					value: "8"
-				},
-			])
-
-			expect(found).to.be.true;
+					token0: getAddress(whbar.address),
+					token1: getAddress(tokenA.address),
+					pair: getAddress(MixedComputedPairAddress.toString()),
+					token0Symbol: "WHBAR",
+					token1Symbol: "TA",
+					token0Name: "Wrapped Hbar",
+					token1Name: "TokenA",
+					token0Decimals: "8",
+					token1Decimals: "8"
+				})
 		})
 
 		// FIXME: This case is currently failing and being investigated... Will be resolved soon.
