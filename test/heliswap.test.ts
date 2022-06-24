@@ -6,6 +6,7 @@ import {expect} from "chai";
 import {getCreate2Address, keccak256, solidityPack, getAddress, Interface} from "ethers/lib/utils";
 import getExpiry = Utils.getExpiry;
 import findLogAndAssert = Utils.findLogAndAssert;
+const deployHeliSwap = require('../scripts/deploy');
 
 const createHTS = require('../scripts/utilities/create-hts');
 
@@ -16,6 +17,7 @@ const pairCreatedEventABI = [ `event PairCreated(address indexed token0, address
 const burnEventABI = [ `event Burn(address indexed sender, uint amount0, uint amount1, address indexed to, uint amountLp)` ];
 const syncEventABI = [ `event Sync(uint112 reserve0, uint112 reserve1, uint totalSupply)` ];
 const swapEventABI = [ `event Swap(address indexed sender, uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address indexed to)` ];
+const transferEventABI = [ `event Transfer(address indexed from, address indexed to, uint value)` ];
 
 const computePairAddress = async (t1:string, t2: string, factory: string) : Promise<string> => {
 	const getInitCodeHash = require('../scripts/utilities/get-init-code-hash');
@@ -39,18 +41,19 @@ describe('HeliSwap Tests', function () {
 		// @ts-ignore
 		[deployer] = await hardhat.hethers.getSigners();
 
+		// @ts-ignore
+		whbar = await hardhat.hethers.getContractAt("WHBAR", '0x0000000000000000000000000000000002ca1cdb');
+
 		// Uncomment for brand new redeployment
-		// const whbar = await deployWhbar();
-		// const result = await deployHeliSwap(whbar);
+		// @ts-ignore
+		// const result = await deployHeliSwap(getAddress(whbar.address));
 		// router = result.router;
 		// factory = result.factory;
 
 		// @ts-ignore
-		whbar = await hardhat.hethers.getContractAt("WHBAR", '0x0000000000000000000000000000000002bc617f');
+		factory = await hardhat.hethers.getContractAt("UniswapV2Factory", '0x0000000000000000000000000000000002ca1d18');
 		// @ts-ignore
-		factory = await hardhat.hethers.getContractAt("UniswapV2Factory", '0x0000000000000000000000000000000002be607e');
-		// @ts-ignore
-		router = await hardhat.hethers.getContractAt("UniswapV2Router02", '0x0000000000000000000000000000000002be6080');
+		router = await hardhat.hethers.getContractAt("UniswapV2Router02", '0x0000000000000000000000000000000002ca1d1a');
 	});
 
 	describe('HTS related tests', function () {
@@ -229,39 +232,57 @@ describe('HeliSwap Tests', function () {
 			await tokenA.approve(router.address, amountHts + 1);
 			await whbar.approve(router.address, amountHbar * whbarDecimals + 1);
 
-			await expect(router.removeLiquidityETH(
+			await router.optimisticAssociation(tokenA.address);
+
+			let removeLiquidityETHTx = await router.removeLiquidityETH(
 				tokenA.address,
 				removableLiquidity,
 				amountHts,
 				amountHbar,
 				deployer.address,
 				getExpiry()
-			)).to.emit(pairContract, "Burn").withArgs(deployer.address, removableLiquidity, amountHbar)
+			)
+
+			removeLiquidityETHTx = await removeLiquidityETHTx.wait()
+
+			findLogAndAssert(removeLiquidityETHTx.logs, burnEventABI, {
+				to: getAddress(deployer.address)
+			})
 		})
 
-		xit('should be able to swap HTS/HBAR', async () => {
+		it('should be able to swap HTS/HBAR', async () => {
 			const amount0 = 100 * decimals;
 			const amountHbar = 4;
 			await tokenA.approve(router.address, amount0);
-			await whbar.approve(router.address, amountHbar*decimals);
+			await whbar.approve(router.address, amountHbar * decimals);
 
 			// @ts-ignore
 			const pairContract = await hardhat.hethers.getContractAt(PAIR, MixedComputedPairAddress);
 
-			await router.swapExactTokensForETH(
+			let swapExactTokensForETHTx = await router.swapExactTokensForETH(
 				amount0,
 				amountHbar,
 				[tokenA.address, whbar.address],
 				deployer.address,
 				getExpiry());
 
-			// @ts-ignore
-			await expect(router.swapExactTokensForETH(
-				amount0,
-				amountHbar,
-				[tokenA.address, whbar.address],
-				deployer.address,
-				getExpiry())).to.emit(pairContract, "Swap").withArgs(amount0, amountHbar, deployer.address);
+			swapExactTokensForETHTx = await swapExactTokensForETHTx.wait();
+
+			// FIXME: Logs addresses of aliased contracts are again being exported with their mirror node 0xlongzeroaddresses instead of the EVM create2 addresses
+			findLogAndAssert(swapExactTokensForETHTx.logs, transferEventABI, {
+				from: getAddress(deployer.address),
+				// to: MixedComputedPairAddress,
+				value: "10000000000",
+			})
+
+			findLogAndAssert(swapExactTokensForETHTx.logs, swapEventABI, {
+				sender: getAddress(router.address),
+				to: getAddress(router.address),
+				amount0In: "0",
+				amount1In: "10000000000",
+				amount0Out: "4544211485",
+				amount1Out: "0",
+			})
 		})
 
 		it('should revert if associate fails with != 22 || 167 error code', async () => {

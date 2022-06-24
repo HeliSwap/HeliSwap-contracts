@@ -14,13 +14,13 @@ export namespace Utils {
 			let parsed: LogDescription
 			try{
 				parsed = new Interface(eventABI).parseLog(log)
+
+				Object.keys(assertions).forEach(function (key) {
+					expect(parsed.args[key].toString()).to.be.equal(assertions[key].toString())
+				})
 			} catch (e) {
 				continue
 			}
-
-			Object.keys(assertions).forEach(function(key) {
-				expect(parsed.args[key].toString()).to.be.equal(assertions[key].toString())
-			})
 			return
 		}
 		throw new Error(`${eventABI} not found`)
