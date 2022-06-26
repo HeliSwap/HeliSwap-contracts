@@ -51,30 +51,3 @@ You can run contracts tests with:
 ```bash
 npx hardhat test
 ```
-
-If you want to run tests with brand new factory, router and wHBAR token, do the following steps:
-1. Uncomments lines from 22 to 29 in `./test/heliswap.test.ts`:
-```javascript
-const WHBAR = await hardhat.hethers.getContractFactory('MockWHBAR');
-const whbar = await WHBAR.deploy();
-await whbar.deployed();
-const result = await deployHeliSwap(whbar.address);
-router = result.router;
-factory = result.factory;
-```
-2. Comment lines 32 to 40:
-```javascript
-// factory = await hardhat.hethers.getContractAt(
-//   'UniswapV2Factory',
-//   '0x0000000000000000000000000000000002bd247c'
-// );
-
-// router = await hardhat.hethers.getContractAt(
-//   'UniswapV2Router02',
-//   '0x0000000000000000000000000000000002bd2480'
-// );
-```
-3. Run again:
-```bash
-npx hardhat test
-```

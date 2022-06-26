@@ -1,5 +1,4 @@
-import {Interface, LogDescription} from "ethers/lib/utils";
-import {expect} from "chai";
+import * as hethers from "@hashgraph/hethers";
 
 export namespace Utils {
 
@@ -9,20 +8,12 @@ export namespace Utils {
 		return (new Date()).getTime() + TEN_MINUTES;
 	}
 
-	export function findLogAndAssert(logs: any, eventABI: any, assertions: any) {
-		for (const log of logs) {
-			let parsed: LogDescription
-			try{
-				parsed = new Interface(eventABI).parseLog(log)
-
-				Object.keys(assertions).forEach(function (key) {
-					expect(parsed.args[key].toString()).to.be.equal(assertions[key].toString())
-				})
-			} catch (e) {
-				continue
-			}
-			return
-		}
-		throw new Error(`${eventABI} not found`)
+	export const computePairAddress = async (t1: string, t2: string, factory: string): Promise<string> => {
+		const getInitCodeHash = require('../scripts/utilities/get-init-code-hash');
+		const initCodeHash = await getInitCodeHash();
+		return hethers.utils.getCreate2Address(
+			factory,
+			hethers.utils.keccak256(hethers.utils.solidityPack(['address', 'address'], [t1, t2])),
+			initCodeHash);
 	}
 }
