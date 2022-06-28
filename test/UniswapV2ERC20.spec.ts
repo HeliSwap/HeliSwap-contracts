@@ -15,14 +15,18 @@ const TOTAL_SUPPLY = expandTo18Decimals(10000)
 const TEST_AMOUNT = expandTo18Decimals(10)
 
 describe('UniswapV2ERC20', () => {
+
 	let wallet: SignerWithAddress;
 	let other: SignerWithAddress;
 
 	let token: Contract
 
-	beforeEach(async () => {
+	before(async () => {
 		// @ts-ignore
 		[wallet, other] = await hardhat.hethers.getSigners();
+	});
+
+	beforeEach(async () => {
 		// @ts-ignore
 		token = await hardhat.hethers.getContractFactory('contracts/mock/ERC20.sol:ERC20');
 		token = await token.deploy(TOTAL_SUPPLY, {gasLimit: 2_000_000});
