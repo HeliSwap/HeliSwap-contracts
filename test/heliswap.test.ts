@@ -13,6 +13,7 @@ const deployHeliSwap = require('../scripts/deploy');
 const deployMintERC20 = require('../scripts/utilities/deploy-mint-erc20');
 
 const ERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
+const PAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
 const TOKEN_A_NAME = "TokenA";
 const TOKEN_A_SYMBOL = "TA";
@@ -116,6 +117,56 @@ describe('HeliSwap Tests', function () {
 				BigNumber.from(HTS_DECIMALS),
 				BigNumber.from(ERC20_DECIMALS)
 			);
+		});
+
+	})
+
+	describe('Removing HTS liquidity', function () {
+		const TOKEN_A_SUPPLY = 10_000 * decimals; // 10k
+		let tokenA: Contract;
+
+		beforeEach(async () => {
+			const newTokenA = await createHTS("TokenA", "TA", TOKEN_A_SUPPLY);
+			// @ts-ignore
+			tokenA = await hardhat.hethers.getContractAt(ERC20, newTokenA.tokenAddress);
+		});
+
+		it('should be able to remove HTS/HTS liquidity', async () => {
+			const TOKEN_B_SUPPLY = 100_000 * decimals; // 100k
+			const newTokenB = await createHTS("TokenB", "TB", TOKEN_B_SUPPLY);
+
+			// @ts-ignore
+			const tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
+			const amount0 = BigNumber.from(1_000 * decimals);
+			const amount1 = BigNumber.from(5_000 * decimals);
+
+			await executeAddLiquidity(
+				tokenA,
+				tokenB,
+				amount0,
+				amount1,
+				TOKEN_A_SYMBOL,
+				TOKEN_B_SYMBOL,
+				TOKEN_A_NAME,
+				TOKEN_B_NAME,
+				BigNumber.from(HTS_DECIMALS),
+				BigNumber.from(HTS_DECIMALS)
+			);
+
+			const removeAmount0 = BigNumber.from(2 * decimals);
+			const removeAmount1 = BigNumber.from(4 * decimals);
+
+			// @ts-ignore
+			const pairContractAddress = await Utils.computePairAddress(tokenA.address, tokenB.address, factory.address)
+			// @ts-ignore
+			const pairContract = await hardhat.hethers.getContractAt(PAIR, pairContractAddress);
+
+			const supply = hethers.BigNumber.from(await pairContract.totalSupply()).toNumber();
+			const removableLiquidity = hethers.BigNumber.from((supply / 100).toString().split(".")[0]);
+
+			await pairContract.approve(router.address, 1000 * decimals);
+
+			await executeRemoveLiquidity(tokenA, tokenB, removeAmount0, removeAmount1, removableLiquidity, pairContract, deployer.address);
 		});
 
 	})
@@ -247,6 +298,42 @@ describe('HeliSwap Tests', function () {
 			token1Decimals
 		);
 		await assertReserves(token0, token1, amount0, amount1, pairAddress);
+	}
+
+	async function executeRemoveLiquidity(
+		token0: Contract,
+		token1: Contract,
+		amount0: BigNumber,
+		amount1: BigNumber,
+		removableLiquidity: BigNumber,
+		pairContract: Contract,
+		to: any) {
+			let removeLiquidityTX = await router.removeLiquidity(
+				token0.address,
+				token1.address,
+				removableLiquidity,
+				amount0,
+				amount1,
+				to,
+				getExpiry()
+			)
+
+			removeLiquidityTX = await removeLiquidityTX.wait()
+
+			// TODO: Remove hardcoded values
+			expectTx(removeLiquidityTX).toEmitted(pairContract, "Burn").withArgs(
+				hethers.utils.getAddress(router.address),
+				"999999999",
+				"4999999998",
+				hethers.utils.getAddress(deployer.address),
+				"2236067977"
+			);
+
+			expectTx(removeLiquidityTX).toEmitted(pairContract, "Sync").withArgs(
+				"99000000001",
+				"495000000002",
+				"221370729772",
+			);
 	}
 
 	async function approveRouter(tokenA: Contract, tokenB: any, amount0: BigNumber, amount1: BigNumber) {
