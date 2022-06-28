@@ -4,9 +4,8 @@ import * as hethers from "@hashgraph/hethers";
 import {BigNumber, Contract} from "@hashgraph/hethers";
 import {Utils} from "../utils/utils";
 import {expect} from "chai";
-
-import getExpiry = Utils.getExpiry;
 import expectTx from "../utils/LogAssertion";
+import getExpiry = Utils.getExpiry;
 
 const createHTS = require('../scripts/utilities/create-hts');
 const deployHeliSwap = require('../scripts/deploy');
@@ -53,7 +52,7 @@ describe('HeliSwap Tests', function () {
 		router = await hardhat.hethers.getContractAt("UniswapV2Router02", router.address);
 	});
 
-	describe('Adding HTS liquidity', function () {
+	describe('', async () => {
 		const TOKEN_A_SUPPLY = 10_000 * decimals; // 10k
 		let tokenA: Contract;
 
@@ -63,63 +62,172 @@ describe('HeliSwap Tests', function () {
 			tokenA = await hardhat.hethers.getContractAt(ERC20, newTokenA.tokenAddress);
 		});
 
-		it('should be able to add HTS/HTS liquidity', async () => {
-			const TOKEN_B_SUPPLY = 100_000 * decimals; // 100k
-			const newTokenB = await createHTS("TokenB", "TB", TOKEN_B_SUPPLY);
-			// @ts-ignore
-			const tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
-			const amount0 = BigNumber.from(1_000 * decimals);
-			const amount1 = BigNumber.from(5_000 * decimals);
+		describe('Adding HTS liquidity', function () {
 
-			await executeAddLiquidity(
-				tokenA,
-				tokenB,
-				amount0,
-				amount1,
-				TOKEN_A_SYMBOL,
-				TOKEN_B_SYMBOL,
-				TOKEN_A_NAME,
-				TOKEN_B_NAME,
-				BigNumber.from(HTS_DECIMALS),
-				BigNumber.from(HTS_DECIMALS)
-			);
+			it('should be able to add HTS/HTS liquidity', async () => {
+				const TOKEN_B_SUPPLY = 100_000 * decimals; // 100k
+				const newTokenB = await createHTS("TokenB", "TB", TOKEN_B_SUPPLY);
+				// @ts-ignore
+				const tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
+				const amount0 = BigNumber.from(1_000 * decimals);
+				const amount1 = BigNumber.from(5_000 * decimals);
+
+				await executeAddLiquidity(
+					tokenA,
+					tokenB,
+					amount0,
+					amount1,
+					TOKEN_A_SYMBOL,
+					TOKEN_B_SYMBOL,
+					TOKEN_A_NAME,
+					TOKEN_B_NAME,
+					BigNumber.from(HTS_DECIMALS),
+					BigNumber.from(HTS_DECIMALS)
+				);
+			});
+
+			it('should be able to add HTS/HBAR liquidity', async () => {
+				const htsAmount = BigNumber.from(10 * decimals);
+				await executeAddLiquidityHBAR(
+					tokenA,
+					htsAmount,
+					BigNumber.from(1),
+					TOKEN_A_NAME,
+					TOKEN_A_SYMBOL,
+					BigNumber.from(HTS_DECIMALS)
+				);
+			});
+
+			it('should be able to add HTS/ERC20 liquidity', async () => {
+				const amountHts = BigNumber.from(10 * decimals);
+				const amountERC20 = hethers.utils.parseUnits("100", ERC20_DECIMALS);
+				const erc20Address = await deployMintERC20(deployer.address, amountERC20, ERC20_NAME, ERC20_SYMBOL)
+				// @ts-ignore
+				const erc20 = await hardhat.hethers.getContractAt(ERC20, erc20Address);
+				await approveRouter(tokenA, erc20, amountHts, amountERC20);
+
+				await executeAddLiquidity(
+					tokenA,
+					erc20,
+					amountHts,
+					amountERC20,
+					TOKEN_A_SYMBOL,
+					ERC20_SYMBOL,
+					TOKEN_A_NAME,
+					ERC20_NAME,
+					BigNumber.from(HTS_DECIMALS),
+					BigNumber.from(ERC20_DECIMALS)
+				);
+			});
+		})
+
+		describe('HTS related swaps', async () => {
+
+			it('should be able to swap HTS/HTS', async () => {
+				// Given
+				const TOKEN_B_SUPPLY = 100_000 * decimals; // 100k
+				const newTokenB = await createHTS("TokenB", "TB", TOKEN_B_SUPPLY);
+				// @ts-ignore
+				const tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
+				const amount0 = BigNumber.from(1_000 * decimals);
+				const amount1 = BigNumber.from(5_000 * decimals);
+
+				await executeAddLiquidity(
+					tokenA,
+					tokenB,
+					amount0,
+					amount1,
+					TOKEN_A_SYMBOL,
+					TOKEN_B_SYMBOL,
+					TOKEN_A_NAME,
+					TOKEN_B_NAME,
+					BigNumber.from(HTS_DECIMALS),
+					BigNumber.from(HTS_DECIMALS)
+				);
+
+				// When
+
+				// Then
+
+			});
+
+			it('should be able to swap HTS/HBAR', async () => {
+
+			});
+
+			it('should be able to swap HTS/ERC20', async () => {
+
+			});
+		})
+	});
+
+	describe('', async () => {
+
+		const ERC20_SUPPLY = hethers.utils.parseUnits("100", ERC20_DECIMALS);
+		let erc20: Contract;
+
+		beforeEach(async () => {
+			const erc20Address = await deployMintERC20(deployer.address, ERC20_SUPPLY, ERC20_NAME, ERC20_SYMBOL)
+			// @ts-ignore
+			erc20 = await hardhat.hethers.getContractAt(ERC20, erc20Address);
 		});
 
-		it('should be able to add HTS/HBAR liquidity', async () => {
-			const htsAmount = BigNumber.from(10 * decimals);
-			await executeAddLiquidityHBAR(
-				tokenA,
-				htsAmount,
-				BigNumber.from(1),
-				TOKEN_A_NAME,
-				TOKEN_A_SYMBOL,
-				BigNumber.from(HTS_DECIMALS)
-			);
+		describe('Adding ERC20 liquidity', async () => {
+
+			it('should be able to add ERC20/ERC20 liquidity', async () => {
+				const amount0 = hethers.utils.parseUnits("1", ERC20_DECIMALS);
+				const amount1 = hethers.utils.parseUnits("10", ERC20_DECIMALS);
+				const otherERC20Name = "ERC20 Token Other";
+				const otherERC20Symbol = "ERC20Other";
+				const otherERC20Address = await deployMintERC20(deployer.address, ERC20_SUPPLY, otherERC20Name, otherERC20Symbol);
+				// @ts-ignore
+				const otherERC20 = await hardhat.hethers.getContractAt(ERC20, otherERC20Address);
+				await approveRouter(erc20, otherERC20, amount0, amount1);
+
+				await executeAddLiquidity(
+					erc20,
+					otherERC20,
+					amount0,
+					amount1,
+					ERC20_SYMBOL,
+					otherERC20Symbol,
+					ERC20_NAME,
+					otherERC20Name,
+					BigNumber.from(ERC20_DECIMALS),
+					BigNumber.from(ERC20_DECIMALS)
+				);
+			});
+
+			it('should be able to add ERC20/HBAR liquidity', async () => {
+				const amount1Hbar = BigNumber.from(1);
+				const amount0 = hethers.utils.parseUnits("10", ERC20_DECIMALS);
+
+				await executeAddLiquidityHBAR(
+					erc20,
+					amount0,
+					amount1Hbar,
+					ERC20_NAME,
+					ERC20_SYMBOL,
+					BigNumber.from(ERC20_DECIMALS)
+				);
+			});
 		});
 
-		it('should be able to add HTS/ERC20 liquidity', async () => {
-			const amountHts = BigNumber.from(10 * decimals);
-			const amountERC20 = hethers.utils.parseUnits("100", ERC20_DECIMALS);
-			const erc20Address = await deployMintERC20(deployer.address, amountERC20, ERC20_NAME, ERC20_SYMBOL)
-			// @ts-ignore
-			const erc20 = await hardhat.hethers.getContractAt(ERC20, erc20Address);
-			await approveRouter(tokenA, erc20, amountHts, amountERC20);
+		describe('ERC20 related swaps', async () => {
 
-			await executeAddLiquidity(
-				tokenA,
-				erc20,
-				amountHts,
-				amountERC20,
-				TOKEN_A_SYMBOL,
-				ERC20_SYMBOL,
-				TOKEN_A_NAME,
-				ERC20_NAME,
-				BigNumber.from(HTS_DECIMALS),
-				BigNumber.from(ERC20_DECIMALS)
-			);
+
+			it('should be able to swap ERC20/HBAR', async () => {
+
+			});
+
+			it('should be able to swap ERC20/ERC20', async () => {
+
+			});
+
 		});
 
 	})
+
 
 	describe('Removing HTS liquidity', function () {
 		const TOKEN_A_SUPPLY = 10_000 * decimals; // 10k
@@ -171,55 +279,6 @@ describe('HeliSwap Tests', function () {
 
 	})
 
-	describe('Adding ERC20 liquidity', async () => {
-		const ERC20_SUPPLY = hethers.utils.parseUnits("100", ERC20_DECIMALS);
-		let erc20: Contract;
-
-		beforeEach(async () => {
-			const erc20Address = await deployMintERC20(deployer.address, ERC20_SUPPLY, ERC20_NAME, ERC20_SYMBOL)
-			// @ts-ignore
-			erc20 = await hardhat.hethers.getContractAt(ERC20, erc20Address);
-		});
-
-		it('should be able to add ERC20/ERC20 liquidity', async () => {
-			const amount0 = hethers.utils.parseUnits("1", ERC20_DECIMALS);
-			const amount1 = hethers.utils.parseUnits("10", ERC20_DECIMALS);
-			const otherERC20Name = "ERC20 Token Other";
-			const otherERC20Symbol = "ERC20Other";
-			const otherERC20Address = await deployMintERC20(deployer.address, ERC20_SUPPLY, otherERC20Name, otherERC20Symbol);
-			// @ts-ignore
-			const otherERC20 = await hardhat.hethers.getContractAt(ERC20, otherERC20Address);
-			await approveRouter(erc20, otherERC20, amount0, amount1);
-
-			await executeAddLiquidity(
-				erc20,
-				otherERC20,
-				amount0,
-				amount1,
-				ERC20_SYMBOL,
-				otherERC20Symbol,
-				ERC20_NAME,
-				otherERC20Name,
-				BigNumber.from(ERC20_DECIMALS),
-				BigNumber.from(ERC20_DECIMALS)
-			);
-		});
-
-		it('should be able to add ERC20/HBAR liquidity', async () => {
-			const amount1Hbar = BigNumber.from(1);
-			const amount0 = hethers.utils.parseUnits("10", ERC20_DECIMALS);
-
-			await executeAddLiquidityHBAR(
-				erc20,
-				amount0,
-				amount1Hbar,
-				ERC20_NAME,
-				ERC20_SYMBOL,
-				BigNumber.from(ERC20_DECIMALS)
-			);
-		});
-	});
-
 	async function executeAddLiquidityHBAR(
 		token0: Contract,
 		amount0: BigNumber,
@@ -231,20 +290,19 @@ describe('HeliSwap Tests', function () {
 		const amount1Tinybar = amount1Hbar.mul(decimals);
 		await token0.approve(router.address, amount0);
 		await whbar.approve(router.address, amount1Tinybar);
-
-		let addLiquidityETHTx = await router.addLiquidityETH(
-			token0.address,
-			amount0,
-			amount0,
-			amount1Tinybar,
-			deployer.address,
-			getExpiry(),
-			{value:  amount1Hbar}
-		);
-		addLiquidityETHTx = await addLiquidityETHTx.wait();
 		const pairAddress = await Utils.computePairAddress(whbar.address, token0.address, factory.address);
 
-		expectTx(addLiquidityETHTx).toEmitted(factory, "PairCreated").withArgs(
+		(await expectTx(
+			router.addLiquidityETH(
+				token0.address,
+				amount0,
+				amount0,
+				amount1Tinybar,
+				deployer.address,
+				getExpiry(),
+				{value: amount1Hbar}
+			)
+		)).toEmitted(factory, "PairCreated").withArgs(
 			hethers.utils.getAddress(whbar.address),
 			hethers.utils.getAddress(token0.address),
 			hethers.utils.getAddress(pairAddress),
@@ -273,19 +331,20 @@ describe('HeliSwap Tests', function () {
 
 		await token0.approve(router.address, amount0);
 		await token1.approve(router.address, amount1);
-
-		let addLiquidityTx = await router.addLiquidity(
-			token0.address,
-			token1.address,
-			amount0,
-			amount1,
-			amount0,
-			amount1,
-			deployer.address,
-			getExpiry());
-		addLiquidityTx = await addLiquidityTx.wait();
 		const pairAddress = await Utils.computePairAddress(token0.address, token1.address, factory.address);
-		expectTx(addLiquidityTx).toEmitted(factory, "PairCreated").withArgs(
+
+		(await expectTx(
+				router.addLiquidity(
+					token0.address,
+					token1.address,
+					amount0,
+					amount1,
+					amount0,
+					amount1,
+					deployer.address,
+					getExpiry()))
+		)
+			.toEmitted(factory, "PairCreated").withArgs(
 			hethers.utils.getAddress(token0.address),
 			hethers.utils.getAddress(token1.address),
 			hethers.utils.getAddress(pairAddress),
@@ -308,32 +367,25 @@ describe('HeliSwap Tests', function () {
 		removableLiquidity: BigNumber,
 		pairContract: Contract,
 		to: any) {
-			let removeLiquidityTX = await router.removeLiquidity(
+		// TODO: Remove hardcoded values
+		(await expectTx(
+			router.removeLiquidity(
 				token0.address,
 				token1.address,
 				removableLiquidity,
 				amount0,
 				amount1,
 				to,
-				getExpiry()
-			)
-
-			removeLiquidityTX = await removeLiquidityTX.wait()
-
-			// TODO: Remove hardcoded values
-			expectTx(removeLiquidityTX).toEmitted(pairContract, "Burn").withArgs(
+				getExpiry())
+		)).toEmitted(pairContract, "Burn")
+			.withArgs(
 				hethers.utils.getAddress(router.address),
 				"999999999",
 				"4999999998",
 				hethers.utils.getAddress(deployer.address),
-				"2236067977"
-			);
-
-			expectTx(removeLiquidityTX).toEmitted(pairContract, "Sync").withArgs(
-				"99000000001",
-				"495000000002",
-				"221370729772",
-			);
+				"2236067977")
+			.toEmitted(pairContract, "Sync")
+			.withArgs("99000000001", "495000000002", "221370729772")
 	}
 
 	async function approveRouter(tokenA: Contract, tokenB: any, amount0: BigNumber, amount1: BigNumber) {

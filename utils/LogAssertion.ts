@@ -2,8 +2,12 @@ import * as hethers from "@hashgraph/hethers";
 import {LogDescription} from "ethers/lib/utils";
 import {expect} from "chai";
 
-export default function expectTx(transaction: hethers.ContractReceipt): LogBuilder {
-	return new LogBuilder(transaction);
+export default async function expectTx(transaction: hethers.ContractFunction): Promise<LogBuilder> {
+	let tx = await transaction;
+	// @ts-ignore
+	tx = await tx.wait();
+	// @ts-ignore
+	return new LogBuilder(tx);
 }
 
 export class LogBuilder {
@@ -31,12 +35,14 @@ export class LogBuilder {
 		return this;
 	}
 
-	withArgs(...args: any[]) {
+	withArgs(...args: any[]): LogBuilder {
 		for (const index in args) {
 			if (!args[index]) {
 				continue;
 			}
 			expect(args[index]).to.equal(this.targetEvent?.args[index].toString(), `Argument expected to be ${args[index]}, but was ${this.targetEvent?.args[index]}`);
 		}
+
+		return this;
 	}
 }
