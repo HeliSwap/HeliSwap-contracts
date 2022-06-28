@@ -264,7 +264,7 @@ describe('HeliSwap Tests', function () {
 			const removeAmount1 = BigNumber.from(4 * decimals);
 
 			// @ts-ignore
-			const pairContractAddress = await Utils.computePairAddress(tokenA.address, tokenB.address, factory.address)
+			const pairContractAddress = Utils.getCreate2Address(factory.address, [tokenA.address, tokenB.address]);
 			// @ts-ignore
 			const pairContract = await hardhat.hethers.getContractAt(PAIR, pairContractAddress);
 
@@ -289,7 +289,7 @@ describe('HeliSwap Tests', function () {
 		const amount1Tinybar = amount1Hbar.mul(decimals);
 		await token0.approve(router.address, amount0);
 		await whbar.approve(router.address, amount1Tinybar);
-		const pairAddress = await Utils.computePairAddress(whbar.address, token0.address, factory.address);
+		const pairAddress = Utils.getCreate2Address(factory.address, [whbar.address, token0.address]);
 
 		(await expectTx(
 			router.addLiquidityETH(
@@ -330,7 +330,7 @@ describe('HeliSwap Tests', function () {
 
 		await token0.approve(router.address, amount0);
 		await token1.approve(router.address, amount1);
-		const pairAddress = await Utils.computePairAddress(token0.address, token1.address, factory.address);
+		const pairAddress = Utils.getCreate2Address(factory.address, [token0.address, token1.address]);
 
 		(await expectTx(
 				router.addLiquidity(
