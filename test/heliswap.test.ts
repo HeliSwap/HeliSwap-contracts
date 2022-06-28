@@ -226,8 +226,7 @@ describe('HeliSwap Tests', function () {
 
 		});
 
-	})
-
+	});
 
 	describe('Removing HTS liquidity', function () {
 		const TOKEN_A_SUPPLY = 10_000 * decimals; // 10k
@@ -344,18 +343,19 @@ describe('HeliSwap Tests', function () {
 					deployer.address,
 					getExpiry()))
 		)
-			.toEmitted(factory, "PairCreated").withArgs(
-			hethers.utils.getAddress(token0.address),
-			hethers.utils.getAddress(token1.address),
-			hethers.utils.getAddress(pairAddress),
-			undefined,
-			token0Symbol,
-			token1Symbol,
-			token0Name,
-			token1Name,
-			token0Decimals,
-			token1Decimals
-		);
+			.toEmitted(factory, "PairCreated")
+			.withArgs(
+				hethers.utils.getAddress(token0.address),
+				hethers.utils.getAddress(token1.address),
+				hethers.utils.getAddress(pairAddress),
+				undefined,
+				token0Symbol,
+				token1Symbol,
+				token0Name,
+				token1Name,
+				token0Decimals,
+				token1Decimals
+			);
 		await assertReserves(token0, token1, amount0, amount1, pairAddress);
 	}
 
@@ -404,147 +404,3 @@ describe('HeliSwap Tests', function () {
 		expect(pairBalance1).to.equal(token1);
 	}
 });
-
-
-// it('should be able to remove HTS/HTS liquidity', async () => {
-// 	// @ts-ignore
-// 	const pairContract = await hardhat.hethers.getContractAt(PAIR, HTSComputedPairAddress);
-// 	const supply = hethers.BigNumber.from(await pairContract.totalSupply()).toNumber();
-// 	const removableLiquidity = (supply / 100).toString().split(".")[0];
-// 	await pairContract.approve(router.address, 1000 * decimals);
-//
-// 	const removeAmount0 = 2 * decimals;
-// 	const removeAmount1 = 4 * decimals;
-//
-// 	let removeLiquidityTX = await router.removeLiquidity(
-// 		tokenA.address,
-// 		tokenB.address,
-// 		removableLiquidity,
-// 		removeAmount0,
-// 		removeAmount1,
-// 		deployer.address,
-// 		getExpiry()
-// 	)
-//
-// 	removeLiquidityTX = await removeLiquidityTX.wait()
-//
-// 	// FIXME: check the log field values and assert properly
-// 	findLogAndAssert(removeLiquidityTX.logs, burnEventABI,
-// 		{
-// 			to: hethers.utils.getAddress(deployer.address)
-// 		}
-// 	)
-//
-// 	findLogAndAssert(removeLiquidityTX.logs, syncEventABI,
-// 		{
-// 			reserve0: "99000000001",
-// 			reserve1: "495000000002",
-// 			totalSupply: "221370729772"
-// 		}
-// 	)
-// })
-
-// it('should be able to swap HTS/HTS', async () => {
-// 	const amount0 = 200 * decimals;
-// 	const amount1 = 600 * decimals;
-// 	await tokenA.approve(router.address, amount0);
-// 	await tokenB.approve(router.address, amount1);
-//
-// 	// @ts-ignore
-// 	const pairContract = await hardhat.hethers.getContractAt(PAIR, HTSComputedPairAddress);
-//
-// 	let swapTx = await router.swapExactTokensForTokens(
-// 		amount0,
-// 		amount1,
-// 		[tokenA.address, tokenB.address],
-// 		deployer.address,
-// 		getExpiry())
-//
-// 	swapTx = await swapTx.wait()
-//
-// 	findLogAndAssert(swapTx.logs, swapEventABI,
-// 		{
-// 			to: hethers.utils.getAddress(deployer.address),
-// 			amount0In: amount0,
-// 			amount1Out: "82985538926"
-// 		}
-// 	)
-// })
-
-
-//
-// // FIXME: This case is currently failing and being investigated... Will be resolved soon.
-// xit('should be able to remove HTS/HBAR liquidity', async () => {
-// 	// await new Promise(async (resolve, reject) => {setTimeout(resolve, 10000)});
-// 	const whbarDecimals = (10 ** await whbar.decimals());
-// 	const amountHts = decimals;
-// 	const amountHbar = 5;
-// 	const pairAddress = await factory.getPair(tokenA.address, whbar.address);
-//
-// 	// @ts-ignore
-// 	const pairContract = await hardhat.hethers.getContractAt(PAIR, pairAddress);
-// 	const supply = hethers.BigNumber.from(await pairContract.totalSupply()).toNumber();
-// 	const removableLiquidity = (supply / 10).toString().split(".")[0];
-// 	await pairContract.approve(router.address, removableLiquidity + 1);
-//
-// 	console.log(`Will remove ${removableLiquidity} HTS/HBAR liquidity`);
-// 	await tokenA.approve(router.address, amountHts + 1);
-// 	await whbar.approve(router.address, amountHbar * whbarDecimals + 1);
-//
-// 	await router.optimisticAssociation(tokenA.address);
-//
-// 	let removeLiquidityETHTx = await router.removeLiquidityETH(
-// 		tokenA.address,
-// 		removableLiquidity,
-// 		amountHts,
-// 		amountHbar,
-// 		deployer.address,
-// 		getExpiry()
-// 	)
-//
-// 	removeLiquidityETHTx = await removeLiquidityETHTx.wait()
-//
-// 	findLogAndAssert(removeLiquidityETHTx.logs, burnEventABI, {
-// 		to: hethers.utils.getAddress(deployer.address)
-// 	})
-// })
-
-// it('should be able to swap HTS/HBAR', async () => {
-// 	const amount0 = 100 * decimals;
-// 	const amountHbar = 4;
-// 	await tokenA.approve(router.address, amount0);
-// 	await whbar.approve(router.address, amountHbar * decimals);
-//
-// 	// @ts-ignore
-// 	const pairContract = await hardhat.hethers.getContractAt(PAIR, MixedComputedPairAddress);
-//
-// 	let swapExactTokensForETHTx = await router.swapExactTokensForETH(
-// 		amount0,
-// 		amountHbar,
-// 		[tokenA.address, whbar.address],
-// 		deployer.address,
-// 		getExpiry());
-//
-// 	swapExactTokensForETHTx = await swapExactTokensForETHTx.wait();
-//
-// 	// FIXME: Logs addresses of aliased contracts are again being exported with their mirror node 0xlongzeroaddresses instead of the EVM create2 addresses
-// 	findLogAndAssert(swapExactTokensForETHTx.logs, transferEventABI, {
-// 		from: hethers.utils.getAddress(deployer.address),
-// 		// to: MixedComputedPairAddress,
-// 		value: "10000000000",
-// 	})
-//
-// 	findLogAndAssert(swapExactTokensForETHTx.logs, swapEventABI, {
-// 		sender: hethers.utils.getAddress(router.address),
-// 		to: hethers.utils.getAddress(router.address),
-// 		amount0In: "0",
-// 		amount1In: "10000000000",
-// 		amount0Out: "4544211485",
-// 		amount1Out: "0",
-// 	})
-// })
-//
-// it('should revert if associate fails with != 22 || 167 error code', async () => {
-// 	await expect(factory.createPair(tokenA.address, deployer.address)).to.be.reverted;
-// 	await expect(factory.createPair(deployer.address, tokenA.address)).to.be.reverted;
-// })
