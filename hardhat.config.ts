@@ -229,7 +229,7 @@ module.exports = {
 	},
 	hedera: {
 		networks: config.networks,
-		gasLimit: 3000000
+		gasLimit: 2_000_000
 	},
 	defaultNetwork: 'testnet',
 	abiExporter: {
