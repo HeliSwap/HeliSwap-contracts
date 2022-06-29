@@ -1,7 +1,10 @@
 import hardhat from 'hardhat';
 import {Hashgraph} from "../../utils/hashgraph";
+import {hethers} from "@hashgraph/hethers";
+import {Utils} from "../../utils/utils";
+import expandTo8Decimals = Utils.expandTo8Decimals;
 
-async function createHTS(name: string, symbol: string, supply = 200000000000) {
+async function createHTS(name: string, symbol: string, supply = expandTo8Decimals(2000)) {
 	// @ts-ignore
 	let signers = await hardhat.hethers.getSigners();
 	let clientAccount = signers[0]._signer.account;
