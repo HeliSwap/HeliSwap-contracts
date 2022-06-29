@@ -7,6 +7,7 @@ async function getInitCodeHash() {
 	const bytecode = contract.bytecode;
 	const init_code_hash = keccak256(bytecode.startsWith('0x') ? bytecode : `0x${bytecode}`);
 	console.log(init_code_hash);
+	return init_code_hash;
 }
 
 module.exports = getInitCodeHash;

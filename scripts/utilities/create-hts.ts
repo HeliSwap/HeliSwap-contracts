@@ -13,7 +13,7 @@ async function createHTS(name: string, symbol: string, supply = 200000000000) {
 	// @ts-ignore
 	console.log(`HTS Token Deployed at: ${token.tokenAddress} with id ${token.tokenId}`);
 	// @ts-ignore
-	return token.tokenAddress;
+	return token;
 }
 
 module.exports = createHTS;

@@ -120,11 +120,21 @@ task('removeLiquidity', 'Removes liquidity from a pair')
 	.addParam("token1", "The second token")
 	.addParam("amount0", "First token amount")
 	.addParam("amount1", "Second token amount")
+	.addParam("liq","liquidity tokens to remove")
 	.setAction(async (taskArgs) => {
 		const removeLiquidity = require('./scripts/interactions/remove-liquidity');
 		// @ts-ignore
-		await removeLiquidity(taskArgs.router, taskArgs.token0, taskArgs.token1, taskArgs.amount0, taskArgs.amount1);
+		await removeLiquidity(taskArgs.router, taskArgs.token0, taskArgs.token1, taskArgs.amount0, taskArgs.amount1, taskArgs.liq);
 	});
+
+task('getReserves', "Get token reserves")
+	.addParam('router')
+	.addParam('token0')
+	.addParam('token1')
+	.setAction(async (taskArgs) => {
+		const getReserves = require('./scripts/interactions/get-reserves');
+		await getReserves(taskArgs.router, taskArgs.token0, taskArgs.token1);
+	})
 
 task('addLiquidityETH', 'Adds HBAR liquidity')
 	.addParam('router')
@@ -219,7 +229,7 @@ module.exports = {
 	},
 	hedera: {
 		networks: config.networks,
-		gasLimit: 3000000
+		gasLimit: 2_000_000
 	},
 	defaultNetwork: 'testnet',
 	abiExporter: {
