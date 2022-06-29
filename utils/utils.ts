@@ -38,4 +38,8 @@ export namespace Utils {
 	export function expandTo18Decimals(n: number): BigNumber {
 		return hethers.BigNumber.from(n).mul(hethers.BigNumber.from(10).pow(18))
 	}
+
+	export function expandTo8Decimals(n: number): BigNumber {
+		return hethers.BigNumber.from(n).mul(hethers.BigNumber.from(10).pow(8))
+	}
 }

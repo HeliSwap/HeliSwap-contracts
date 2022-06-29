@@ -12,20 +12,21 @@ export default async function expectTx(transaction: hethers.ContractFunction): P
 
 export class LogBuilder {
 	public readonly tx: hethers.ContractReceipt
-	public targetEvent?: LogDescription
+	public targetEvents?: LogDescription[]
 
 	constructor(_tx: hethers.ContractReceipt) {
 		this.tx = _tx;
 	}
 
 	toEmitted(contract: hethers.Contract, name: string): LogBuilder {
+		this.targetEvents = [];
 		let found = false;
 		for (const log of this.tx.logs) {
 			try {
 				let parsedLog = contract.interface.parseLog(log);
 				if (parsedLog.name == name) {
 					found = true;
-					this.targetEvent = parsedLog;
+					this.targetEvents?.push(parsedLog);
 					return this;
 				}
 			} catch (e) {
@@ -36,13 +37,20 @@ export class LogBuilder {
 	}
 
 	withArgs(...args: any[]): LogBuilder {
-		for (const index in args) {
-			if (!args[index]) {
-				continue;
-			}
-			expect(args[index]).to.equal(this.targetEvent?.args[index].toString(), `Argument expected to be ${args[index]}, but was ${this.targetEvent?.args[index]}`);
-		}
+		if (!this.targetEvents) throw Error('Wrong usage of withArgs')
 
+		let found = false;
+		for (let i = 0; i < this.targetEvents.length; i++) {
+			for (const index in args) {
+				if (!args[index]) {
+					continue;
+				}
+				if (args[index] == this.targetEvents[i].args[index].toString()) {
+					found = true;
+				}
+			}
+		}
+		expect(found).to.be.equal(true, `Expected to find the following arguments ${args}`);
 		return this;
 	}
 }

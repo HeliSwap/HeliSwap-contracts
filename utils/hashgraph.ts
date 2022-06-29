@@ -9,6 +9,7 @@ import {
 	TransactionId, TransferTransaction
 } from "@hashgraph/sdk";
 import {hethers} from "@hashgraph/hethers";
+import Long from "long";
 
 /**
  * Utility namespace for interacting with Hedera Network
@@ -32,7 +33,7 @@ export namespace Hashgraph {
 		pk: string,
 		name: string,
 		symbol: string,
-		supply: number,
+		supply: hethers.BigNumber,
 		decimals = 8
 	): Promise<object> {
 		const tokenCreate = await (await new TokenCreateTransaction()
@@ -40,7 +41,7 @@ export namespace Hashgraph {
 			.setTokenSymbol(symbol)
 			.setExpirationTime(_getExpiration())
 			.setDecimals(decimals)
-			.setInitialSupply(supply)
+			.setInitialSupply(Long.fromString(supply.toString()))
 			.setTreasuryAccountId(client.operatorAccountId || DEFAULT_ACCOUNT)
 			.setTransactionId(TransactionId.generate(client.operatorAccountId || DEFAULT_ACCOUNT))
 			.setNodeAccountIds([client._network.getNodeAccountIdsForExecute()[0]])
