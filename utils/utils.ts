@@ -31,7 +31,7 @@ export namespace Utils {
 		try {
 			await tx;
 		} catch (e: any) {
-			expect(e.code).to.equal("CONTRACT_REVERT_EXECUTED");
+			expect(e.code).to.be.oneOf(["CONTRACT_REVERT_EXECUTED", "CALL_EXCEPTION"]);
 		}
 	}
 
@@ -41,5 +41,9 @@ export namespace Utils {
 
 	export function expandTo8Decimals(n: number): BigNumber {
 		return hethers.BigNumber.from(n).mul(hethers.BigNumber.from(10).pow(8))
+	}
+
+	export function reduceFrom8Decimals(n: BigNumber): BigNumber {
+		return n.div(hethers.BigNumber.from(10).pow(8));
 	}
 }
