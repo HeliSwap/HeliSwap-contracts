@@ -31,7 +31,7 @@ chai.use(solidity)
 describe('UniswapV2Router02', function () {
 	this.timeout(5 * 60 * 1000); // 5 minutes
 
-	const feeEnabledCases = [false]; // TODO Enable
+	const feeEnabledCases = [true, false];
 	feeEnabledCases.forEach((isFeeEnabled, i) => {
 
 		describe(`is FeeEnabled - ${isFeeEnabled}`, () => {
@@ -494,8 +494,8 @@ describe('UniswapV2Router02', function () {
 									token0SubAmount = 1;
 									token1SubAmount = 200000000;
 								} else {
-									token0SubAmount = 50000000; // TODO
-									token1SubAmount = 1; // TODO
+									token0SubAmount = 50000000;
+									token1SubAmount = 1;
 								}
 							}
 							await pair.approve(router.address, hethers.constants.MaxUint256);
