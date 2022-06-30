@@ -8,7 +8,6 @@ import expandTo18Decimals = Utils.expandTo18Decimals;
 import expandTo8Decimals = Utils.expandTo8Decimals;
 
 const IERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
-const ERC20 = "contracts/mock/ERC20.sol:ERC20";
 const IPAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
 export async function factoryFixture(feeToSetter: string, feeEnabled = false): Promise<Contract> {
@@ -35,7 +34,7 @@ export async function htsFixture(): Promise<Contract> {
 
 export async function erc20Fixture(): Promise<Contract> {
 	// @ts-ignore
-	const ERC20 = await hardhat.hethers.getContractFactory(ERC20);
+	const ERC20 = await hardhat.hethers.getContractFactory("contracts/mock/ERC20.sol:ERC20");
 	const erc20 = await ERC20.deploy(expandTo18Decimals(10_000));
 	await erc20.deployed();
 	return erc20;

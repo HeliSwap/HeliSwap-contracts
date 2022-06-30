@@ -138,8 +138,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint deadline
     ) public virtual override ensure(deadline) returns (uint amountToken, uint amountETH) {
-        // TODO disassociate
-        optimisticAssociation(token);
+        bool isHTS = optimisticAssociation(token);
         (amountToken, amountETH) = removeLiquidity(
             token,
             WHBAR,
@@ -152,6 +151,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransfer(token, to, amountToken);
         IWHBAR(WHBAR).withdraw(amountETH);
         TransferHelper.safeTransferETH(to, amountETH);
+
+        if (isHTS) {
+            dissociate(token);
+        }
     }
 
     // **** REMOVE LIQUIDITY (supporting fee-on-transfer tokens) ****
@@ -163,8 +166,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint deadline
     ) public virtual override ensure(deadline) returns (uint amountETH) {
-        // TODO disassociate
-        optimisticAssociation(token);
+        bool isHTS = optimisticAssociation(token);
         (, amountETH) = removeLiquidity(
             token,
             WHBAR,
@@ -177,6 +179,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransfer(token, to, IERC20(token).balanceOf(address(this)));
         IWHBAR(WHBAR).withdraw(amountETH);
         TransferHelper.safeTransferETH(to, amountETH);
+
+        if (isHTS) {
+            dissociate(token);
+        }
     }
 
     // **** SWAP ****
@@ -417,13 +423,23 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     }
 
     // calls HTS precompile in order to execute optimistic association
-    function optimisticAssociation(address token) internal {
+    function optimisticAssociation(address token) internal returns (bool) {
         (bool success, bytes memory result) = address(0x167).call(
             abi.encodeWithSignature("associateToken(address,address)", address(this), token));
         require(success, "HTS Precompile: CALL_EXCEPTION");
         int32 responseCode = abi.decode(result, (int32));
         // Success = 22; Non-HTS token (erc20) = 167
         require(responseCode == 22 || responseCode == 167, "HTS Precompile: CALL_ERROR");
+        return responseCode == 22;
+    }
+
+    // calls HTS precompile in order to execute token dissociation
+    function dissociate(address token) internal {
+        (bool success, bytes memory result) = address(0x167).call(
+            abi.encodeWithSignature("dissociateToken(address,address)", address(this), token));
+        require(success, "HTS Precompile: CALL_EXCEPTION");
+        int32 responseCode = abi.decode(result, (int32));
+        require(responseCode == 22);
     }
 
     function balance() public view returns (uint256) {

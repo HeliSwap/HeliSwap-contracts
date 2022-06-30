@@ -7,6 +7,8 @@ export namespace Utils {
 
 	const TEN_MINUTES = 600_000;
 
+	export const MINIMUM_LIQUIDITY = hethers.BigNumber.from(10).pow(3)
+
 	export function getExpiry() {
 		return (new Date()).getTime() + TEN_MINUTES;
 	}
@@ -41,6 +43,10 @@ export namespace Utils {
 
 	export function expandTo8Decimals(n: number): BigNumber {
 		return hethers.BigNumber.from(n).mul(hethers.BigNumber.from(10).pow(8))
+	}
+
+	export function expandTo13Decimals(n: number): BigNumber {
+		return hethers.BigNumber.from(n).mul(hethers.BigNumber.from(10).pow(13))
 	}
 
 	export function reduceFrom8Decimals(n: BigNumber): BigNumber {

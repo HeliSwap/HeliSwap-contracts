@@ -27,7 +27,6 @@ export class LogBuilder {
 				if (parsedLog.name == name) {
 					found = true;
 					this.targetEvents?.push(parsedLog);
-					return this;
 				}
 			} catch (e) {
 			}
@@ -39,18 +38,20 @@ export class LogBuilder {
 	withArgs(...args: any[]): LogBuilder {
 		if (!this.targetEvents) throw Error('Wrong usage of withArgs')
 
-		let found = false;
+		let eventFindings = [];
 		for (let i = 0; i < this.targetEvents.length; i++) {
+			let found = true;
 			for (const index in args) {
 				if (!args[index]) {
 					continue;
 				}
-				if (args[index] == this.targetEvents[i].args[index].toString()) {
-					found = true;
+				if (args[index] != this.targetEvents[i].args[index].toString()) {
+					found = false;
 				}
 			}
+			eventFindings.push(found);
 		}
-		expect(found).to.be.equal(true, `Expected to find the following arguments ${args}`);
+		expect(eventFindings).to.contain(true, `Expected to find the following arguments ${args}. Received events: ${this.targetEvents.toString()}`);
 		return this;
 	}
 }
