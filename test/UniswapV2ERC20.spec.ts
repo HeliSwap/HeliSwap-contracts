@@ -28,7 +28,7 @@ describe('UniswapV2ERC20', () => {
 
 	beforeEach(async () => {
 		// @ts-ignore
-		token = await hardhat.hethers.getContractFactory('contracts/mock/ERC20.sol:ERC20');
+		token = await hardhat.hethers.getContractFactory('contracts/mock/TestUniswapV2ERC20.sol:TestUniswapV2ERC20');
 		token = await token.deploy(TOTAL_SUPPLY);
 		await token.deployTransaction.wait();
 	})
