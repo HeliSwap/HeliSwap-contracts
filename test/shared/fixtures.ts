@@ -78,6 +78,14 @@ export async function whbarFixture(): Promise<Contract> {
 	return whbar;
 }
 
+export async function eventEmitterFixture(): Promise<Contract> {
+	// @ts-ignore
+	const EventEmitter = await hardhat.hethers.getContractFactory("RouterEventEmitter");
+	const emitter = await EventEmitter.deploy();
+	await emitter.deployed();
+	return emitter;
+}
+
 interface PairFixture {
 	token0: Contract
 	token1: Contract

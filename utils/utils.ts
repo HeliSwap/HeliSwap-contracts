@@ -7,6 +7,8 @@ export namespace Utils {
 
 	const TEN_MINUTES = 600_000;
 
+	export const MAX_VALUE_HTS = hethers.BigNumber.from('9223372036854775807');
+
 	export const MINIMUM_LIQUIDITY = hethers.BigNumber.from(10).pow(3)
 
 	export function getExpiry() {

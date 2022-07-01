@@ -1,13 +1,6 @@
 import chai, {expect} from 'chai'
 import {solidity} from 'ethereum-waffle'
-import {
-	deflatingERC20Fixture, erc20Fixture,
-	factoryFixture,
-	htsFixture,
-	pairFixture,
-	routerFixture,
-	whbarFixture
-} from './shared/fixtures'
+import {erc20Fixture, eventEmitterFixture, htsFixture, pairFixture} from './shared/fixtures'
 
 import {SignerWithAddress} from "hardhat-hethers/internal/signers";
 import {BigNumber, Contract, hethers} from "@hashgraph/hethers";
@@ -20,18 +13,16 @@ import expandTo8Decimals = Utils.expandTo8Decimals;
 import reduceFrom8Decimals = Utils.reduceFrom8Decimals;
 import MINIMUM_LIQUIDITY = Utils.MINIMUM_LIQUIDITY;
 import expandTo13Decimals = Utils.expandTo13Decimals;
-import exp from "constants";
+import MAX_VALUE_HTS = Utils.MAX_VALUE_HTS;
 
 const IPAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
 chai.use(solidity)
 
-// TODO Add tests for HTS with custom fees
-
 describe('UniswapV2Router02', function () {
 	this.timeout(5 * 60 * 1000); // 5 minutes
 
-	const feeEnabledCases = [true, false];
+	const feeEnabledCases = [false];
 	feeEnabledCases.forEach((isFeeEnabled, i) => {
 
 		describe(`is FeeEnabled - ${isFeeEnabled}`, () => {
@@ -196,7 +187,7 @@ describe('UniswapV2Router02', function () {
 							const whbarAmount = expandTo8Decimals(4);
 
 							await token.transfer(pair.address, tokenAmount);
-							await whbar.deposit({ value: reduceFrom8Decimals(whbarAmount) });
+							await whbar.deposit({value: reduceFrom8Decimals(whbarAmount)});
 							await whbar.transfer(pair.address, whbarAmount);
 							await pair.mint(wallet.address);
 
@@ -272,6 +263,278 @@ describe('UniswapV2Router02', function () {
 							)
 							await tx.wait();
 						})
+
+						describe('swapExactETHForTokens', () => {
+							const tokenAmount = shouldBeHTS ? expandTo8Decimals(10) : expandTo18Decimals(10);
+							const hbarAmount = expandTo8Decimals(5);
+							const swapAmount = expandTo8Decimals(1);
+
+							const expectedOutputAmount = shouldBeHTS ?
+								hethers.BigNumber.from('166249791') : hethers.BigNumber.from('1662497915624478906')
+
+							beforeEach(async () => {
+								await token.transfer(pair.address, tokenAmount);
+								await whbar.deposit({value: reduceFrom8Decimals(hbarAmount)});
+								await whbar.transfer(pair.address, hbarAmount);
+								await pair.mint(wallet.address);
+							})
+
+							it('happy path', async () => {
+								const whbarPairToken0 = await pair.token0();
+								(await expectTx(
+									router.swapExactETHForTokens(
+										0,
+										[whbar.address, token.address],
+										wallet.address,
+										hethers.constants.MaxUint256,
+										{value: reduceFrom8Decimals(swapAmount)})
+								))
+									.toEmitted(whbar, 'Transfer')
+									.withArgs(hethers.utils.getAddress(router.address), undefined, swapAmount)
+									.toEmitted(token, 'Transfer')
+									.withArgs(undefined, hethers.utils.getAddress(wallet.address), expectedOutputAmount)
+									.toEmitted(pair, 'Sync')
+									.withArgs(
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ?
+											tokenAmount.sub(expectedOutputAmount) : hbarAmount.add(swapAmount),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ?
+											hbarAmount.add(swapAmount) : tokenAmount.sub(expectedOutputAmount)
+									)
+									.toEmitted(pair, 'Swap')
+									.withArgs(
+										hethers.utils.getAddress(router.address),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : swapAmount,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? swapAmount : 0,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedOutputAmount : 0,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedOutputAmount,
+										hethers.utils.getAddress(wallet.address)
+									)
+							})
+
+							it('amounts', async () => {
+								const routerEventEmitter = await eventEmitterFixture();
+								(await expectTx(
+									routerEventEmitter.swapExactETHForTokens(
+										router.address,
+										0,
+										[whbar.address, token.address],
+										wallet.address,
+										hethers.constants.MaxUint256,
+										{
+											value: reduceFrom8Decimals(swapAmount)
+										}
+									)
+								))
+									.toEmitted(routerEventEmitter, 'Amounts')
+									.withArgs([swapAmount, expectedOutputAmount])
+							})
+						});
+
+						describe('swapTokensForExactETH', () => {
+							const tokenAmount = shouldBeHTS ? expandTo8Decimals(5) : expandTo18Decimals(5);
+							const hbarAmount = expandTo8Decimals(10);
+							const expectedSwapAmount = shouldBeHTS ?
+								hethers.BigNumber.from('55722724') : hethers.BigNumber.from('557227237267357629')
+							const outputAmount = expandTo8Decimals(1)
+
+							beforeEach(async () => {
+								await token.transfer(pair.address, tokenAmount);
+								await whbar.deposit({value: reduceFrom8Decimals(hbarAmount)});
+								await whbar.transfer(pair.address, hbarAmount);
+								await pair.mint(wallet.address);
+							})
+
+							it('happy path', async () => {
+								await token.approve(router.address, tokenAmount);
+								const whbarPairToken0 = await pair.token0();
+								(await expectTx(
+									router.swapTokensForExactETH(
+										outputAmount,
+										shouldBeHTS ? MAX_VALUE_HTS : hethers.constants.MaxUint256,
+										[token.address, whbar.address],
+										wallet.address,
+										hethers.constants.MaxUint256
+									)
+								))
+									.toEmitted(token, 'Transfer')
+									.withArgs(hethers.utils.getAddress(wallet.address), undefined, expectedSwapAmount)
+									.toEmitted(whbar, 'Transfer')
+									.withArgs(undefined, hethers.utils.getAddress(router.address), outputAmount)
+									.toEmitted(pair, 'Sync')
+									.withArgs(
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+											? tokenAmount.add(expectedSwapAmount)
+											: hbarAmount.sub(outputAmount),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+											? hbarAmount.sub(outputAmount)
+											: tokenAmount.add(expectedSwapAmount)
+									)
+									.toEmitted(pair, 'Swap')
+									.withArgs(
+										hethers.utils.getAddress(router.address),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedSwapAmount : 0,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedSwapAmount,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : outputAmount,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? outputAmount : 0,
+										hethers.utils.getAddress(router.address)
+									)
+							})
+
+							it('amounts', async () => {
+								const routerEventEmitter = await eventEmitterFixture();
+								await token.approve(routerEventEmitter.address, tokenAmount);
+								(await expectTx(
+									routerEventEmitter.swapTokensForExactETH(
+										router.address,
+										outputAmount,
+										shouldBeHTS ? MAX_VALUE_HTS : hethers.constants.MaxUint256,
+										[token.address, whbar.address],
+										wallet.address,
+										hethers.constants.MaxUint256,
+									)
+								))
+									.toEmitted(routerEventEmitter, 'Amounts')
+									.withArgs([expectedSwapAmount, outputAmount])
+							})
+						});
+
+						describe('swapExactTokensForETH', () => {
+							const tokenAmount = shouldBeHTS ? expandTo8Decimals(5) : expandTo18Decimals(5);
+							const hbarAmount = expandTo8Decimals(10);
+							const swapAmount = shouldBeHTS ? expandTo8Decimals(1) : expandTo18Decimals(1);
+							const expectedOutputAmount = hethers.BigNumber.from('166249791')
+
+							beforeEach(async () => {
+								await token.transfer(pair.address, tokenAmount);
+								await whbar.deposit({value: reduceFrom8Decimals(hbarAmount)});
+								await whbar.transfer(pair.address, hbarAmount);
+								await pair.mint(wallet.address);
+							})
+
+							it('happy path', async () => {
+								await token.approve(router.address, tokenAmount);
+								const whbarPairToken0 = await pair.token0();
+								(await expectTx(
+									router.swapExactTokensForETH(
+										swapAmount,
+										0,
+										[token.address, whbar.address],
+										wallet.address,
+										hethers.constants.MaxUint256
+									)
+								))
+									.toEmitted(token, 'Transfer')
+									.withArgs(hethers.utils.getAddress(wallet.address), undefined, swapAmount)
+									.toEmitted(whbar, 'Transfer')
+									.withArgs(undefined, hethers.utils.getAddress(router.address), expectedOutputAmount)
+									.toEmitted(pair, 'Sync')
+									.withArgs(
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+											? tokenAmount.add(swapAmount)
+											: hbarAmount.sub(expectedOutputAmount),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+											? hbarAmount.sub(expectedOutputAmount)
+											: tokenAmount.add(swapAmount)
+									)
+									.toEmitted(pair, 'Swap')
+									.withArgs(
+										hethers.utils.getAddress(router.address),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? swapAmount : 0,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : swapAmount,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedOutputAmount,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedOutputAmount : 0,
+										hethers.utils.getAddress(router.address)
+									)
+							})
+
+							it('amounts', async () => {
+								const routerEventEmitter = await eventEmitterFixture();
+								await token.approve(routerEventEmitter.address, tokenAmount);
+								(await expectTx(
+									routerEventEmitter.swapExactTokensForETH(
+										router.address,
+										swapAmount,
+										0,
+										[token.address, whbar.address],
+										wallet.address,
+										hethers.constants.MaxUint256
+									)
+								))
+									.toEmitted(routerEventEmitter, 'Amounts')
+									.withArgs([swapAmount, expectedOutputAmount])
+							})
+
+						});
+
+						describe('swapETHForExactTokens', async () => {
+							const tokenAmount = shouldBeHTS ? expandTo8Decimals(10) : expandTo18Decimals(10);
+							const hbarAmount = expandTo8Decimals(5);
+							const expectedSwapAmount = hethers.BigNumber.from('55722724');
+							const outputAmount = shouldBeHTS ? expandTo8Decimals(1) : expandTo18Decimals(1);
+
+							beforeEach(async () => {
+								await token.transfer(pair.address, tokenAmount);
+								await whbar.deposit({value: reduceFrom8Decimals(hbarAmount)});
+								await whbar.transfer(pair.address, hbarAmount);
+								await pair.mint(wallet.address);
+							})
+
+							it('happy path', async () => {
+								const whbarPairToken0 = await pair.token0();
+								(await expectTx(
+									router.swapETHForExactTokens(
+										outputAmount,
+										[whbar.address, token.address],
+										wallet.address,
+										hethers.constants.MaxUint256,
+										{
+											value: 1 // sending a bit more hbar due to hethers bug...
+										}
+									)
+								))
+									.toEmitted(whbar, 'Transfer')
+									.withArgs(hethers.utils.getAddress(router.address), undefined, expectedSwapAmount)
+									.toEmitted(token, 'Transfer')
+									.withArgs(undefined, hethers.utils.getAddress(wallet.address), outputAmount)
+									.toEmitted(pair, 'Sync')
+									.withArgs(
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+											? tokenAmount.sub(outputAmount)
+											: hbarAmount.add(expectedSwapAmount),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+											? hbarAmount.add(expectedSwapAmount)
+											: tokenAmount.sub(outputAmount)
+									)
+									.toEmitted(pair, 'Swap')
+									.withArgs(
+										hethers.utils.getAddress(router.address),
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedSwapAmount,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedSwapAmount : 0,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? outputAmount : 0,
+										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : outputAmount,
+										hethers.utils.getAddress(wallet.address)
+									)
+							})
+
+							it('amounts', async () => {
+								const routerEventEmitter = await eventEmitterFixture();
+								(await expectTx(
+									routerEventEmitter.swapETHForExactTokens(
+										router.address,
+										outputAmount,
+										[whbar.address, token.address],
+										wallet.address,
+										hethers.constants.MaxUint256,
+										{
+											value: 1
+										}
+									)
+								))
+									.toEmitted(routerEventEmitter, 'Amounts')
+									.withArgs([expectedSwapAmount, outputAmount])
+							})
+
+						});
 
 						describe('swapExactTokensForTokensSupportingFeeOnTransferTokens', async () => {
 
@@ -529,6 +792,115 @@ describe('UniswapV2Router02', function () {
 							const totalSupplyToken1 = await token1.totalSupply()
 							expect(await token0.balanceOf(wallet.address)).to.eq(totalSupplyToken0.sub(token0SubAmount))
 							expect(await token1.balanceOf(wallet.address)).to.eq(totalSupplyToken1.sub(token1SubAmount))
+						})
+
+						describe('swapExactTokensForExactTokens', () => {
+							const token0Amount = (shouldBeHTS[0] ? expandTo8Decimals(5) : expandTo18Decimals(5));
+							const token1Amount = (shouldBeHTS[1] ? expandTo8Decimals(10) : expandTo18Decimals(10));
+
+							const swapAmount = (shouldBeHTS[0] ? expandTo8Decimals(1) : expandTo18Decimals(1));
+							const expectedOutputAmount = shouldBeHTS[1] ?
+								hethers.BigNumber.from('166249791') : hethers.BigNumber.from('1662497915624478906');
+
+							beforeEach(async () => {
+								await addLiquidity(token0Amount, token1Amount);
+								await token0.approve(router.address, token0Amount);
+							})
+
+							it('happy path', async () => {
+								(await expectTx(
+									router.swapExactTokensForTokens(
+										swapAmount,
+										0,
+										[token0.address, token1.address],
+										wallet.address,
+										hethers.constants.MaxUint256
+									)
+								))
+									.toEmitted(token0, 'Transfer')
+									.withArgs(hethers.utils.getAddress(wallet.address), undefined, swapAmount)
+									.toEmitted(token1, 'Transfer')
+									.withArgs(undefined, hethers.utils.getAddress(wallet.address), expectedOutputAmount)
+									.toEmitted(pair, 'Sync')
+									.withArgs(token0Amount.add(swapAmount), token1Amount.sub(expectedOutputAmount))
+									.toEmitted(pair, 'Swap')
+									.withArgs(
+										hethers.utils.getAddress(router.address),
+										swapAmount,
+										0,
+										0,
+										expectedOutputAmount,
+										hethers.utils.getAddress(wallet.address)
+									)
+							})
+
+							it('amounts', async () => {
+								const routerEventEmitter = await eventEmitterFixture();
+								await token0.approve(routerEventEmitter.address, token0Amount);
+								(await expectTx(
+									routerEventEmitter.swapExactTokensForTokens(
+										router.address,
+										swapAmount,
+										0,
+										[token0.address, token1.address],
+										wallet.address,
+										hethers.constants.MaxUint256
+									)
+								))
+									.toEmitted(routerEventEmitter, 'Amounts')
+									.withArgs([swapAmount, expectedOutputAmount])
+							})
+						})
+
+						describe('swapTokensForExactTokens', () => {
+							const token0Amount = (shouldBeHTS[0] ? expandTo8Decimals(5) : expandTo18Decimals(5));
+							const token1Amount = (shouldBeHTS[1] ? expandTo8Decimals(10) : expandTo18Decimals(10));
+							const expectedSwapAmount = shouldBeHTS[0] ?
+								hethers.BigNumber.from('55722724') : hethers.BigNumber.from('557227237267357629');
+
+							const outputAmount = (shouldBeHTS[1] ? expandTo8Decimals(1) : expandTo18Decimals(1));
+
+							beforeEach(async () => {
+								await addLiquidity(token0Amount, token1Amount);
+								await token0.approve(router.address, token0Amount);
+							})
+
+							it('happy path', async () => {
+								(await expectTx(
+									router.swapTokensForExactTokens(
+										outputAmount,
+										shouldBeHTS[0] ? MAX_VALUE_HTS : hethers.constants.MaxUint256,
+										[token0.address, token1.address],
+										wallet.address,
+										hethers.constants.MaxUint256
+									)
+								))
+									.toEmitted(token0, 'Transfer')
+									.withArgs(hethers.utils.getAddress(wallet.address), undefined, expectedSwapAmount)
+									.toEmitted(token1, 'Transfer')
+									.withArgs(undefined, hethers.utils.getAddress(wallet.address), outputAmount)
+									.toEmitted(pair, 'Sync')
+									.withArgs(token0Amount.add(expectedSwapAmount), token1Amount.sub(outputAmount))
+									.toEmitted(pair, 'Swap')
+									.withArgs(hethers.utils.getAddress(router.address), expectedSwapAmount, 0, 0, outputAmount, hethers.utils.getAddress(wallet.address));
+							})
+
+							it('amounts', async () => {
+								const routerEventEmitter = await eventEmitterFixture();
+								await token0.approve(routerEventEmitter.address, token0Amount);
+								(await expectTx(
+									routerEventEmitter.swapTokensForExactTokens(
+										router.address,
+										outputAmount,
+										shouldBeHTS[0] ? MAX_VALUE_HTS : hethers.constants.MaxUint256,
+										[token0.address, token1.address],
+										wallet.address,
+										hethers.constants.MaxUint256
+									)
+								))
+									.toEmitted(routerEventEmitter, 'Amounts')
+									.withArgs([expectedSwapAmount, outputAmount])
+							})
 						})
 					})
 				});
