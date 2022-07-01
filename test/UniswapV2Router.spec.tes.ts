@@ -1,6 +1,13 @@
 import chai, {expect} from 'chai'
 import {solidity} from 'ethereum-waffle'
-import {erc20Fixture, eventEmitterFixture, htsFixture, pairFixture} from './shared/fixtures'
+import {
+	erc20Fixture,
+	eventEmitterFixture,
+	factoryFixture,
+	htsFixture,
+	pairFixture, routerFixture,
+	whbarFixture
+} from './shared/fixtures'
 
 import {SignerWithAddress} from "hardhat-hethers/internal/signers";
 import {BigNumber, Contract, hethers} from "@hashgraph/hethers";
@@ -22,7 +29,7 @@ chai.use(solidity)
 describe('UniswapV2Router02', function () {
 	this.timeout(5 * 60 * 1000); // 5 minutes
 
-	const feeEnabledCases = [false];
+	const feeEnabledCases = [true, false];
 	feeEnabledCases.forEach((isFeeEnabled, i) => {
 
 		describe(`is FeeEnabled - ${isFeeEnabled}`, () => {
@@ -35,15 +42,9 @@ describe('UniswapV2Router02', function () {
 			before(async () => {
 				// @ts-ignore
 				[wallet] = await hardhat.hethers.getSigners();
-				// factory = await factoryFixture(wallet.address, isFeeEnabled);
-				// @ts-ignore
-				factory = await hardhat.hethers.getContractAt("UniswapV2Factory", '0x0000000000000000000000000000000002cacb4c');
-				// whbar = await whbarFixture();
-				// @ts-ignore
-				whbar = await hardhat.hethers.getContractAt("MockWHBAR", '0x0000000000000000000000000000000002cacb4e');
-				// @ts-ignore
-				router = await hardhat.hethers.getContractAt("UniswapV2Router02", '0x0000000000000000000000000000000002cacb50');
-				// router = await routerFixture(factory, whbar);
+				factory = await factoryFixture(wallet.address, isFeeEnabled);
+				whbar = await whbarFixture();
+				router = await routerFixture(factory, whbar);
 			})
 
 			it('factory, WHBAR', async () => {

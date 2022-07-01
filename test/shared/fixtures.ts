@@ -40,14 +40,6 @@ export async function erc20Fixture(): Promise<Contract> {
 	return erc20;
 }
 
-export async function deflatingERC20Fixture(): Promise<Contract> {
-	// @ts-ignore
-	const DEFLATING = await hardhat.hethers.getContractFactory('DeflatingERC20');
-	const deflatingERC20 = await DEFLATING.deploy(expandTo18Decimals(10_000));
-	await deflatingERC20.deployed();
-	return deflatingERC20;
-}
-
 export async function pairFixture(factory: Contract, types: [boolean, boolean]): Promise<PairFixture> {
 	const tokenA = types[0] ? await htsFixture() : await erc20Fixture();
 	const tokenB = types[1] ? await htsFixture() : await erc20Fixture();
