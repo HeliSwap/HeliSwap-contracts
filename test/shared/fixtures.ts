@@ -8,15 +8,21 @@ import expandTo18Decimals = Utils.expandTo18Decimals;
 import expandTo8Decimals = Utils.expandTo8Decimals;
 
 const IERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
-const ERC20 = "contracts/core/mock/ERC20.sol:ERC20";
 const IPAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
-export async function factoryFixture(feeToSetter: string): Promise<Contract> {
+export async function factoryFixture(feeToSetter: string, feeEnabled = false): Promise<Contract> {
 	// @ts-ignore
 	const HeliSwapFactory = await hardhat.hethers.getContractFactory("UniswapV2Factory");
 	// @ts-ignore
 	const factory = await HeliSwapFactory.deploy(feeToSetter);
 	await factory.deployTransaction.wait();
+
+	if (feeEnabled) {
+		// @ts-ignore
+		const [receiver] = await hardhat.hethers.getSigners();
+		await factory.setFeeTo(receiver.address);
+	}
+
 	return factory;
 }
 
@@ -28,7 +34,7 @@ export async function htsFixture(): Promise<Contract> {
 
 export async function erc20Fixture(): Promise<Contract> {
 	// @ts-ignore
-	const ERC20 = await hardhat.hethers.getContractFactory(ERC20);
+	const ERC20 = await hardhat.hethers.getContractFactory("contracts/mock/ERC20.sol:ERC20");
 	const erc20 = await ERC20.deploy(expandTo18Decimals(10_000));
 	await erc20.deployed();
 	return erc20;
@@ -46,6 +52,30 @@ export async function pairFixture(factory: Contract, types: [boolean, boolean]):
 	const token0 = hethers.utils.getAddress(tokenA.address) === token0Address ? tokenA : tokenB
 	const token1 = hethers.utils.getAddress(tokenA.address) === token0Address ? tokenB : tokenA
 	return { token0, token1, pair }
+}
+
+export async function routerFixture(factory: Contract, whbar: Contract): Promise<Contract> {
+	// @ts-ignore
+	const HeliSwapRouter = await hardhat.hethers.getContractFactory("UniswapV2Router02");
+	const router = await HeliSwapRouter.deploy(factory.address, whbar.address);
+	await router.deployed();
+	return router;
+}
+
+export async function whbarFixture(): Promise<Contract> {
+	// @ts-ignore
+	const WHBAR = await hardhat.hethers.getContractFactory('MockWHBAR');
+	let whbar = await WHBAR.deploy();
+	await whbar.deployed();
+	return whbar;
+}
+
+export async function eventEmitterFixture(): Promise<Contract> {
+	// @ts-ignore
+	const EventEmitter = await hardhat.hethers.getContractFactory("RouterEventEmitter");
+	const emitter = await EventEmitter.deploy();
+	await emitter.deployed();
+	return emitter;
 }
 
 interface PairFixture {

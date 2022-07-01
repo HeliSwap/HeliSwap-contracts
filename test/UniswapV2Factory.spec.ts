@@ -8,7 +8,7 @@ import hardhat from "hardhat";
 import {Contract, hethers} from "@hashgraph/hethers";
 import expectTx from "../utils/LogAssertion";
 import getCreate2Address = Utils.getCreate2Address;
-const PAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
+const IPAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
 chai.use(solidity)
 
@@ -53,7 +53,7 @@ describe('UniswapV2Factory', () => {
 		expect(await factory.allPairsLength()).to.eq(1)
 
 		// @ts-ignore
-		const pair = await hardhat.hethers.getContractAt(PAIR, create2Address)
+		const pair = await hardhat.hethers.getContractAt(IPAIR, create2Address)
 		expect(await pair.factory()).to.eq(hethers.utils.getAddress(factory.address))
 		expect(await pair.token0()).to.eq(hethers.utils.getAddress(TEST_ADDRESSES[0]))
 		expect(await pair.token1()).to.eq(hethers.utils.getAddress(TEST_ADDRESSES[1]))

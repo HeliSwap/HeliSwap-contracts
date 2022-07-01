@@ -94,6 +94,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint deadline
     ) external virtual override payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
+
         (amountToken, amountETH) = _addLiquidity(
             token,
             WHBAR,
@@ -137,6 +138,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint deadline
     ) public virtual override ensure(deadline) returns (uint amountToken, uint amountETH) {
+        bool isHTS = optimisticAssociation(token);
         (amountToken, amountETH) = removeLiquidity(
             token,
             WHBAR,
@@ -149,35 +151,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransfer(token, to, amountToken);
         IWHBAR(WHBAR).withdraw(amountETH);
         TransferHelper.safeTransferETH(to, amountETH);
-    }
-    function removeLiquidityWithPermit(
-        address tokenA,
-        address tokenB,
-        uint liquidity,
-        uint amountAMin,
-        uint amountBMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountA, uint amountB) {
-        address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
-        uint value = approveMax ? uint(-1) : liquidity;
-        IUniswapV2Pair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
-        (amountA, amountB) = removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline);
-    }
-    function removeLiquidityETHWithPermit(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountToken, uint amountETH) {
-        address pair = UniswapV2Library.pairFor(factory, token, WHBAR);
-        uint value = approveMax ? uint(-1) : liquidity;
-        IUniswapV2Pair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
-        (amountToken, amountETH) = removeLiquidityETH(token, liquidity, amountTokenMin, amountETHMin, to, deadline);
+
+        if (isHTS) {
+            dissociate(token);
+        }
     }
 
     // **** REMOVE LIQUIDITY (supporting fee-on-transfer tokens) ****
@@ -189,6 +166,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         address to,
         uint deadline
     ) public virtual override ensure(deadline) returns (uint amountETH) {
+        bool isHTS = optimisticAssociation(token);
         (, amountETH) = removeLiquidity(
             token,
             WHBAR,
@@ -201,22 +179,10 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransfer(token, to, IERC20(token).balanceOf(address(this)));
         IWHBAR(WHBAR).withdraw(amountETH);
         TransferHelper.safeTransferETH(to, amountETH);
-    }
-    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external virtual override returns (uint amountETH) {
-        address pair = UniswapV2Library.pairFor(factory, token, WHBAR);
-        uint value = approveMax ? uint(-1) : liquidity;
-        IUniswapV2Pair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
-        amountETH = removeLiquidityETHSupportingFeeOnTransferTokens(
-            token, liquidity, amountTokenMin, amountETHMin, to, deadline
-        );
+
+        if (isHTS) {
+            dissociate(token);
+        }
     }
 
     // **** SWAP ****
@@ -454,5 +420,29 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         returns (uint[] memory amounts)
     {
         return UniswapV2Library.getAmountsIn(factory, amountOut, path);
+    }
+
+    // calls HTS precompile in order to execute optimistic association
+    function optimisticAssociation(address token) internal returns (bool) {
+        (bool success, bytes memory result) = address(0x167).call(
+            abi.encodeWithSignature("associateToken(address,address)", address(this), token));
+        require(success, "HTS Precompile: CALL_EXCEPTION");
+        int32 responseCode = abi.decode(result, (int32));
+        // Success = 22; Non-HTS token (erc20) = 167
+        require(responseCode == 22 || responseCode == 167, "HTS Precompile: CALL_ERROR");
+        return responseCode == 22;
+    }
+
+    // calls HTS precompile in order to execute token dissociation
+    function dissociate(address token) internal {
+        (bool success, bytes memory result) = address(0x167).call(
+            abi.encodeWithSignature("dissociateToken(address,address)", address(this), token));
+        require(success, "HTS Precompile: CALL_EXCEPTION");
+        int32 responseCode = abi.decode(result, (int32));
+        require(responseCode == 22);
+    }
+
+    function balance() public view returns (uint256) {
+        return address(this).balance;
     }
 }

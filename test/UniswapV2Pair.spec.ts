@@ -121,11 +121,11 @@ describe('UniswapV2Pair', () => {
 		await token0.transfer(pair.address, swapAmount);
 		(await expectTx(pair.swap(0, expectedOutputAmount, wallet.address, '0x')))
 			.toEmitted(token1, 'Transfer')
-			.withArgs(pair.address, wallet.address, expectedOutputAmount)
+			.withArgs(undefined, hethers.utils.getAddress(wallet.address), expectedOutputAmount)
 			.toEmitted(pair, 'Sync')
 			.withArgs(token0Amount.add(swapAmount), token1Amount.sub(expectedOutputAmount))
 			.toEmitted(pair, 'Swap')
-			.withArgs(wallet.address, swapAmount, 0, 0, expectedOutputAmount, wallet.address)
+			.withArgs(hethers.utils.getAddress(wallet.address), swapAmount, 0, 0, expectedOutputAmount, hethers.utils.getAddress(wallet.address))
 
 		const reserves = await pair.getReserves()
 		expect(reserves[0]).to.eq(token0Amount.add(swapAmount))
@@ -148,11 +148,11 @@ describe('UniswapV2Pair', () => {
 		await token1.transfer(pair.address, swapAmount);
 		(await expectTx(pair.swap(expectedOutputAmount, 0, wallet.address, '0x')))
 			.toEmitted(token0, 'Transfer')
-			.withArgs(pair.address, wallet.address, expectedOutputAmount)
+			.withArgs(undefined, hethers.utils.getAddress(wallet.address), expectedOutputAmount)
 			.toEmitted(pair, 'Sync')
 			.withArgs(token0Amount.sub(expectedOutputAmount), token1Amount.add(swapAmount))
 			.toEmitted(pair, 'Swap')
-			.withArgs(wallet.address, 0, swapAmount, expectedOutputAmount, 0, wallet.address)
+			.withArgs(hethers.utils.getAddress(wallet.address), 0, swapAmount, expectedOutputAmount, 0, hethers.utils.getAddress(wallet.address))
 
 		const reserves = await pair.getReserves()
 		expect(reserves[0]).to.eq(token0Amount.sub(expectedOutputAmount))
@@ -174,15 +174,15 @@ describe('UniswapV2Pair', () => {
 		await pair.transfer(pair.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY));
 		(await expectTx(pair.burn(wallet.address)))
 			.toEmitted(pair, 'Transfer')
-			.withArgs(pair.address, hethers.constants.AddressZero, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+			.withArgs(undefined, hethers.constants.AddressZero, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 			.toEmitted(token0, 'Transfer')
-			.withArgs(pair.address, wallet.address, token0Amount.sub(1000))
+			.withArgs(undefined, hethers.utils.getAddress(wallet.address), token0Amount.sub(1000))
 			.toEmitted(token1, 'Transfer')
-			.withArgs(pair.address, wallet.address, token1Amount.sub(1000))
+			.withArgs(undefined, hethers.utils.getAddress(wallet.address), token1Amount.sub(1000))
 			.toEmitted(pair, 'Sync')
 			.withArgs(1000, 1000)
 			.toEmitted(pair, 'Burn')
-			.withArgs(wallet.address, token0Amount.sub(1000), token1Amount.sub(1000), wallet.address);
+			.withArgs(hethers.utils.getAddress(wallet.address), token0Amount.sub(1000), token1Amount.sub(1000), hethers.utils.getAddress(wallet.address));
 
 		expect(await pair.balanceOf(wallet.address)).to.eq(0)
 		expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY)
