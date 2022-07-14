@@ -146,17 +146,63 @@ describe('HeliSwap Tests', function () {
 				);
 
 				// When
+				let reservesIn = amount0
+				let reservesOut = amount1
+				let amountIn = amount0.div("2"); // get half of LP
+				let amountOut = await getAmountOut(amountIn, reservesIn, reservesOut);
 
-				// Then
-
+				await executeSwap(tokenA, tokenB, amountIn, amountOut, deployer.address);
 			});
 
 			it('should be able to swap HTS/HBAR', async () => {
+				const htsAmount = BigNumber.from(10 * decimals);
+				const hbarAmount = BigNumber.from(1);
+				await executeAddLiquidityHBAR(
+					tokenA,
+					htsAmount,
+					hbarAmount,
+					TOKEN_A_NAME,
+					TOKEN_A_SYMBOL,
+					BigNumber.from(HTS_DECIMALS)
+				);
 
+				// When
+				let reservesIn = htsAmount
+				let reservesOut = hbarAmount.mul(decimals)
+				let amountIn = htsAmount.div("2"); // get half of LP
+				let amountOut = await getAmountOut(amountIn, reservesIn, reservesOut);
+
+				await executeSwapHBAR(tokenA, amountIn, amountOut, deployer.address);
 			});
 
 			it('should be able to swap HTS/ERC20', async () => {
+				const amountHts = BigNumber.from(10 * decimals);
+				const amountERC20 = hethers.utils.parseUnits("100", ERC20_DECIMALS);
+				const erc20Address = await deployMintERC20(deployer.address, amountERC20, ERC20_NAME, ERC20_SYMBOL)
+				// @ts-ignore
+				const erc20 = await hardhat.hethers.getContractAt(ERC20, erc20Address);
+				await approveRouter(tokenA, erc20, amountHts, amountERC20);
 
+				await executeAddLiquidity(
+					tokenA,
+					erc20,
+					amountHts,
+					amountERC20,
+					TOKEN_A_SYMBOL,
+					ERC20_SYMBOL,
+					TOKEN_A_NAME,
+					ERC20_NAME,
+					BigNumber.from(HTS_DECIMALS),
+					BigNumber.from(ERC20_DECIMALS)
+				);
+
+				// When
+				let reservesIn = amountHts
+				let reservesOut = amountERC20
+				let amountIn = amountHts.div("2"); // get half of LP
+				let amountOut = await getAmountOut(amountIn, reservesIn, reservesOut);
+
+				await executeSwap(tokenA, erc20, amountIn, amountOut, deployer.address);
 			});
 		})
 	});
@@ -215,13 +261,75 @@ describe('HeliSwap Tests', function () {
 
 		describe('ERC20 related swaps', async () => {
 
+			beforeEach(async () => {
+				const erc20Address = await deployMintERC20(deployer.address, ERC20_SUPPLY, ERC20_NAME, ERC20_SYMBOL)
+				// @ts-ignore
+				erc20 = await hardhat.hethers.getContractAt(ERC20, erc20Address);
+			});
 
 			it('should be able to swap ERC20/HBAR', async () => {
+				const amount1Hbar = BigNumber.from(1);
+				const amount0 = hethers.utils.parseUnits("10", ERC20_DECIMALS);
 
+				await executeAddLiquidityHBAR(
+					erc20,
+					amount0,
+					amount1Hbar,
+					ERC20_NAME,
+					ERC20_SYMBOL,
+					BigNumber.from(ERC20_DECIMALS)
+				);
+
+				// When
+				let reservesIn = amount0
+				let reservesOut = amount1Hbar.mul(decimals)
+				let amountIn = reservesIn.div("2"); // get half of LP
+				let amountOut = await getAmountOut(amountIn, reservesIn, reservesOut);
+
+				await executeSwapHBAR(
+					erc20,
+					amountIn,
+					amountOut,
+					deployer.address
+				);
 			});
 
 			it('should be able to swap ERC20/ERC20', async () => {
+				const amount0 = hethers.utils.parseUnits("1", ERC20_DECIMALS);
+				const amount1 = hethers.utils.parseUnits("10", ERC20_DECIMALS);
+				const otherERC20Name = "ERC20 Token Other";
+				const otherERC20Symbol = "ERC20Other";
+				const otherERC20Address = await deployMintERC20(deployer.address, ERC20_SUPPLY, otherERC20Name, otherERC20Symbol);
+				// @ts-ignore
+				const otherERC20 = await hardhat.hethers.getContractAt(ERC20, otherERC20Address);
+				await approveRouter(erc20, otherERC20, amount0, amount1);
 
+				await executeAddLiquidity(
+					erc20,
+					otherERC20,
+					amount0,
+					amount1,
+					ERC20_SYMBOL,
+					otherERC20Symbol,
+					ERC20_NAME,
+					otherERC20Name,
+					BigNumber.from(ERC20_DECIMALS),
+					BigNumber.from(ERC20_DECIMALS)
+				);
+
+				// When
+				let reservesIn = amount0
+				let reservesOut = amount1
+				let amountIn = reservesIn.div("2"); // get half of LP
+				let amountOut = await getAmountOut(amountIn, reservesIn, reservesOut);
+
+				await executeSwap(
+					erc20,
+					otherERC20,
+					amountIn,
+					amountOut,
+					deployer.address
+				);
 			});
 
 		});
@@ -359,6 +467,91 @@ describe('HeliSwap Tests', function () {
 		await assertReserves(token0, token1, amount0, amount1, pairAddress);
 	}
 
+	async function executeSwap(
+		token0: Contract,
+		token1: Contract,
+		amount0: BigNumber,
+		amount1: BigNumber,
+		to: String) {
+
+		await token0.approve(router.address, amount0);
+		await token1.approve(router.address, amount1);
+
+		const pairAddress = Utils.getCreate2Address(factory.address, [token0.address, token1.address]);
+		// @ts-ignore
+		let pairContract = await hardhat.hethers.getContractAt("UniswapV2Pair", pairAddress)
+
+		const reservesBeforeSwap = await router.getReserves(token0.address, token1.address);
+
+		await (await expectTx(
+				router.swapExactTokensForTokens(
+					amount0,
+					amount1,
+					[token0.address, token1.address],
+					to,
+					getExpiry()))
+		)
+		.toEmitted(pairContract, "Swap")
+		.withArgs(
+			hethers.utils.getAddress(router.address),
+			amount0,
+			BigNumber.from("0"),
+			BigNumber.from("0"),
+			amount1,
+			hethers.utils.getAddress(deployer.address),
+		);
+
+		await assertReserves(
+			token0,
+			token1,
+			reservesBeforeSwap.reserveA.add(amount0),
+			reservesBeforeSwap.reserveB.sub(amount1),
+			pairAddress
+		);
+	}
+
+	async function executeSwapHBAR(
+		token: Contract,
+		amount0: BigNumber,
+		amount1: BigNumber,
+		to: String) {
+
+		await token.approve(router.address, amount0);
+		await whbar.approve(router.address, amount1);
+
+		const pairAddress = Utils.getCreate2Address(factory.address, [token.address, whbar.address]);
+		// @ts-ignore
+		let pairContract = await hardhat.hethers.getContractAt("UniswapV2Pair", pairAddress)
+
+		const reservesBeforeSwap = await router.getReserves(token.address, whbar.address);
+
+		await (await expectTx(
+				router.swapExactTokensForETH(
+					amount0,
+					amount1,
+					[token.address, whbar.address],
+					to,
+					getExpiry()))
+		)
+		.toEmitted(pairContract, "Swap")
+		.withArgs(
+			hethers.utils.getAddress(router.address),
+			BigNumber.from("0"),
+			amount0,
+			amount1,
+			BigNumber.from("0"),
+			hethers.utils.getAddress(router.address),
+		);
+
+		await assertReserves(
+			token,
+			whbar,
+			reservesBeforeSwap.reserveA.add(amount0),
+			reservesBeforeSwap.reserveB.sub(amount1),
+			pairAddress
+		);
+	}
+
 	async function executeRemoveLiquidity(
 		token0: Contract,
 		token1: Contract,
@@ -402,5 +595,13 @@ describe('HeliSwap Tests', function () {
 		const pairBalance1 = await tokenB.balanceOf(pairAddress);
 		expect(pairBalance0).to.equal(token0);
 		expect(pairBalance1).to.equal(token1);
+	}
+
+	async function getAmountOut(amountIn: BigNumber, reserveIn: BigNumber, reserveOut: BigNumber) {
+		let amountInWithFee = amountIn.mul("997")
+		let numerator = amountInWithFee.mul(reserveOut)
+		let denominator = reserveIn.mul(1000).add(amountInWithFee)
+
+		return numerator.div(denominator);
 	}
 });
