@@ -26,13 +26,13 @@ jobs:
 
 
       - name: Install hedera-local node globally
-        run: npm install -g https://github.com/hashgraph/hedera-local-node.git
+        run: npm install -g git://github.com/hashgraph/hedera-local-node.git#main
 
       - name: Start hedera-local node with 2 accounts
-        run: npx hedera-local start --accounts=2
+        run: npx hedera-local restart --accounts=2
 
       - run: npm install
-      - run: echo "${{ secrets.TESTNET_CONFIG }}" > ./config.ts
+      - run: cp ./config.sample.ts ./config.ts
       - run: npx hardhat compile
       - run: npx hardhat test
       - run: npx hedera-local stop
