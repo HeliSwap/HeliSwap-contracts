@@ -32,7 +32,7 @@ jobs:
         run: npx hedera-local start --accounts=2
 
       - run: npm install
-#      - run: echo "${{ secrets.LOCAL_CONFIG }}" > ./config.ts
+      - run: echo "${{ secrets.TESTNET_CONFIG }}" > ./config.ts
       - run: npx hardhat compile
       - run: npx hardhat test
       - run: npx hedera-local stop
