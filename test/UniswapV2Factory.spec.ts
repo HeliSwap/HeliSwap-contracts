@@ -32,7 +32,7 @@ describe('UniswapV2Factory', () => {
 
 	it('feeTo, feeToSetter, allPairsLength', async () => {
 		expect(await factory.feeTo()).to.eq(hethers.constants.AddressZero)
-		expect(await factory.feeToSetter()).to.eq(wallet.address)
+		expect(await factory.feeToSetter()).to.eq(hethers.utils.getAddress(wallet.address))
 		expect(await factory.allPairsLength()).to.eq(0)
 	})
 
@@ -71,14 +71,14 @@ describe('UniswapV2Factory', () => {
 		// @ts-ignore
 		await Utils.expectRevert(factory.connect(other).setFeeTo(other.address));
 		await factory.setFeeTo(wallet.address)
-		expect(await factory.feeTo()).to.eq(wallet.address)
+		expect(await factory.feeTo()).to.eq(hethers.utils.getAddress(wallet.address))
 	})
 
 	it('setFeeToSetter', async () => {
 		// @ts-ignore
 		await Utils.expectRevert(factory.connect(other).setFeeToSetter(other.address));
 		await factory.setFeeToSetter(other.address)
-		expect(await factory.feeToSetter()).to.eq(other.address)
+		expect(await factory.feeToSetter()).to.eq(hethers.utils.getAddress(other.address))
 		await Utils.expectRevert(factory.setFeeToSetter(wallet.address))
 	})
 })

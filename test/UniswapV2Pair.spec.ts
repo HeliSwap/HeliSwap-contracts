@@ -51,11 +51,11 @@ describe('UniswapV2Pair', () => {
 			.toEmitted(pair, 'Transfer')
 			.withArgs(hethers.constants.AddressZero, hethers.constants.AddressZero, MINIMUM_LIQUIDITY)
 			.toEmitted(pair, 'Transfer')
-			.withArgs(hethers.constants.AddressZero, wallet.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+			.withArgs(hethers.constants.AddressZero, hethers.utils.getAddress(wallet.address), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 			.toEmitted(pair, 'Sync')
 			.withArgs(token0Amount, token1Amount, expectedLiquidity)
 			.toEmitted(pair, 'Mint')
-			.withArgs(wallet.address, token0Amount, token1Amount, wallet.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+			.withArgs(hethers.utils.getAddress(wallet.address), token0Amount, token1Amount, hethers.utils.getAddress(wallet.address), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 
 		expect(await pair.totalSupply()).to.eq(expectedLiquidity)
 		expect(await pair.balanceOf(wallet.address)).to.eq(expectedLiquidity.sub(MINIMUM_LIQUIDITY))

@@ -159,7 +159,7 @@ describe('UniswapV2Router02', function () {
 								.toEmitted(pair, 'Transfer')
 								.withArgs(hethers.constants.AddressZero, hethers.constants.AddressZero, MINIMUM_LIQUIDITY)
 								.toEmitted(pair, 'Transfer')
-								.withArgs(hethers.constants.AddressZero, wallet.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+								.withArgs(hethers.constants.AddressZero, hethers.utils.getAddress(wallet.address), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(pair, 'Sync')
 								.withArgs(
 									hethers.utils.getAddress(whbarPairToken) === hethers.utils.getAddress(pair.address) ? tokenAmount : hbarAmount,
@@ -209,7 +209,7 @@ describe('UniswapV2Router02', function () {
 							))
 								.toEmitted(pair, 'Transfer')
 								// Cannot assert pair address
-								.withArgs(wallet.address, undefined, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+								.withArgs(hethers.utils.getAddress(wallet.address), undefined, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(pair, 'Transfer')
 								// Cannot assert pair address
 								.withArgs(undefined, hethers.constants.AddressZero, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
