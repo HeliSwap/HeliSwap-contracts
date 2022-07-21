@@ -24,7 +24,15 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
+
+      - name: Install hedera-local node globally
+        run: npm install -g https://github.com/hashgraph/hedera-local-node.git
+
+      - name: Start hedera-local node with 2 accounts
+        run: npx hedera-local start --accounts=2
+
       - run: npm install
-      - run: echo "${{ secrets.TESTNET_CONFIG }}" > ./config.ts
+      - run: echo "${{ secrets.LOCAL_CONFIG }}" > ./config.ts
       - run: npx hardhat compile
       - run: npx hardhat test
+      - run: npx hedera-local stop
