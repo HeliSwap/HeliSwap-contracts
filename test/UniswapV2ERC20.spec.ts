@@ -2,6 +2,7 @@ import chai, {expect} from 'chai'
 import {solidity} from 'ethereum-waffle'
 
 import {Contract, hethers} from "@hashgraph/hethers";
+import getAddress = hethers.utils.getAddress;
 import hardhat from "hardhat";
 import {SignerWithAddress} from "hardhat-hethers/internal/signers";
 import expectTx from "../utils/LogAssertion";
@@ -47,13 +48,13 @@ describe('UniswapV2ERC20', () => {
 
 	it('approve', async () => {
 		(await expectTx(token.approve(other.address, TEST_AMOUNT)))
-			.toEmitted(token, "Approval").withArgs(wallet.address, other.address, TEST_AMOUNT);
+			.toEmitted(token, "Approval").withArgs(getAddress(wallet.address), getAddress(other.address), TEST_AMOUNT);
 		expect(await token.allowance(wallet.address, other.address)).to.eq(TEST_AMOUNT)
 	})
 
 	it('transfer', async () => {
 		(await expectTx(token.transfer(other.address, TEST_AMOUNT)))
-			.toEmitted(token, "Transfer").withArgs(wallet.address, other.address, TEST_AMOUNT);
+			.toEmitted(token, "Transfer").withArgs(getAddress(wallet.address), getAddress(other.address), TEST_AMOUNT);
 		expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY.sub(TEST_AMOUNT))
 		expect(await token.balanceOf(other.address)).to.eq(TEST_AMOUNT)
 	})
@@ -71,7 +72,7 @@ describe('UniswapV2ERC20', () => {
 		// @ts-ignore
 		(await expectTx(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT)))
 			.toEmitted(token, 'Transfer')
-			.withArgs(wallet.address, other.address, TEST_AMOUNT)
+			.withArgs(getAddress(wallet.address), getAddress(other.address), TEST_AMOUNT)
 		expect(await token.allowance(wallet.address, other.address)).to.eq(0)
 		expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY.sub(TEST_AMOUNT))
 		expect(await token.balanceOf(other.address)).to.eq(TEST_AMOUNT)
@@ -84,7 +85,7 @@ describe('UniswapV2ERC20', () => {
 		// @ts-ignore
 		(await expectTx(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT)))
 			.toEmitted(token, 'Transfer')
-			.withArgs(wallet.address, other.address, TEST_AMOUNT)
+			.withArgs(getAddress(wallet.address), getAddress(other.address), TEST_AMOUNT)
 		expect(await token.allowance(wallet.address, other.address)).to.eq(hethers.constants.MaxUint256)
 		expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY.sub(TEST_AMOUNT))
 		expect(await token.balanceOf(other.address)).to.eq(TEST_AMOUNT)
