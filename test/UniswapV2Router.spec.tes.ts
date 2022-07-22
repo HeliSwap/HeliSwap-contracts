@@ -11,6 +11,7 @@ import {
 
 import {SignerWithAddress} from "hardhat-hethers/internal/signers";
 import {BigNumber, Contract, hethers} from "@hashgraph/hethers";
+import getAddress = hethers.utils.getAddress;
 import hardhat from "hardhat";
 import {Utils} from "../utils/utils";
 import expectTx from "../utils/LogAssertion";
@@ -48,8 +49,8 @@ describe('UniswapV2Router02', function () {
 			})
 
 			it('factory, WHBAR', async () => {
-				expect(await router.factory()).to.eq(hethers.utils.getAddress(factory.address));
-				expect(await router.WHBAR()).to.eq(hethers.utils.getAddress(whbar.address));
+				expect(await router.factory()).to.eq(getAddress(factory.address));
+				expect(await router.WHBAR()).to.eq(getAddress(whbar.address));
 			})
 
 			it('quote', async () => {
@@ -159,17 +160,17 @@ describe('UniswapV2Router02', function () {
 								.toEmitted(pair, 'Transfer')
 								.withArgs(hethers.constants.AddressZero, hethers.constants.AddressZero, MINIMUM_LIQUIDITY)
 								.toEmitted(pair, 'Transfer')
-								.withArgs(hethers.constants.AddressZero, hethers.utils.getAddress(wallet.address), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+								.withArgs(hethers.constants.AddressZero, getAddress(wallet.address), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(pair, 'Sync')
 								.withArgs(
-									hethers.utils.getAddress(whbarPairToken) === hethers.utils.getAddress(pair.address) ? tokenAmount : hbarAmount,
-									hethers.utils.getAddress(whbarPairToken) === hethers.utils.getAddress(pair.address) ? hbarAmount : tokenAmount
+									getAddress(whbarPairToken) === getAddress(pair.address) ? tokenAmount : hbarAmount,
+									getAddress(whbarPairToken) === getAddress(pair.address) ? hbarAmount : tokenAmount
 								)
 								.toEmitted(pair, 'Mint')
 								.withArgs(
-									hethers.utils.getAddress(router.address),
-									hethers.utils.getAddress(whbarPairToken) === hethers.utils.getAddress(pair.address) ? tokenAmount : hbarAmount,
-									hethers.utils.getAddress(whbarPairToken) === hethers.utils.getAddress(pair.address) ? hbarAmount : tokenAmount
+									getAddress(router.address),
+									getAddress(whbarPairToken) === getAddress(pair.address) ? tokenAmount : hbarAmount,
+									getAddress(whbarPairToken) === getAddress(pair.address) ? hbarAmount : tokenAmount
 								)
 
 							expect(await pair.balanceOf(wallet.address)).to.eq(expectedLiquidity.sub(MINIMUM_LIQUIDITY))
@@ -210,19 +211,19 @@ describe('UniswapV2Router02', function () {
 							))
 								.toEmitted(pair, 'Transfer')
 								// Cannot assert pair address
-								.withArgs(hethers.utils.getAddress(wallet.address), undefined, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+								.withArgs(getAddress(wallet.address), undefined, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(pair, 'Transfer')
 								// Cannot assert pair address
 								.withArgs(undefined, hethers.constants.AddressZero, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(whbar, 'Transfer')
 								// Cannot assert pair address
-								.withArgs(undefined, hethers.utils.getAddress(router.address), whbarAmount.sub(whbarSubAmount))
+								.withArgs(undefined, getAddress(router.address), whbarAmount.sub(whbarSubAmount))
 								.toEmitted(token, 'Transfer')
 								// 999999999950000000
 								// 999999999999999500
-								.withArgs(undefined, hethers.utils.getAddress(router.address), tokenAmount.sub(tokenSubAmount))
+								.withArgs(undefined, getAddress(router.address), tokenAmount.sub(tokenSubAmount))
 								.toEmitted(token, 'Transfer')
-								.withArgs(hethers.utils.getAddress(router.address), hethers.utils.getAddress(wallet.address), tokenAmount.sub(tokenSubAmount))
+								.withArgs(getAddress(router.address), getAddress(wallet.address), tokenAmount.sub(tokenSubAmount))
 								.toEmitted(pair, 'Sync')
 								.withArgs(
 									whbarPairToken0 === token.address ? tokenSubAmount : whbarSubAmount,
@@ -230,10 +231,10 @@ describe('UniswapV2Router02', function () {
 								)
 								.toEmitted(pair, 'Burn')
 								.withArgs(
-									hethers.utils.getAddress(router.address),
+									getAddress(router.address),
 									whbarPairToken0 === token.address ? tokenAmount.sub(tokenSubAmount) : whbarAmount.sub(whbarSubAmount),
 									whbarPairToken0 === token.address ? whbarAmount.sub(whbarSubAmount) : tokenAmount.sub(tokenSubAmount),
-									hethers.utils.getAddress(router.address)
+									getAddress(router.address)
 								)
 
 							expect(await pair.balanceOf(wallet.address)).to.eq(0)
@@ -294,24 +295,24 @@ describe('UniswapV2Router02', function () {
 										{value: reduceFrom8Decimals(swapAmount)})
 								))
 									.toEmitted(whbar, 'Transfer')
-									.withArgs(hethers.utils.getAddress(router.address), undefined, swapAmount)
+									.withArgs(getAddress(router.address), undefined, swapAmount)
 									.toEmitted(token, 'Transfer')
-									.withArgs(undefined, hethers.utils.getAddress(wallet.address), expectedOutputAmount)
+									.withArgs(undefined, getAddress(wallet.address), expectedOutputAmount)
 									.toEmitted(pair, 'Sync')
 									.withArgs(
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ?
+										getAddress(whbarPairToken0) === getAddress(token.address) ?
 											tokenAmount.sub(expectedOutputAmount) : hbarAmount.add(swapAmount),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ?
+										getAddress(whbarPairToken0) === getAddress(token.address) ?
 											hbarAmount.add(swapAmount) : tokenAmount.sub(expectedOutputAmount)
 									)
 									.toEmitted(pair, 'Swap')
 									.withArgs(
-										hethers.utils.getAddress(router.address),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : swapAmount,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? swapAmount : 0,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedOutputAmount : 0,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedOutputAmount,
-										hethers.utils.getAddress(wallet.address)
+										getAddress(router.address),
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : swapAmount,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? swapAmount : 0,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? expectedOutputAmount : 0,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : expectedOutputAmount,
+										getAddress(wallet.address)
 									)
 							})
 
@@ -361,26 +362,26 @@ describe('UniswapV2Router02', function () {
 									)
 								))
 									.toEmitted(token, 'Transfer')
-									.withArgs(hethers.utils.getAddress(wallet.address), undefined, expectedSwapAmount)
+									.withArgs(getAddress(wallet.address), undefined, expectedSwapAmount)
 									.toEmitted(whbar, 'Transfer')
-									.withArgs(undefined, hethers.utils.getAddress(router.address), outputAmount)
+									.withArgs(undefined, getAddress(router.address), outputAmount)
 									.toEmitted(pair, 'Sync')
 									.withArgs(
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+										getAddress(whbarPairToken0) === getAddress(token.address)
 											? tokenAmount.add(expectedSwapAmount)
 											: hbarAmount.sub(outputAmount),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+										getAddress(whbarPairToken0) === getAddress(token.address)
 											? hbarAmount.sub(outputAmount)
 											: tokenAmount.add(expectedSwapAmount)
 									)
 									.toEmitted(pair, 'Swap')
 									.withArgs(
-										hethers.utils.getAddress(router.address),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedSwapAmount : 0,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedSwapAmount,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : outputAmount,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? outputAmount : 0,
-										hethers.utils.getAddress(router.address)
+										getAddress(router.address),
+										getAddress(whbarPairToken0) === getAddress(token.address) ? expectedSwapAmount : 0,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : expectedSwapAmount,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : outputAmount,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? outputAmount : 0,
+										getAddress(router.address)
 									)
 							})
 
@@ -428,26 +429,26 @@ describe('UniswapV2Router02', function () {
 									)
 								))
 									.toEmitted(token, 'Transfer')
-									.withArgs(hethers.utils.getAddress(wallet.address), undefined, swapAmount)
+									.withArgs(getAddress(wallet.address), undefined, swapAmount)
 									.toEmitted(whbar, 'Transfer')
-									.withArgs(undefined, hethers.utils.getAddress(router.address), expectedOutputAmount)
+									.withArgs(undefined, getAddress(router.address), expectedOutputAmount)
 									.toEmitted(pair, 'Sync')
 									.withArgs(
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+										getAddress(whbarPairToken0) === getAddress(token.address)
 											? tokenAmount.add(swapAmount)
 											: hbarAmount.sub(expectedOutputAmount),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+										getAddress(whbarPairToken0) === getAddress(token.address)
 											? hbarAmount.sub(expectedOutputAmount)
 											: tokenAmount.add(swapAmount)
 									)
 									.toEmitted(pair, 'Swap')
 									.withArgs(
-										hethers.utils.getAddress(router.address),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? swapAmount : 0,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : swapAmount,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedOutputAmount,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedOutputAmount : 0,
-										hethers.utils.getAddress(router.address)
+										getAddress(router.address),
+										getAddress(whbarPairToken0) === getAddress(token.address) ? swapAmount : 0,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : swapAmount,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : expectedOutputAmount,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? expectedOutputAmount : 0,
+										getAddress(router.address)
 									)
 							})
 
@@ -497,26 +498,26 @@ describe('UniswapV2Router02', function () {
 									)
 								))
 									.toEmitted(whbar, 'Transfer')
-									.withArgs(hethers.utils.getAddress(router.address), undefined, expectedSwapAmount)
+									.withArgs(getAddress(router.address), undefined, expectedSwapAmount)
 									.toEmitted(token, 'Transfer')
-									.withArgs(undefined, hethers.utils.getAddress(wallet.address), outputAmount)
+									.withArgs(undefined, getAddress(wallet.address), outputAmount)
 									.toEmitted(pair, 'Sync')
 									.withArgs(
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+										getAddress(whbarPairToken0) === getAddress(token.address)
 											? tokenAmount.sub(outputAmount)
 											: hbarAmount.add(expectedSwapAmount),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address)
+										getAddress(whbarPairToken0) === getAddress(token.address)
 											? hbarAmount.add(expectedSwapAmount)
 											: tokenAmount.sub(outputAmount)
 									)
 									.toEmitted(pair, 'Swap')
 									.withArgs(
-										hethers.utils.getAddress(router.address),
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : expectedSwapAmount,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? expectedSwapAmount : 0,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? outputAmount : 0,
-										hethers.utils.getAddress(whbarPairToken0) === hethers.utils.getAddress(token.address) ? 0 : outputAmount,
-										hethers.utils.getAddress(wallet.address)
+										getAddress(router.address),
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : expectedSwapAmount,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? expectedSwapAmount : 0,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? outputAmount : 0,
+										getAddress(whbarPairToken0) === getAddress(token.address) ? 0 : outputAmount,
+										getAddress(wallet.address)
 									)
 							})
 
@@ -688,18 +689,18 @@ describe('UniswapV2Router02', function () {
 							))
 								.toEmitted(token0, 'Transfer')
 								// Pair address cannot be asserted
-								.withArgs(hethers.utils.getAddress(wallet.address), undefined, token0Amount)
+								.withArgs(getAddress(wallet.address), undefined, token0Amount)
 								.toEmitted(token1, 'Transfer')
 								// Pair address cannot be asserted
-								.withArgs(hethers.utils.getAddress(wallet.address), undefined, token1Amount)
+								.withArgs(getAddress(wallet.address), undefined, token1Amount)
 								.toEmitted(pair, 'Transfer')
 								.withArgs(hethers.constants.AddressZero, hethers.constants.AddressZero, MINIMUM_LIQUIDITY)
 								.toEmitted(pair, 'Transfer')
-								.withArgs(hethers.constants.AddressZero, hethers.utils.getAddress(wallet.address), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+								.withArgs(hethers.constants.AddressZero, getAddress(wallet.address), expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(pair, 'Sync')
 								.withArgs(token0Amount, token1Amount)
 								.toEmitted(pair, 'Mint')
-								.withArgs(hethers.utils.getAddress(router.address), token0Amount, token1Amount)
+								.withArgs(getAddress(router.address), token0Amount, token1Amount)
 
 							expect(await pair.balanceOf(wallet.address)).to.eq(expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 						})
@@ -779,17 +780,17 @@ describe('UniswapV2Router02', function () {
 								)
 							))
 								.toEmitted(pair, 'Transfer')
-								.withArgs(hethers.utils.getAddress(wallet.address), undefined, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
+								.withArgs(getAddress(wallet.address), undefined, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(pair, 'Transfer')
 								.withArgs(undefined, hethers.constants.AddressZero, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
 								.toEmitted(token0, 'Transfer')
-								.withArgs(undefined, hethers.utils.getAddress(wallet.address), token0Amount.sub(token0SubAmount))
+								.withArgs(undefined, getAddress(wallet.address), token0Amount.sub(token0SubAmount))
 								.toEmitted(token1, 'Transfer')
-								.withArgs(undefined, hethers.utils.getAddress(wallet.address), token1Amount.sub(token1SubAmount))
+								.withArgs(undefined, getAddress(wallet.address), token1Amount.sub(token1SubAmount))
 								.toEmitted(pair, 'Sync')
 								.withArgs(token0SubAmount, token1SubAmount)
 								.toEmitted(pair, 'Burn')
-								.withArgs(undefined, token0Amount.sub(token0SubAmount), token1Amount.sub(token1SubAmount), hethers.utils.getAddress(wallet.address))
+								.withArgs(undefined, token0Amount.sub(token0SubAmount), token1Amount.sub(token1SubAmount), getAddress(wallet.address))
 
 							expect(await pair.balanceOf(wallet.address)).to.eq(0)
 							const totalSupplyToken0 = await token0.totalSupply()
@@ -822,19 +823,19 @@ describe('UniswapV2Router02', function () {
 									)
 								))
 									.toEmitted(token0, 'Transfer')
-									.withArgs(hethers.utils.getAddress(wallet.address), undefined, swapAmount)
+									.withArgs(getAddress(wallet.address), undefined, swapAmount)
 									.toEmitted(token1, 'Transfer')
-									.withArgs(undefined, hethers.utils.getAddress(wallet.address), expectedOutputAmount)
+									.withArgs(undefined, getAddress(wallet.address), expectedOutputAmount)
 									.toEmitted(pair, 'Sync')
 									.withArgs(token0Amount.add(swapAmount), token1Amount.sub(expectedOutputAmount))
 									.toEmitted(pair, 'Swap')
 									.withArgs(
-										hethers.utils.getAddress(router.address),
+										getAddress(router.address),
 										swapAmount,
 										0,
 										0,
 										expectedOutputAmount,
-										hethers.utils.getAddress(wallet.address)
+										getAddress(wallet.address)
 									)
 							})
 
@@ -880,13 +881,13 @@ describe('UniswapV2Router02', function () {
 									)
 								))
 									.toEmitted(token0, 'Transfer')
-									.withArgs(hethers.utils.getAddress(wallet.address), undefined, expectedSwapAmount)
+									.withArgs(getAddress(wallet.address), undefined, expectedSwapAmount)
 									.toEmitted(token1, 'Transfer')
-									.withArgs(undefined, hethers.utils.getAddress(wallet.address), outputAmount)
+									.withArgs(undefined, getAddress(wallet.address), outputAmount)
 									.toEmitted(pair, 'Sync')
 									.withArgs(token0Amount.add(expectedSwapAmount), token1Amount.sub(outputAmount))
 									.toEmitted(pair, 'Swap')
-									.withArgs(hethers.utils.getAddress(router.address), expectedSwapAmount, 0, 0, outputAmount, hethers.utils.getAddress(wallet.address));
+									.withArgs(getAddress(router.address), expectedSwapAmount, 0, 0, outputAmount, getAddress(wallet.address));
 							})
 
 							it('amounts', async () => {
