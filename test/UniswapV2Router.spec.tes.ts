@@ -183,6 +183,7 @@ describe('UniswapV2Router02', function () {
 						}
 
 						it('removeLiquidityETH', async () => {
+							const whbarBalanceBefore = await whbar.balanceOf(wallet.address)
 							const totalSupplyWHBARBefore = await whbar.totalSupply();
 							const tokenAmount = shouldBeHTS ? expandTo8Decimals(1) : expandTo18Decimals(1);
 							const whbarAmount = expandTo8Decimals(4);
@@ -239,7 +240,9 @@ describe('UniswapV2Router02', function () {
 							const totalSupplyToken = await token.totalSupply()
 							const totalSupplyWHBAR = await whbar.totalSupply()
 							expect(await token.balanceOf(wallet.address)).to.eq(totalSupplyToken.sub(tokenSubAmount))
-							expect(await whbar.balanceOf(wallet.address)).to.eq(totalSupplyWHBAR.sub(whbarSubAmount).sub(totalSupplyWHBARBefore))
+							let whbarBalanceNow = await whbar.balanceOf(wallet.address)
+							let expectedWhbarBalanceNow = totalSupplyWHBAR.sub(whbarSubAmount).sub(totalSupplyWHBARBefore).add(whbarBalanceBefore)
+							expect(whbarBalanceNow).to.eq(expectedWhbarBalanceNow)
 						})
 
 						it('removeLiquidityETHSupportingFeeOnTransferTokens', async () => {
