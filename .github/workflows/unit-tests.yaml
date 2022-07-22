@@ -31,8 +31,17 @@ jobs:
       - name: Start hedera-local node with 2 accounts
         run: npx hedera-local restart --accounts=2
 
-      - run: npm install
-      - run: cp ./config.sample.ts ./config.ts
-      - run: npx hardhat compile
-      - run: npx hardhat test
-      - run: npx hedera-local stop
+      - name: Install all dependencies
+        run: npm install
+
+      - name: Populate proper local network configuration
+        run: cp ./config.sample.ts ./config.ts
+
+      - name: Compile all contracts
+        run: npx hardhat compile
+
+      - name: Run all unit tests
+        run: npx hardhat test
+
+      - name: Stop local hedera network
+        run: npx hedera-local stop
