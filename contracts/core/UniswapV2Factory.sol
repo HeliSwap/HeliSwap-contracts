@@ -30,6 +30,9 @@ contract UniswapV2Factory is IUniswapV2Factory {
         uint token0Decimals,
         uint token1Decimals);
 
+    event FeeReceiverChanged(address indexed _receiver);
+    event FeeSetterChanged(address indexed _feeSetter);
+
     constructor(address _feeToSetter) public {
         feeToSetter = _feeToSetter;
     }
@@ -78,10 +81,12 @@ contract UniswapV2Factory is IUniswapV2Factory {
     function setFeeTo(address _feeTo) external {
         require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         feeTo = _feeTo;
+        emit FeeReceiverChanged(_feeTo);
     }
 
     function setFeeToSetter(address _feeToSetter) external {
         require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         feeToSetter = _feeToSetter;
+        emit FeeSetterChanged(_feeToSetter);
     }
 }
