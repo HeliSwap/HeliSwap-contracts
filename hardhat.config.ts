@@ -231,7 +231,7 @@ module.exports = {
 		networks: config.networks,
 		gasLimit: 2_000_000
 	},
-	defaultNetwork: 'testnet',
+	defaultNetwork: 'local',
 	abiExporter: {
 		only: [],
 		except: ['.*Mock$'],
