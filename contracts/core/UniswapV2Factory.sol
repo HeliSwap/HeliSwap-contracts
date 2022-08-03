@@ -34,6 +34,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
     event FeeSetterChanged(address indexed _feeSetter);
 
     constructor(address _feeToSetter) public {
+        require(_feeToSetter != address(0), 'UniswapV2: ZERO_ADDRESS');
         feeToSetter = _feeToSetter;
     }
 
