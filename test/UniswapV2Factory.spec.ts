@@ -71,14 +71,18 @@ describe('UniswapV2Factory', () => {
 	it('setFeeTo', async () => {
 		// @ts-ignore
 		await Utils.expectRevert(factory.connect(other).setFeeTo(other.address));
-		await factory.setFeeTo(wallet.address)
+		(await expectTx(factory.setFeeTo(wallet.address)))
+			.toEmitted(factory, "FeeReceiverChanged")
+			.withArgs(getAddress(wallet.address))
 		expect(await factory.feeTo()).to.eq(getAddress(wallet.address))
 	})
 
 	it('setFeeToSetter', async () => {
 		// @ts-ignore
 		await Utils.expectRevert(factory.connect(other).setFeeToSetter(other.address));
-		await factory.setFeeToSetter(other.address)
+		(await expectTx(factory.setFeeToSetter(other.address)))
+			.toEmitted(factory, "FeeSetterChanged")
+			.withArgs(getAddress(other.address))
 		expect(await factory.feeToSetter()).to.eq(getAddress(other.address))
 		await Utils.expectRevert(factory.setFeeToSetter(wallet.address))
 	})

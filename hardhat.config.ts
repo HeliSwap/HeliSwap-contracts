@@ -93,9 +93,10 @@ task('mintERC20', 'Mints ERC20 token')
 
 task('deploy', 'Deploys the HeliSwap contracts')
 	.addParam('whbar', "The WHBAR address to use")
+	.addParam('feeToSetter', "The feeToSetter address to use")
 	.setAction(async (taskArgs) => {
 		const deployment = require('./scripts/deploy');
-		await deployment(taskArgs.whbar);
+		await deployment(taskArgs.whbar, taskArgs.feeToSetter);
 	});
 
 task('getInitCodeHash').setAction(async () => {

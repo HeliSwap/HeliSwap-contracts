@@ -42,7 +42,10 @@ describe('HeliSwap Tests', function () {
 		await whbar.deployed();
 
 		// @ts-ignore
-		const result = await deployHeliSwap(hethers.utils.getAddress(whbar.address));
+		const result = await deployHeliSwap(
+			hethers.utils.getAddress(whbar.address),
+			hethers.utils.getAddress(deployer.address)
+		);
 		router = result.router;
 		factory = result.factory;
 
@@ -71,7 +74,6 @@ describe('HeliSwap Tests', function () {
 				const tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
 				const amount0 = BigNumber.from(1_000 * decimals);
 				const amount1 = BigNumber.from(5_000 * decimals);
-
 				await executeAddLiquidity(
 					tokenA,
 					tokenB,
@@ -371,7 +373,7 @@ describe('HeliSwap Tests', function () {
 
 				await pairContract.approve(router.address, hethers.constants.MaxUint256);
 
-				await executeRemoveLiquidityETH(erc20, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
+				await executeRemoveLiquidityHBAR(erc20, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
 			});
 
 			it('should be able to remove ERC20/ERC20 liquidity', async () => {
@@ -547,7 +549,7 @@ describe('HeliSwap Tests', function () {
 
 			await pairContract.approve(router.address, hethers.constants.MaxUint256);
 
-			await executeRemoveLiquidityETH(tokenA, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
+			await executeRemoveLiquidityHBAR(tokenA, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
 		});
 
 	})
@@ -566,7 +568,7 @@ describe('HeliSwap Tests', function () {
 		const pairAddress = Utils.getCreate2Address(factory.address, [whbar.address, token0.address]);
 
 		(await expectTx(
-			router.addLiquidityETH(
+			router.addLiquidityHBAR(
 				token0.address,
 				amount0,
 				amount0,
@@ -605,7 +607,6 @@ describe('HeliSwap Tests', function () {
 		await token0.approve(router.address, amount0);
 		await token1.approve(router.address, amount1);
 		const pairAddress = Utils.getCreate2Address(factory.address, [token0.address, token1.address]);
-
 		(await expectTx(
 				router.addLiquidity(
 					token0.address,
@@ -630,6 +631,7 @@ describe('HeliSwap Tests', function () {
 				token0Decimals,
 				token1Decimals
 			);
+
 		await assertReserves(token0, token1, amount0, amount1, pairAddress);
 	}
 
@@ -692,7 +694,7 @@ describe('HeliSwap Tests', function () {
 		const reservesBeforeSwap = await router.getReserves(token.address, whbar.address);
 
 		await (await expectTx(
-				router.swapExactTokensForETH(
+				router.swapExactTokensForHBAR(
 					amount0,
 					amount1,
 					[token.address, whbar.address],
@@ -756,7 +758,7 @@ describe('HeliSwap Tests', function () {
 			)
 	}
 
-	async function executeRemoveLiquidityETH(
+	async function executeRemoveLiquidityHBAR(
 		token0: Contract,
 		lpAmount: BigNumber,
 		amount: BigNumber,
@@ -767,7 +769,7 @@ describe('HeliSwap Tests', function () {
 		const reservesBeforeRemoveLP = await router.getReserves(token0.address, whbar.address);
 		const totalSupplyBeforeRemoveLP = BigNumber.from(await pairContract.totalSupply());
 
-		(await expectTx(router.removeLiquidityETH(
+		(await expectTx(router.removeLiquidityHBAR(
 			token0.address,
 			lpAmount,
 			amount,

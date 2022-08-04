@@ -21,6 +21,9 @@ interface IUniswapV2Factory {
         uint token0Decimals,
         uint token1Decimals);
 
+    event FeeReceiverChanged(address indexed _receiver);
+    event FeeSetterChanged(address indexed _feeSetter);
+
     function feeTo() external view returns (address);
     function feeToSetter() external view returns (address);
 

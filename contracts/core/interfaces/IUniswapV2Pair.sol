@@ -29,7 +29,6 @@ interface IUniswapV2Pair {
 
     function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
 
-    // TODO revert back the Mint/Burn changes
     event Mint(address indexed sender, uint amount0, uint amount1, address indexed receiver, uint amountLp);
     event Burn(address indexed sender, uint amount0, uint amount1, address indexed to, uint amountLp);
     event Swap(

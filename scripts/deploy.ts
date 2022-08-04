@@ -1,11 +1,10 @@
 // @ts-nocheck
 import hardhat from 'hardhat';
 
-async function deploy(whbar: string) {
-
+async function deploy(whbar: string, feeToSetter: string) {
 	console.log(`Deploying HeliSwap Factory...`);
 	const HeliSwapFactory = await hardhat.hethers.getContractFactory("UniswapV2Factory");
-	const factory = await HeliSwapFactory.deploy(hardhat.hethers.constants.AddressZero);
+	const factory = await HeliSwapFactory.deploy(feeToSetter);
 	await factory.deployed();
 
 	console.log(`Deploying HeliSwap Router...`);
