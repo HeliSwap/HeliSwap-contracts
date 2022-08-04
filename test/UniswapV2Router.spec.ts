@@ -32,14 +32,13 @@ describe('UniswapV2Router02', function () {
 	this.timeout(5 * 60 * 1000); // 5 minutes
 
 	let sender: SignerWithAddress;
-	let feeCollector: SignerWithAddress;
 	let router: Contract
 	let factory: Contract
 	let whbar: Contract
 
 	before(async () => {
 		// @ts-ignore
-		[sender, feeCollector] = await hardhat.hethers.getSigners();
+		[sender] = await hardhat.hethers.getSigners();
 		factory = await factoryFixture(sender.address);
 		whbar = await whbarFixture();
 		router = await routerFixture(factory, whbar);
