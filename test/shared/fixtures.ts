@@ -10,18 +10,12 @@ import expandTo8Decimals = Utils.expandTo8Decimals;
 const IERC20 = "contracts/core/interfaces/IERC20.sol:IERC20";
 const IPAIR = "contracts/core/interfaces/IUniswapV2Pair.sol:IUniswapV2Pair";
 
-export async function factoryFixture(feeToSetter: string, feeEnabled = false): Promise<Contract> {
+export async function factoryFixture(feeToSetter: string): Promise<Contract> {
 	// @ts-ignore
 	const HeliSwapFactory = await hardhat.hethers.getContractFactory("UniswapV2Factory");
 	// @ts-ignore
 	const factory = await HeliSwapFactory.deploy(feeToSetter);
 	await factory.deployTransaction.wait();
-
-	if (feeEnabled) {
-		// @ts-ignore
-		const [receiver] = await hardhat.hethers.getSigners();
-		await factory.setFeeTo(receiver.address);
-	}
 
 	return factory;
 }
