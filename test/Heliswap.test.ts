@@ -373,7 +373,7 @@ describe('HeliSwap Tests', function () {
 
 				await pairContract.approve(router.address, hethers.constants.MaxUint256);
 
-				await executeRemoveLiquidityETH(erc20, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
+				await executeRemoveLiquidityHBAR(erc20, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
 			});
 
 			it('should be able to remove ERC20/ERC20 liquidity', async () => {
@@ -549,7 +549,7 @@ describe('HeliSwap Tests', function () {
 
 			await pairContract.approve(router.address, hethers.constants.MaxUint256);
 
-			await executeRemoveLiquidityETH(tokenA, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
+			await executeRemoveLiquidityHBAR(tokenA, removableLPAmount, amountAOut, amountBOut, deployer.address, pairContract);
 		});
 
 	})
@@ -694,7 +694,7 @@ describe('HeliSwap Tests', function () {
 		const reservesBeforeSwap = await router.getReserves(token.address, whbar.address);
 
 		await (await expectTx(
-				router.swapExactTokensForETH(
+				router.swapExactTokensForHBAR(
 					amount0,
 					amount1,
 					[token.address, whbar.address],
@@ -758,7 +758,7 @@ describe('HeliSwap Tests', function () {
 			)
 	}
 
-	async function executeRemoveLiquidityETH(
+	async function executeRemoveLiquidityHBAR(
 		token0: Contract,
 		lpAmount: BigNumber,
 		amount: BigNumber,
@@ -769,7 +769,7 @@ describe('HeliSwap Tests', function () {
 		const reservesBeforeRemoveLP = await router.getReserves(token0.address, whbar.address);
 		const totalSupplyBeforeRemoveLP = BigNumber.from(await pairContract.totalSupply());
 
-		(await expectTx(router.removeLiquidityETH(
+		(await expectTx(router.removeLiquidityHBAR(
 			token0.address,
 			lpAmount,
 			amount,
