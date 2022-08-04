@@ -86,30 +86,30 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = IUniswapV2Pair(pair).mint(to);
     }
-    function addLiquidityETH(
+    function addLiquidityHBAR(
         address token,
         uint amountTokenDesired,
         uint amountTokenMin,
-        uint amountETHMin,
+        uint amountHBARMin,
         address to,
         uint deadline
-    ) external virtual override payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
+    ) external virtual override payable ensure(deadline) returns (uint amountToken, uint amountHBAR, uint liquidity) {
 
-        (amountToken, amountETH) = _addLiquidity(
+        (amountToken, amountHBAR) = _addLiquidity(
             token,
             WHBAR,
             amountTokenDesired,
             msg.value,
             amountTokenMin,
-            amountETHMin
+            amountHBARMin
         );
         address pair = UniswapV2Library.pairFor(factory, token, WHBAR);
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
-        IWHBAR(WHBAR).deposit{value: amountETH}();
-        assert(IWHBAR(WHBAR).transfer(pair, amountETH));
+        IWHBAR(WHBAR).deposit{value: amountHBAR}();
+        assert(IWHBAR(WHBAR).transfer(pair, amountHBAR));
         liquidity = IUniswapV2Pair(pair).mint(to);
-        // refund dust eth, if any
-        if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+        // refund dust hbar, if any
+        if (msg.value > amountHBAR) TransferHelper.safeTransferHBAR(msg.sender, msg.value - amountHBAR);
     }
 
     // **** REMOVE LIQUIDITY ****
@@ -130,27 +130,27 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         require(amountA >= amountAMin, 'UniswapV2Router: INSUFFICIENT_A_AMOUNT');
         require(amountB >= amountBMin, 'UniswapV2Router: INSUFFICIENT_B_AMOUNT');
     }
-    function removeLiquidityETH(
+    function removeLiquidityHBAR(
         address token,
         uint liquidity,
         uint amountTokenMin,
-        uint amountETHMin,
+        uint amountHBARMin,
         address to,
         uint deadline
-    ) public virtual override ensure(deadline) returns (uint amountToken, uint amountETH) {
+    ) public virtual override ensure(deadline) returns (uint amountToken, uint amountHBAR) {
         bool isHTS = optimisticAssociation(token);
-        (amountToken, amountETH) = removeLiquidity(
+        (amountToken, amountHBAR) = removeLiquidity(
             token,
             WHBAR,
             liquidity,
             amountTokenMin,
-            amountETHMin,
+            amountHBARMin,
             address(this),
             deadline
         );
         TransferHelper.safeTransfer(token, to, amountToken);
-        IWHBAR(WHBAR).withdraw(amountETH);
-        TransferHelper.safeTransferETH(to, amountETH);
+        IWHBAR(WHBAR).withdraw(amountHBAR);
+        TransferHelper.safeTransferHBAR(to, amountHBAR);
 
         if (isHTS) {
             dissociate(token);
@@ -158,27 +158,27 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     }
 
     // **** REMOVE LIQUIDITY (supporting fee-on-transfer tokens) ****
-    function removeLiquidityETHSupportingFeeOnTransferTokens(
+    function removeLiquidityHBARSupportingFeeOnTransferTokens(
         address token,
         uint liquidity,
         uint amountTokenMin,
-        uint amountETHMin,
+        uint amountHBARMin,
         address to,
         uint deadline
-    ) public virtual override ensure(deadline) returns (uint amountETH) {
+    ) public virtual override ensure(deadline) returns (uint amountHBAR) {
         bool isHTS = optimisticAssociation(token);
-        (, amountETH) = removeLiquidity(
+        (, amountHBAR) = removeLiquidity(
             token,
             WHBAR,
             liquidity,
             amountTokenMin,
-            amountETHMin,
+            amountHBARMin,
             address(this),
             deadline
         );
         TransferHelper.safeTransfer(token, to, IERC20(token).balanceOf(address(this)));
-        IWHBAR(WHBAR).withdraw(amountETH);
-        TransferHelper.safeTransferETH(to, amountETH);
+        IWHBAR(WHBAR).withdraw(amountHBAR);
+        TransferHelper.safeTransferHBAR(to, amountHBAR);
 
         if (isHTS) {
             dissociate(token);
@@ -227,7 +227,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         );
         _swap(amounts, path, to);
     }
-    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
+    function swapExactHBARForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         virtual
         override
@@ -242,7 +242,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         assert(IWHBAR(WHBAR).transfer(UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
     }
-    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
+    function swapTokensForExactHBAR(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
         external
         virtual
         override
@@ -257,9 +257,9 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         );
         _swap(amounts, path, address(this));
         IWHBAR(WHBAR).withdraw(amounts[amounts.length - 1]);
-        TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
+        TransferHelper.safeTransferHBAR(to, amounts[amounts.length - 1]);
     }
-    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
+    function swapExactTokensForHBAR(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
         external
         virtual
         override
@@ -274,9 +274,9 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         );
         _swap(amounts, path, address(this));
         IWHBAR(WHBAR).withdraw(amounts[amounts.length - 1]);
-        TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
+        TransferHelper.safeTransferHBAR(to, amounts[amounts.length - 1]);
     }
-    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
+    function swapHBARForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
         external
         virtual
         override
@@ -290,8 +290,8 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         IWHBAR(WHBAR).deposit{value: amounts[0]}();
         assert(IWHBAR(WHBAR).transfer(UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
-        // refund dust eth, if any
-        if (msg.value > amounts[0]) TransferHelper.safeTransferETH(msg.sender, msg.value - amounts[0]);
+        // refund dust hbar, if any
+        if (msg.value > amounts[0]) TransferHelper.safeTransferHBAR(msg.sender, msg.value - amounts[0]);
     }
 
     // **** SWAP (supporting fee-on-transfer tokens) ****
@@ -331,7 +331,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT'
         );
     }
-    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+    function swapExactHBARForTokensSupportingFeeOnTransferTokens(
         uint amountOutMin,
         address[] calldata path,
         address to,
@@ -354,7 +354,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT'
         );
     }
-    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+    function swapExactTokensForHBARSupportingFeeOnTransferTokens(
         uint amountIn,
         uint amountOutMin,
         address[] calldata path,
@@ -374,7 +374,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         uint amountOut = IERC20(WHBAR).balanceOf(address(this));
         require(amountOut >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
         IWHBAR(WHBAR).withdraw(amountOut);
-        TransferHelper.safeTransferETH(to, amountOut);
+        TransferHelper.safeTransferHBAR(to, amountOut);
     }
 
     // **** LIBRARY FUNCTIONS ****

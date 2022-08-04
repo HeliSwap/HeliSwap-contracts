@@ -42,7 +42,10 @@ describe('HeliSwap Tests', function () {
 		await whbar.deployed();
 
 		// @ts-ignore
-		const result = await deployHeliSwap(hethers.utils.getAddress(whbar.address));
+		const result = await deployHeliSwap(
+			hethers.utils.getAddress(whbar.address),
+			hethers.utils.getAddress(deployer.address)
+		);
 		router = result.router;
 		factory = result.factory;
 
@@ -71,7 +74,6 @@ describe('HeliSwap Tests', function () {
 				const tokenB = await hardhat.hethers.getContractAt(ERC20, newTokenB.tokenAddress);
 				const amount0 = BigNumber.from(1_000 * decimals);
 				const amount1 = BigNumber.from(5_000 * decimals);
-
 				await executeAddLiquidity(
 					tokenA,
 					tokenB,
@@ -566,7 +568,7 @@ describe('HeliSwap Tests', function () {
 		const pairAddress = Utils.getCreate2Address(factory.address, [whbar.address, token0.address]);
 
 		(await expectTx(
-			router.addLiquidityETH(
+			router.addLiquidityHBAR(
 				token0.address,
 				amount0,
 				amount0,
@@ -605,7 +607,6 @@ describe('HeliSwap Tests', function () {
 		await token0.approve(router.address, amount0);
 		await token1.approve(router.address, amount1);
 		const pairAddress = Utils.getCreate2Address(factory.address, [token0.address, token1.address]);
-
 		(await expectTx(
 				router.addLiquidity(
 					token0.address,
@@ -630,6 +631,7 @@ describe('HeliSwap Tests', function () {
 				token0Decimals,
 				token1Decimals
 			);
+
 		await assertReserves(token0, token1, amount0, amount1, pairAddress);
 	}
 

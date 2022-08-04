@@ -3,14 +3,14 @@ pragma solidity >=0.6.2;
 import './IUniswapV2Router01.sol';
 
 interface IUniswapV2Router02 is IUniswapV2Router01 {
-    function removeLiquidityETHSupportingFeeOnTransferTokens(
+    function removeLiquidityHBARSupportingFeeOnTransferTokens(
         address token,
         uint liquidity,
         uint amountTokenMin,
-        uint amountETHMin,
+        uint amountHBARMin,
         address to,
         uint deadline
-    ) external returns (uint amountETH);
+    ) external returns (uint amountHBAR);
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint amountIn,
         uint amountOutMin,
@@ -18,13 +18,13 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
         address to,
         uint deadline
     ) external;
-    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+    function swapExactHBARForTokensSupportingFeeOnTransferTokens(
         uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
     ) external payable;
-    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+    function swapExactTokensForHBARSupportingFeeOnTransferTokens(
         uint amountIn,
         uint amountOutMin,
         address[] calldata path,

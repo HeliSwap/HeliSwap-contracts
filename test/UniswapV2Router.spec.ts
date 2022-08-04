@@ -31,6 +31,7 @@ describe('UniswapV2Router02', function () {
 	this.timeout(5 * 60 * 1000); // 5 minutes
 
 	const feeEnabledCases = [true, false];
+	// const feeEnabledCases = [false];
 	feeEnabledCases.forEach((isFeeEnabled, i) => {
 
 		describe(`is FeeEnabled - ${isFeeEnabled}`, () => {
@@ -138,7 +139,7 @@ describe('UniswapV2Router02', function () {
 							expect(await router.balance()).to.eq(0)
 						})
 
-						it('addLiquidityETH', async () => {
+						it('addLiquidityHBAR', async () => {
 							const tokenAmount = shouldBeHTS ? expandTo8Decimals(1) : expandTo18Decimals(1);
 							const hbarAmount = expandTo8Decimals(4);
 
@@ -147,7 +148,7 @@ describe('UniswapV2Router02', function () {
 							await token.approve(router.address, tokenAmount);
 
 							(await expectTx(
-								router.addLiquidityETH(
+								router.addLiquidityHBAR(
 									token.address,
 									tokenAmount,
 									tokenAmount,
@@ -178,12 +179,12 @@ describe('UniswapV2Router02', function () {
 
 						async function addLiquidity(TokenAmount: BigNumber, WHBARAmount: BigNumber) {
 							await token.approve(router.address, TokenAmount)
-							await router.addLiquidityETH(token.address, TokenAmount, TokenAmount, WHBARAmount, wallet.address, hethers.constants.MaxUint256, {
+							await router.addLiquidityHBAR(token.address, TokenAmount, TokenAmount, WHBARAmount, wallet.address, hethers.constants.MaxUint256, {
 								value: reduceFrom8Decimals(WHBARAmount)
 							})
 						}
 
-						it('removeLiquidityETH', async () => {
+						it('removeLiquidityHBAR', async () => {
 							const whbarBalanceBefore = await whbar.balanceOf(wallet.address)
 							const totalSupplyWHBARBefore = await whbar.totalSupply();
 							const tokenAmount = shouldBeHTS ? expandTo8Decimals(1) : expandTo18Decimals(1);
@@ -200,7 +201,7 @@ describe('UniswapV2Router02', function () {
 							const whbarSubAmount = shouldBeHTS ? 2000 : 1;
 							const tokenSubAmount = shouldBeHTS ? 500 : 50000000;
 							(await expectTx(
-								router.removeLiquidityETH(
+								router.removeLiquidityHBAR(
 									token.address,
 									expectedLiquidity.sub(MINIMUM_LIQUIDITY),
 									0,
@@ -246,7 +247,7 @@ describe('UniswapV2Router02', function () {
 							expect(whbarBalanceNow).to.eq(expectedWhbarBalanceNow)
 						})
 
-						it('removeLiquidityETHSupportingFeeOnTransferTokens', async () => {
+						it('removeLiquidityHBARSupportingFeeOnTransferTokens', async () => {
 							const TokenAmount = shouldBeHTS ? expandTo8Decimals(1) : expandTo18Decimals(1)
 							const HBARAmount = expandTo8Decimals(4)
 							await addLiquidity(TokenAmount, HBARAmount)
@@ -256,20 +257,20 @@ describe('UniswapV2Router02', function () {
 							const liquidity = await pair.balanceOf(wallet.address)
 							const totalSupply = await pair.totalSupply()
 							const NativeTokenExpected = TokenInPair.mul(liquidity).div(totalSupply)
-							const WETHExpected = WHBARInPair.mul(liquidity).div(totalSupply)
+							const WHBARExpected = WHBARInPair.mul(liquidity).div(totalSupply)
 							await pair.approve(router.address, hethers.constants.MaxUint256)
-							const tx = await router.removeLiquidityETHSupportingFeeOnTransferTokens(
+							const tx = await router.removeLiquidityHBARSupportingFeeOnTransferTokens(
 								token.address,
 								liquidity,
 								NativeTokenExpected,
-								WETHExpected,
+								WHBARExpected,
 								wallet.address,
 								hethers.constants.MaxUint256
 							)
 							await tx.wait();
 						})
 
-						describe('swapExactETHForTokens', () => {
+						describe('swapExactHBARForTokens', () => {
 							const tokenAmount = shouldBeHTS ? expandTo8Decimals(10) : expandTo18Decimals(10);
 							const hbarAmount = expandTo8Decimals(5);
 							const swapAmount = expandTo8Decimals(1);
@@ -287,7 +288,7 @@ describe('UniswapV2Router02', function () {
 							it('happy path', async () => {
 								const whbarPairToken0 = await pair.token0();
 								(await expectTx(
-									router.swapExactETHForTokens(
+									router.swapExactHBARForTokens(
 										0,
 										[whbar.address, token.address],
 										wallet.address,
@@ -319,7 +320,7 @@ describe('UniswapV2Router02', function () {
 							it('amounts', async () => {
 								const routerEventEmitter = await eventEmitterFixture();
 								(await expectTx(
-									routerEventEmitter.swapExactETHForTokens(
+									routerEventEmitter.swapExactHBARForTokens(
 										router.address,
 										0,
 										[whbar.address, token.address],
@@ -335,7 +336,7 @@ describe('UniswapV2Router02', function () {
 							})
 						});
 
-						describe('swapTokensForExactETH', () => {
+						describe('swapTokensForExactHBAR', () => {
 							const tokenAmount = shouldBeHTS ? expandTo8Decimals(5) : expandTo18Decimals(5);
 							const hbarAmount = expandTo8Decimals(10);
 							const expectedSwapAmount = shouldBeHTS ?
@@ -353,7 +354,7 @@ describe('UniswapV2Router02', function () {
 								await token.approve(router.address, tokenAmount);
 								const whbarPairToken0 = await pair.token0();
 								(await expectTx(
-									router.swapTokensForExactETH(
+									router.swapTokensForExactHBAR(
 										outputAmount,
 										shouldBeHTS ? MAX_VALUE_HTS : hethers.constants.MaxUint256,
 										[token.address, whbar.address],
@@ -389,7 +390,7 @@ describe('UniswapV2Router02', function () {
 								const routerEventEmitter = await eventEmitterFixture();
 								await token.approve(routerEventEmitter.address, tokenAmount);
 								(await expectTx(
-									routerEventEmitter.swapTokensForExactETH(
+									routerEventEmitter.swapTokensForExactHBAR(
 										router.address,
 										outputAmount,
 										shouldBeHTS ? MAX_VALUE_HTS : hethers.constants.MaxUint256,
@@ -403,7 +404,7 @@ describe('UniswapV2Router02', function () {
 							})
 						});
 
-						describe('swapExactTokensForETH', () => {
+						describe('swapExactTokensForHBAR', () => {
 							const tokenAmount = shouldBeHTS ? expandTo8Decimals(5) : expandTo18Decimals(5);
 							const hbarAmount = expandTo8Decimals(10);
 							const swapAmount = shouldBeHTS ? expandTo8Decimals(1) : expandTo18Decimals(1);
@@ -420,7 +421,7 @@ describe('UniswapV2Router02', function () {
 								await token.approve(router.address, tokenAmount);
 								const whbarPairToken0 = await pair.token0();
 								(await expectTx(
-									router.swapExactTokensForETH(
+									router.swapExactTokensForHBAR(
 										swapAmount,
 										0,
 										[token.address, whbar.address],
@@ -456,7 +457,7 @@ describe('UniswapV2Router02', function () {
 								const routerEventEmitter = await eventEmitterFixture();
 								await token.approve(routerEventEmitter.address, tokenAmount);
 								(await expectTx(
-									routerEventEmitter.swapExactTokensForETH(
+									routerEventEmitter.swapExactTokensForHBAR(
 										router.address,
 										swapAmount,
 										0,
@@ -471,7 +472,7 @@ describe('UniswapV2Router02', function () {
 
 						});
 
-						describe('swapETHForExactTokens', async () => {
+						describe('swapHBARForExactTokens', async () => {
 							const tokenAmount = shouldBeHTS ? expandTo8Decimals(10) : expandTo18Decimals(10);
 							const hbarAmount = expandTo8Decimals(5);
 							const expectedSwapAmount = hethers.BigNumber.from('55722724');
@@ -487,7 +488,7 @@ describe('UniswapV2Router02', function () {
 							it('happy path', async () => {
 								const whbarPairToken0 = await pair.token0();
 								(await expectTx(
-									router.swapETHForExactTokens(
+									router.swapHBARForExactTokens(
 										outputAmount,
 										[whbar.address, token.address],
 										wallet.address,
@@ -524,7 +525,7 @@ describe('UniswapV2Router02', function () {
 							it('amounts', async () => {
 								const routerEventEmitter = await eventEmitterFixture();
 								(await expectTx(
-									routerEventEmitter.swapETHForExactTokens(
+									routerEventEmitter.swapHBARForExactTokens(
 										router.address,
 										outputAmount,
 										[whbar.address, token.address],
@@ -583,7 +584,7 @@ describe('UniswapV2Router02', function () {
 						})
 
 						// HBAR -> Token
-						it('swapExactETHForTokensSupportingFeeOnTransferTokens', async () => {
+						it('swapExactHBARForTokensSupportingFeeOnTransferTokens', async () => {
 							const tokenAmount = (shouldBeHTS ? expandTo8Decimals(5) : expandTo18Decimals(5))
 								.mul(100)
 								.div(99)
@@ -591,7 +592,7 @@ describe('UniswapV2Router02', function () {
 							const swapAmount = 1
 							await addLiquidity(tokenAmount, hbarAmount)
 
-							const tx = await router.swapExactETHForTokensSupportingFeeOnTransferTokens(
+							const tx = await router.swapExactHBARForTokensSupportingFeeOnTransferTokens(
 								0,
 								[whbar.address, token.address],
 								wallet.address,
@@ -604,7 +605,7 @@ describe('UniswapV2Router02', function () {
 						})
 
 						// Token -> HBAR
-						it('swapExactTokensForETHSupportingFeeOnTransferTokens', async () => {
+						it('swapExactTokensForHBARSupportingFeeOnTransferTokens', async () => {
 							const tokenAmount = (shouldBeHTS ? expandTo8Decimals(5) : expandTo18Decimals(5))
 								.mul(100)
 								.div(99)
@@ -614,7 +615,7 @@ describe('UniswapV2Router02', function () {
 							await addLiquidity(tokenAmount, hbarAmount)
 							await token.approve(router.address, swapAmount)
 
-							const tx = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
+							const tx = await router.swapExactTokensForHBARSupportingFeeOnTransferTokens(
 								swapAmount,
 								0,
 								[token.address, whbar.address],
