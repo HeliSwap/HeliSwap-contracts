@@ -137,12 +137,12 @@ task('getReserves', "Get token reserves")
 		await getReserves(taskArgs.router, taskArgs.token0, taskArgs.token1);
 	})
 
-task('addLiquidityETH', 'Adds HBAR liquidity')
+task('addLiquidityHBAR', 'Adds HBAR liquidity')
 	.addParam('router')
 	.addParam('token1')
 	.setAction(async (taskArgs) => {
-		const addLiquidityETH = require('./scripts/interactions/add-liquidity-hbar');
-		await addLiquidityETH(taskArgs.router, taskArgs.token1);
+		const addLiquidityHBAR = require('./scripts/interactions/add-liquidity-hbar');
+		await addLiquidityHBAR(taskArgs.router, taskArgs.token1);
 	});
 
 task('swap', 'Performs a basic swap of two tokens')

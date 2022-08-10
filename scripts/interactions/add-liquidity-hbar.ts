@@ -9,7 +9,7 @@ async function addLiquidityHbar(routerAddress: string, token0: string, amount0: 
     const whbarAddress = await router.WHBAR();
     console.log(`Adding Liquidity to ${token0}/${whbarAddress}...`);
 
-    const addLiquidityTx = await router.addLiquidityETH(
+    const addLiquidityTx = await router.addLiquidityHBAR(
         token0,
         amount0,
         amount0,
