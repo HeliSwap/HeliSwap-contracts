@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "createAccount": "npx hardhat createAccount --account 0.0.126714 --pk asd --balance 1000",
-    "deploy": "npx hardhat deploy --whbar 0x0000000000000000000000000000000002be8c90",
+    "deploy": "npx hardhat deploy --whbar 0x0000000000000000000000000000000002be8c90 --fee-to-setter 0x0000000000000000000000000000000002099e42",
     "createHTS": "npx hardhat createHTS --name tokenА --symbol tА",
     "createAndMintERC20": "npx hardhat deployAndMintERC20 --factory 0xfactoryAddress --router 0xrouterAddress",
     "approve": "npx hardhat approve --token 0x0000000000000000000000000000000002bd1f59 --spender 0x0000000000000000000000000000000002bd1f77 --amount 100000000000",
