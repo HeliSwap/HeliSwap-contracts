@@ -3,6 +3,7 @@ config.ts
 coverage
 coverage.json
 typechain
+.env
 
 #Hardhat files
 cache

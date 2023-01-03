@@ -57,3 +57,47 @@ You can run contracts tests with:
 ```bash
 npx hardhat test
 ```
+
+## Extend contracts
+
+1. Create .env file or copy `example.env` and put your Hedera account id and private key:
+
+```bash
+cp example.env .env
+```
+
+2. Get all Pool and Farm addresses
+   Open https://heliswap-prod-362307.oa.r.appspot.com/ in browser
+
+   Run to get pool addresses
+
+   ```graphql
+   {
+     pools {
+       pairName
+       pairAddress
+     }
+   }
+   ```
+
+   Copy the `pools` array from the result and paste it at `pools` variable in 'script/utilities/extend-contract.ts'
+
+   Run to get farm addresses
+
+   ```graphql
+   {
+     getFarmsOverview(
+       userAddress: "0x00000000000000000000000000000000001022C8"
+     ) {
+       address
+     }
+   }
+   ```
+
+   Copy the `getFarmsOverview` array from the result and paste it at `farms` variable in 'script/utilities/extend-contract.ts'
+
+3. Run to execute the script
+
+```bash
+npx harhat run scripts/utilities/extend-contract.ts --network mainnet
+```
