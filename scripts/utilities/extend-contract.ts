@@ -92,20 +92,26 @@ async function main() {
   // Extend one by one contracts
   /*
   const contractId = '';
+  console.log(`Extending contract for id ${contractId}...`);
   await updateContractExpiry(contractId, days);
+  console.log('✅ Contract extended!');
   */
 
   // Extend all pool contracts
   /*
   for (let i = 0; i < poolIds.length; i++) {
+    console.log(`Extending contract for id ${poolIds[i]}...`);
     await updateContractExpiry(poolIds[i], days);
+    console.log('✅ Contract extended!');
   }
   */
 
   // Extend all farms contracts
   /*
   for (let i = 0; i < farmIds.length; i++) {
+    console.log(`Extending contract for id ${farmIds[i]}...`);
     await updateContractExpiry(farmIds[i], days);
+    console.log('✅ Contract extended!');
   }
   */
 }
