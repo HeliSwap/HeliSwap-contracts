@@ -99,5 +99,5 @@ cp example.env .env
 3. Run to execute the script
 
 ```bash
-npx harhat run scripts/utilities/extend-contract.ts --network mainnet
+npx hardhat run scripts/utilities/extend-contract.ts --network mainnet
 ```
