@@ -267,6 +267,15 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint[] memory amounts) {
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            address(this),
+            amountInMax
+        );
+
+        IERC20(path[0]).approve(address(router), amountInMax);
+
         amounts = router.swapTokensForExactTokens(
             amountOut,
             amountInMax,
@@ -283,6 +292,15 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint[] memory amounts) {
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            address(this),
+            amountIn
+        );
+
+        IERC20(path[0]).approve(address(router), amountIn);
+
         amounts = router.swapExactTokensForTokens(
             amountIn,
             amountOutMin,
@@ -317,6 +335,15 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual {
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            address(this),
+            amountIn
+        );
+
+        IERC20(path[0]).approve(address(router), amountIn);
+
         router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
             amountIn,
             amountOutMin,
@@ -352,6 +379,15 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual {
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            address(this),
+            amountIn
+        );
+
+        IERC20(path[0]).approve(address(router), amountIn);
+
         router.swapExactTokensForHBARSupportingFeeOnTransferTokens(
             amountIn,
             amountOutMin,
