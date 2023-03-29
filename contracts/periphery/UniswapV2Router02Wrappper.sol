@@ -35,21 +35,24 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint amountA, uint amountB, uint liquidity) {
+        optimisticAssociation(tokenA);
+        optimisticAssociation(tokenB);
+
         TransferHelper.safeTransferFrom(
             tokenA,
             msg.sender,
             address(this),
-            amountA
+            amountADesired
         );
         TransferHelper.safeTransferFrom(
             tokenB,
             msg.sender,
             address(this),
-            amountB
+            amountBDesired
         );
 
-        IERC20(tokenA).approve(address(router), amountAMin);
-        IERC20(tokenB).approve(address(router), amountBMin);
+        IERC20(tokenA).approve(address(router), amountADesired);
+        IERC20(tokenB).approve(address(router), amountBDesired);
 
         router.addLiquidity(
             tokenA,
@@ -76,6 +79,8 @@ contract UniswapV2Router02Wrapper {
         virtual
         returns (uint amountToken, uint amountHBAR, uint liquidity)
     {
+        optimisticAssociation(token);
+
         TransferHelper.safeTransferFrom(
             token,
             msg.sender,
