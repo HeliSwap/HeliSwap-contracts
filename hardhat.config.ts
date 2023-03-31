@@ -116,6 +116,14 @@ task("deployWrapper", "Deploys the Router Wrappper")
     await deployment(taskArgs.whbar, taskArgs.router);
   });
 
+task("deployMigration", "Deploys the Migration contract")
+  .addParam("old", "The old router address to use")
+  .addParam("new", "The new router address to use")
+  .setAction(async (taskArgs) => {
+    const deployment = require("./scripts/deployMigration");
+    await deployment(taskArgs.old, taskArgs.new);
+  });
+
 task("getInitCodeHash").setAction(async () => {
   const getInitCodeHash = require("./scripts/utilities/get-init-code-hash");
   await getInitCodeHash();
