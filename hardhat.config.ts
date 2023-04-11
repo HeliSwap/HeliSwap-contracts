@@ -236,6 +236,11 @@ task("approve")
     await approve(taskArgs.token, taskArgs.spender, taskArgs.amount);
   });
 
+task("wrapper").setAction(async (taskArgs) => {
+  const wrapper = require("./scripts/wrapper");
+  await wrapper();
+});
+
 module.exports = {
   solidity: {
     compilers: [

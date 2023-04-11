@@ -11,7 +11,7 @@ async function deployWrapper(whbar: string, router: string) {
 
   console.log(`HeliSwap Router Address: ${wrapper.address}`);
 
-  return { router };
+  return { wrapper };
 }
 
 module.exports = deployWrapper;
