@@ -693,11 +693,19 @@ async function main() {
   const dexRouter = "0.0.1262126";
   const yfFactory = "0.0.1262136";
   const lockdrop = "0.0.1937789";
+  const whbar = "0.0.1015433";
 
   const claimdrop1 = "0.0.2016834";
   const claimdrop2 = "0.0.2030127";
   const claimdrop3 = "0.0.2035362";
   const claimdrop4 = "0.0.2080670";
+
+  const multisig1 = "0.0.1933574";
+  const multisig2 = "0.0.1933606";
+  const multisig3 = "0.0.1933614";
+
+  const transferContract1 = "0.0.1993684";
+  const transferContract2 = "0.0.2023712";
 
   // const poolIds = await getHederaIds(pools, "pairAddress");
   // const farmIds = await getHederaIds(farms, "address");
@@ -708,7 +716,7 @@ async function main() {
   const days = 91;
 
   // Extend one by one contracts
-  const contractId = "";
+  const contractId = whbar;
   console.log(`Extending contract for id ${contractId}...`);
   await updateContractExpiry(contractId, days);
   console.log("✅ Contract extended!");
