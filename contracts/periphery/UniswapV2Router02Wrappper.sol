@@ -35,8 +35,8 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint amountA, uint amountB, uint liquidity) {
-        optimisticAssociation(tokenA);
-        optimisticAssociation(tokenB);
+        bool isTokenAHTS = optimisticAssociation(tokenA);
+        bool isTokenBHTS = optimisticAssociation(tokenB);
 
         TransferHelper.safeTransferFrom(
             tokenA,
@@ -64,6 +64,14 @@ contract UniswapV2Router02Wrapper {
             to,
             deadline
         );
+
+        if (isTokenAHTS) {
+            dissociate(tokenA);
+        }
+
+        if (isTokenBHTS) {
+            dissociate(tokenB);
+        }
     }
 
     function addLiquidityHBAR(
@@ -79,7 +87,7 @@ contract UniswapV2Router02Wrapper {
         virtual
         returns (uint amountToken, uint amountHBAR, uint liquidity)
     {
-        optimisticAssociation(token);
+        bool isHTS = optimisticAssociation(token);
 
         TransferHelper.safeTransferFrom(
             token,
@@ -92,17 +100,20 @@ contract UniswapV2Router02Wrapper {
         IERC20(token).approve(address(router), amountTokenDesired);
         IERC20(WHBAR).approve(address(router), msg.value);
 
-        return
-            router.addLiquidity(
-                token,
-                WHBAR,
-                amountTokenDesired,
-                msg.value,
-                amountTokenMin,
-                amountHBARMin,
-                to,
-                deadline
-            );
+        router.addLiquidity(
+            token,
+            WHBAR,
+            amountTokenDesired,
+            msg.value,
+            amountTokenMin,
+            amountHBARMin,
+            to,
+            deadline
+        );
+
+        if (isHTS) {
+            dissociate(token);
+        }
     }
 
     // **** REMOVE LIQUIDITY ****
@@ -124,15 +135,29 @@ contract UniswapV2Router02Wrapper {
 
         IERC20(pair).approve(address(router), liquidity);
 
-        router.removeLiquidity(
+        bool isTokenAHTS = optimisticAssociation(tokenA);
+        bool isTokenBHTS = optimisticAssociation(tokenB);
+
+        (amountA, amountB) = router.removeLiquidity(
             tokenA,
             tokenB,
             liquidity,
             amountAMin,
             amountBMin,
-            to,
+            address(this),
             deadline
         );
+
+        TransferHelper.safeTransfer(tokenA, to, amountA);
+        TransferHelper.safeTransfer(tokenB, to, amountB);
+
+        if (isTokenAHTS) {
+            dissociate(tokenA);
+        }
+
+        if (isTokenBHTS) {
+            dissociate(tokenB);
+        }
     }
 
     function removeLiquidityHBAR(
@@ -209,6 +234,8 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint[] memory amounts) {
+        bool isHTS = optimisticAssociation(path[0]);
+
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
@@ -225,6 +252,10 @@ contract UniswapV2Router02Wrapper {
             to,
             deadline
         );
+
+        if (isHTS) {
+            dissociate(path[0]);
+        }
     }
 
     function swapTokensForExactTokens(
@@ -234,6 +265,8 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint[] memory amounts) {
+        bool isHTS = optimisticAssociation(path[0]);
+
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
@@ -243,7 +276,17 @@ contract UniswapV2Router02Wrapper {
 
         IERC20(path[0]).approve(address(router), amountInMax);
 
-        amounts = router.swapExactHBARForTokens(amountOut, path, to, deadline);
+        amounts = router.swapTokensForExactTokens(
+            amountOut,
+            amountInMax,
+            path,
+            to,
+            deadline
+        );
+
+        if (isHTS) {
+            dissociate(path[0]);
+        }
     }
 
     function swapExactHBARForTokens(
@@ -253,7 +296,6 @@ contract UniswapV2Router02Wrapper {
         uint deadline
     ) external payable virtual returns (uint[] memory amounts) {
         IWHBAR(WHBAR).deposit{value: msg.value}();
-
         IERC20(WHBAR).approve(address(router), msg.value);
 
         amounts = router.swapExactTokensForTokens(
@@ -272,6 +314,8 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint[] memory amounts) {
+        bool isHTS = optimisticAssociation(path[0]);
+
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
@@ -288,6 +332,10 @@ contract UniswapV2Router02Wrapper {
             to,
             deadline
         );
+
+        if (isHTS) {
+            dissociate(path[0]);
+        }
     }
 
     function swapExactTokensForHBAR(
@@ -297,6 +345,8 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual returns (uint[] memory amounts) {
+        bool isHTS = optimisticAssociation(path[0]);
+
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
@@ -313,6 +363,10 @@ contract UniswapV2Router02Wrapper {
             to,
             deadline
         );
+
+        if (isHTS) {
+            dissociate(path[0]);
+        }
     }
 
     function swapHBARForExactTokens(
@@ -340,6 +394,8 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual {
+        bool isHTS = optimisticAssociation(path[0]);
+
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
@@ -356,6 +412,10 @@ contract UniswapV2Router02Wrapper {
             to,
             deadline
         );
+
+        if (isHTS) {
+            dissociate(path[0]);
+        }
     }
 
     function swapExactHBARForTokensSupportingFeeOnTransferTokens(
@@ -384,6 +444,8 @@ contract UniswapV2Router02Wrapper {
         address to,
         uint deadline
     ) external virtual {
+        bool isHTS = optimisticAssociation(path[0]);
+
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
@@ -403,6 +465,10 @@ contract UniswapV2Router02Wrapper {
 
         IWHBAR(WHBAR).withdraw(amountOutMin);
         TransferHelper.safeTransferHBAR(to, amountOutMin);
+
+        if (isHTS) {
+            dissociate(path[0]);
+        }
     }
 
     // calls HTS precompile in order to execute optimistic association
