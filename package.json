@@ -23,7 +23,8 @@
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts",
     "init": "npx hardhat init --factory 0xfactoryAddress --router 0xrouterAddress",
-    "setupDex": "npx hardhat setupDex --network testnet"
+    "setupDex": "npx hardhat setupDex --network testnet",
+    "setupDexNewRouter": "npx hardhat setupDexNewRouter --factory 0x000000000000000000000000000000000044fa9f --network testnet"
   },
   "repository": {
     "type": "git",

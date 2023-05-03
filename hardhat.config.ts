@@ -225,6 +225,14 @@ task("setupDex").setAction(async () => {
   await setupDex();
 });
 
+task("setupDexNewRouter")
+  .addParam("factory")
+  .setAction(async (taskArgs) => {
+    const { factory } = taskArgs;
+    const setupDexNewRouter = require("./scripts/setupDexNewRouter");
+    await setupDexNewRouter(factory);
+  });
+
 module.exports = {
   solidity: {
     compilers: [
