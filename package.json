@@ -22,7 +22,8 @@
     "getInitCodeHash": "npx hardhat getInitCodeHash",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage --solcoverjs .solcover.ts",
-    "init": "npx hardhat init --factory 0xfactoryAddress --router 0xrouterAddress"
+    "init": "npx hardhat init --factory 0xfactoryAddress --router 0xrouterAddress",
+    "setupDex": "npx hardhat setupDex --network testnet"
   },
   "repository": {
     "type": "git",
