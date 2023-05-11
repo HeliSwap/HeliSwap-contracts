@@ -12,6 +12,7 @@ async function setupDex() {
   const USDCAddress = "0x0000000000000000000000000000000000001fFF";
   const WETHAddress = "0x0000000000000000000000000000000000002020";
   const WBTCAddress = "0x0000000000000000000000000000000000002016";
+  const HELIAddress = "0x0000000000000000000000000000000000002023";
 
   const feeToSetter = "0x0000000000000000000000000000000002099e42";
 
@@ -27,26 +28,31 @@ async function setupDex() {
   // Approve tokens
   console.log("⚙️ Approving tokens...");
   await approve(USDCAddress, router.address, 1000000_000_000);
-  await approve(WETHAddress, router.address, 1000000_000_000);
-  await approve(WBTCAddress, router.address, 1000000_000_000);
+  await approve(WETHAddress, router.address, 1000000_000_000_00);
+  await approve(WBTCAddress, router.address, 1000000_000_000_00);
+  await approve(HELIAddress, router.address, 1000000_000_000_00);
   console.log("✅ Tokens approved");
 
   // Create HBAR/USD pool
   console.log("⚙️ Creating HBAR/USD pool...");
-  await addLiquidityHbar(routerAddress, USDCAddress, "620000", "10");
+  await addLiquidityHbar(routerAddress, USDCAddress, "5400000", "100");
   console.log("✅ HBAR/USD pool created");
 
-  // Create USD/WBTC pool
-  console.log("⚙️ Creating USD/WBTC pool...");
+  // Create HBAR/HELI pool
+  console.log("⚙️ Creating HBAR/HELI pool...");
+  await addLiquidityHbar(routerAddress, HELIAddress, "42300000000", "100");
+  console.log("✅ HBAR/HELI pool created");
+
+  // Create USD/WETH pool
+  console.log("⚙️ Creating USD/WETH pool...");
   await addLiquidity(
     routerAddress,
     USDCAddress,
-    "100000000",
-    WBTCAddress,
-    "260000"
+    "18700000000",
+    WETHAddress,
+    "1000000000"
   );
-
-  console.log("✅ USD/WBTC pool created");
+  console.log("✅ USD/WETH pool created");
 }
 
 module.exports = setupDex;
