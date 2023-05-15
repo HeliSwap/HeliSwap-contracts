@@ -704,6 +704,16 @@ async function main() {
   const multisig2 = "0.0.1933606";
   const multisig3 = "0.0.1933614";
 
+  const bucket1 = "0.0.1937663";
+  const bucket2 = "0.0.1941595";
+  const bucket3 = "0.0.1941639";
+  const bucket4 = "0.0.1938387";
+  const bucket5 = "0.0.1941666";
+  const bucket6 = "0.0.1938492";
+  const bucket7 = "0.0.1938434";
+  const bucket8 = "0.0.1938454";
+  const bucket9 = "0.0.1938419";
+
   const transferContract1 = "0.0.1993684";
   const transferContract2 = "0.0.2023712";
 
@@ -716,7 +726,7 @@ async function main() {
   const days = 91;
 
   // Extend one by one contracts
-  const contractId = whbar;
+  const contractId = bucket9;
   console.log(`Extending contract for id ${contractId}...`);
   await updateContractExpiry(contractId, days);
   console.log("✅ Contract extended!");
