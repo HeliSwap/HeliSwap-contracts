@@ -25,7 +25,7 @@ can go to [Uniswap Docs](https://docs.uniswap.org/).
 **Mainnet Deployment Addresses**
 
 - `HeliSwapFactory`: `0x0000000000000000000000000000000000134224`
-- `HeliSwapV2Router02`: `0x000000000000000000000000000000000013422e`
+- `HeliSwapV2Router02`: `0x00000000000000000000000000000000002cc9B2`
 
 **Testnet Deployment Addresses**
 
