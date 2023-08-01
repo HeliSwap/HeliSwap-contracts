@@ -7,7 +7,7 @@ const addLiquidityHbar = require("./interactions/add-liquidity-hbar");
 const approve = require("./utilities/erc20-approve");
 
 async function setupDex() {
-  const WHBARAddress = "0x0000000000000000000000000000000000CFc209";
+  const WHBARAddress = "0x000000000000000000000000000000000006A6cB";
 
   const USDCAddress = "0x000000000000000000000000000000000006a5c5";
   const WETHAddress = "0x000000000000000000000000000000000006a5e2";
