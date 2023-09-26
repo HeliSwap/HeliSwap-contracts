@@ -1,3 +1,5 @@
+import { TokenUpdateTransaction } from "@hashgraph/sdk";
+
 const {
   Client,
   AccountId,
@@ -672,6 +674,29 @@ async function updateContractExpiry(contractId: string, days: number) {
   );
 }
 
+async function updateTokenExpiry(contractId: string, days: number) {
+  //Create the transaction
+  const transaction = await new TokenUpdateTransaction()
+    .setTokenId(contractId)
+    .setExpirationTime(
+      Timestamp.generate().plusNanos(days * 24 * 60 * 60 * 1000000000)
+    )
+    .freezeWith(client);
+
+  //Sign the transaction with the client operator private key and submit to a Hedera network
+  const txResponse = await transaction.execute(client);
+
+  //Request the receipt of the transaction
+  const receipt = await txResponse.getReceipt(client);
+
+  //Get the consensus status of the transaction
+  const transactionStatus = receipt.status;
+
+  console.log(
+    "The consensus status of the transaction is " + transactionStatus
+  );
+}
+
 async function getHederaIds(dataToExtract: any, addressProp: any) {
   const extractedData = [];
   for (let i = 0; i < dataToExtract.length; i++) {
@@ -694,6 +719,7 @@ async function main() {
   const yfFactory = "0.0.1262136";
   const lockdrop = "0.0.1937789";
   const whbar = "0.0.1015433";
+  const heli = "0.0.1937609";
 
   const claimdrop1 = "0.0.2016834";
   const claimdrop2 = "0.0.2030127";
@@ -726,9 +752,10 @@ async function main() {
   const days = 91;
 
   // Extend one by one contracts
-  const contractId = bucket9;
+  const contractId = heli;
   console.log(`Extending contract for id ${contractId}...`);
-  await updateContractExpiry(contractId, days);
+  // await updateContractExpiry(contractId, days);
+  await updateTokenExpiry(contractId, days);
   console.log("✅ Contract extended!");
 
   // Extend all pool contracts
